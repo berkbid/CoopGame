@@ -23,13 +23,45 @@ protected:
 
 	void MoveRight(float Amount);
 
+	void BeginCrouch();
+
+	void EndCrouch();
+
+	void BeginZoom();
+
+	void EndZoom();
+
+	class ASWeapon* CurrentWeapon;
+
+	// Weapon that we spawn with
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<class ASWeapon> StarterWeaponClass;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
+	FName WeaponAttachSocketName;
+
+	void Fire();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UCameraComponent* CameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USpringArmComponent* SpringArmComp;
 
+	bool bIsZooming;
+	bool bIsZoomingIn;
+	bool bIsZoomingOut;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float ZoomedFOV;
+
+	/* Default FOV set during begin play*/
+	float DefaultFOV;
+
+	// Clamps the values to change in edit from 0.1 to 100
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
+	float ZoomInterpSpeed;
+	
 
 public:	
 	// Called every frame
@@ -37,5 +69,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual FVector GetPawnViewLocation() const override;
+
 
 };
