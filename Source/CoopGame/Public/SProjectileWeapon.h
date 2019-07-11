@@ -15,7 +15,12 @@ class COOPGAME_API ASProjectileWeapon : public ASWeapon
 	GENERATED_BODY()
 
 
+public:
+	ASProjectileWeapon();
+
 protected:
+
+	//virtual void BeginPlay() override;
 
 	virtual void Fire() override;
 
