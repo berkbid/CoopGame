@@ -23,8 +23,12 @@ protected:
 	virtual void BeginPlay() override;
 
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "HealthComponent")
+	UPROPERTY(ReplicatedUsing=OnRep_Health, BlueprintReadOnly, Category = "HealthComponent")
 	float Health;
+
+	//Trigger this on clients, OldHealth is last value of Health
+	UFUNCTION()
+	void OnRep_Health(float OldHealth);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthComponent")
 	float DefaultHealth;

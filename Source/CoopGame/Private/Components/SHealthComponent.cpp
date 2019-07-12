@@ -8,9 +8,9 @@
 // Sets default values for this component's properties
 USHealthComponent::USHealthComponent()
 {
-
 	DefaultHealth = 100.f;
 	MyOwner = nullptr;
+	Health = DefaultHealth;
 
 	SetIsReplicated(true);
 }
@@ -33,9 +33,14 @@ void USHealthComponent::BeginPlay()
 		}
 	}
 
+}
 
-	//DefaultHealth = Health;
-	Health = DefaultHealth;
+void USHealthComponent::OnRep_Health(float OldHealth)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_Health Called, health = %f, oldhealth = %f"), Health, OldHealth)
+	// Last value of Health is saved in OldHealth as a little OnRep trick
+	float Damage = OldHealth - Health;
+	OnHealthChanged.Broadcast(this, Health, Damage, nullptr, nullptr, nullptr);
 }
 
 // Find this signature to override in Actor.h under the DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams( FTakeAnyDamageSignature,...)
