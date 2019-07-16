@@ -70,6 +70,8 @@ protected:
 
 	FTimerHandle TimerHandle_SelfDamage;
 
+	FTimerHandle TimerHandle_CheckPowerLevel;
+
 	void DamageSelf();
 
 	bool bStartedSelfDamage;
@@ -79,6 +81,17 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	USoundCue* ExplodeSound;
+
+	void OnCheckNearbyBots();
+
+	UPROPERTY(ReplicatedUsing = OnRep_PowerLevelChange, BlueprintReadOnly, Category = "TrackerBot")
+	int32 PowerLevel;
+
+	int32 MaxPowerLevel;
+
+	UFUNCTION()
+	void OnRep_PowerLevelChange();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

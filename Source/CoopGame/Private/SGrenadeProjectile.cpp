@@ -55,6 +55,11 @@ void ASGrenadeProjectile::BeginPlay()
 	// Only hook Explode timer on server
 	if (Role == ROLE_Authority)
 	{
+		//if (AActor * MyOwner = GetOwner())
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("Owner: %s"), *MyOwner->GetName());
+		//}
+		
 		GetWorldTimerManager().SetTimer(TimerHandle_TimeUntilExplode, this, &ASGrenadeProjectile::Explode, 1.f);
 	}
 	
@@ -62,7 +67,7 @@ void ASGrenadeProjectile::BeginPlay()
 // Timer for this function only setup as server, never called as client
 void ASGrenadeProjectile::Explode()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Explode Called"));
+	//UE_LOG(LogTemp, Warning, TEXT("Explode Called"));
 	// Deal Damage, only do this on server
 	UGameplayStatics::ApplyRadialDamage(this, 50.f, GetActorLocation(), 300.f, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
 	// Blast away nearby physics actors, if they are being replicated then server can do this alone, else need to replicate this call
@@ -76,7 +81,7 @@ void ASGrenadeProjectile::Explode()
 void ASGrenadeProjectile::MyOnDestroyed(AActor* DestroyedActor)
 {
 	// want to print the network owner somehow!
-	UE_LOG(LogTemp, Warning, TEXT("On Destroyed Called by %s"), *GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("On Destroyed Called by %s"), *GetName());
 	// If server has a player controller then spawn emitter?
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 }

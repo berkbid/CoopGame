@@ -4,6 +4,10 @@
 #include "SHealthComponent.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/WidgetComponent.h"
+#include "Blueprint/WidgetTree.h"
+#include "SGameMode.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 USHealthComponent::USHealthComponent()
@@ -11,6 +15,7 @@ USHealthComponent::USHealthComponent()
 	DefaultHealth = 100.f;
 	MyOwner = nullptr;
 	Health = DefaultHealth;
+	bIsDead = false;
 
 	SetIsReplicated(true);
 }
@@ -37,7 +42,7 @@ void USHealthComponent::BeginPlay()
 
 void USHealthComponent::OnRep_Health(float OldHealth)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_Health Called, health = %f, oldhealth = %f"), Health, OldHealth)
+	//UE_LOG(LogTemp, Warning, TEXT("OnRep_Health Called, health = %f, oldhealth = %f"), Health, OldHealth)
 	// Last value of Health is saved in OldHealth as a little OnRep trick
 	float Damage = OldHealth - Health;
 	OnHealthChanged.Broadcast(this, Health, Damage, nullptr, nullptr, nullptr);
@@ -46,7 +51,7 @@ void USHealthComponent::OnRep_Health(float OldHealth)
 // Find this signature to override in Actor.h under the DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams( FTakeAnyDamageSignature,...)
 void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
-	if (Damage <= 0.f || Health <= 0.f)
+	if (Damage <= 0.f || bIsDead)
 	{
 		return;
 	}
@@ -56,8 +61,49 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 	UE_LOG(LogTemp, Warning, TEXT("%s Health: %f"), *MyOwner->GetName(), Health);
 
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
+
+	bIsDead = (Health <= 0.f);
+	if (bIsDead)
+	{
+		bIsDead = true;
+		// This will only be valid on the server
+		ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
+		if (GM)
+		{
+			GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
+			//if (DamageCauser)
+			//{
+			//	AActor* DamageCauserOwner = DamageCauser->GetOwner();
+			//	if (DamageCauserOwner)
+			//	{
+			//		//UE_LOG(LogTemp, Warning, TEXT("Victim Actor: %s"), *GetOwner()->GetName());
+			//		GM->OnActorKilled.Broadcast(GetOwner(), DamageCauserOwner, InstigatedBy);
+			//	}
+			//		
+			//}
+			
+		}
+	}
+
 }
 
+float USHealthComponent::GetHealth() const
+{
+	return Health;
+}
+
+// Called to add health
+void USHealthComponent::Heal(float HealAmount)
+{
+	if (HealAmount <= 0.f || Health <= 0.f)
+	{
+		return;
+	}
+
+	Health = FMath::Clamp(Health + HealAmount, 0.f, DefaultHealth);
+	//UE_LOG(LogTemp, Warning, TEXT("%s HEALED FOR: %f new health: %f"), *MyOwner->GetName(), HealAmount, Health);
+	OnHealthChanged.Broadcast(this, Health, -HealAmount, nullptr, nullptr, nullptr);
+}
 
 void USHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

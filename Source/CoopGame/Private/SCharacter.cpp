@@ -32,6 +32,8 @@ ASCharacter::ASCharacter()
 	// We do not want capsule to block the weapon trace, only the mesh of character
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
+
+	//GetCharacterMovement()->SetIsReplicated(true);
 	// Needed to make sure we are allowed to crouch
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
@@ -39,6 +41,8 @@ ASCharacter::ASCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	
 
 	bDied = false;
 	bIsZoomingIn = false;
@@ -135,6 +139,12 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 	// This was previously never run on the client because bDied replicates the same time HealthChanged event triggers on the client
 	if (Health <= 0.f && !bDied)
 	{
+		if (CurrentWeapon)
+		{
+			// Destroy weapon server side
+			CurrentWeapon->Destroy();
+		}
+
 		bDied = true;
 		// This will manually call this method for the server, meanwhile clients call the method when bDied gets changed & ReplicatedUsing=OnRepDeath()
 		OnRep_Death();
@@ -144,9 +154,11 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 void ASCharacter::OnRep_Death()
 {
 	// DIE!
-	
+
 	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// Added this line myself
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->DisableMovement();
 	// Detaches player from the actor, then actor destroys in 10 seconds
 	DetachFromControllerPendingDestroy();

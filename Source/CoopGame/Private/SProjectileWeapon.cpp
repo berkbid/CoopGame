@@ -49,8 +49,12 @@ void ASProjectileWeapon::Fire()
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		// Important to set instigator to this actor's owner, aka the player, in order for damage done to be attributed to proper player
+		SpawnParams.Instigator = Cast<APawn>(GetOwner());
+		SpawnParams.Owner = GetOwner();
 
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, EyeRotation, SpawnParams);
+
 
 		// Sets variable for server to know lastfiretime in case server calls StartFire() incase there is no dedicated server
 		LastFireTime = GetWorld()->TimeSeconds;
