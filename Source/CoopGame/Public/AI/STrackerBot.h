@@ -72,6 +72,8 @@ protected:
 
 	FTimerHandle TimerHandle_CheckPowerLevel;
 
+	FTimerHandle TimerHandle_RefreshPath;
+
 	void DamageSelf();
 
 	bool bStartedSelfDamage;
@@ -91,6 +93,8 @@ protected:
 
 	UFUNCTION()
 	void OnRep_PowerLevelChange();
+
+	void RefreshPath();
 
 public:	
 	// Called every frame

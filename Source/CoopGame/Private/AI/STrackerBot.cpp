@@ -50,8 +50,8 @@ ASTrackerBot::ASTrackerBot()
 	bUseVelocityChange = false;
 	MovementForce = 1000.f;
 	RequiredDistanceToTarget = 100.f;
-	ExplosionDamage = 100.f;
-	ExplosionRadius = 200.f;
+	ExplosionDamage = 60.f;
+	ExplosionRadius = 350.f;
 	SelfDamageInterval = 0.25f;
 	MaxPowerLevel = 4;
 }
@@ -98,13 +98,44 @@ void ASTrackerBot::HandleTakeDamage(USHealthComponent* HealthCompNew, float Heal
 
 FVector ASTrackerBot::GetNextPathPoint()
 {
-	// A bit of a cheat that wont work in multiplayer, gooal actor
-	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
 
-	if (PlayerPawn)
+	AActor* BestTarget = nullptr;
+	float NearestTargetDistance = FLT_MAX;
+
+	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+	{
+		APawn* TestPawn = It->Get();
+		//ASTrackerBot* TrackerBot = Cast<ASTrackerBot>(TestPawn);
+
+		// will need to update for other types of bots
+		// Maybe need to check if TestPawn->IsControlled() ??
+		//  || USHealthComponent::IsFriendly(TestPawn, this)
+		//  
+		if (TestPawn == nullptr || USHealthComponent::IsFriendly(TestPawn, this))
+		{
+			continue;
+		}
+
+
+		USHealthComponent* TestPawnHealthComp = Cast<USHealthComponent>(TestPawn->GetComponentByClass(USHealthComponent::StaticClass()));
+		if (TestPawnHealthComp && TestPawnHealthComp->GetHealth() > 0.f)
+		{
+			float Distance = TestPawn->GetDistanceTo(this);
+
+			if (Distance < NearestTargetDistance)
+			{
+				BestTarget = TestPawn;
+				NearestTargetDistance = Distance;
+			}
+		}
+	}
+
+	if (BestTarget)
 	{
 		// This is server only thing
-		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), PlayerPawn);
+		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), BestTarget);
+
+		GetWorldTimerManager().SetTimer(TimerHandle_RefreshPath, this, &ASTrackerBot::RefreshPath, 5.f, false);
 
 		if (NavPath)
 		{
@@ -116,7 +147,6 @@ FVector ASTrackerBot::GetNextPathPoint()
 		}
 
 	}
-
 
 	// Failed to find path
 	return GetActorLocation();
@@ -151,7 +181,11 @@ void ASTrackerBot::SelfDestruct()
 		// Apply Damage! Automatically replicated to clients
 		UGameplayStatics::ApplyRadialDamage(this, ActualDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
 
-		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
+		if (DebugTrackerBotDrawing)
+		{
+			DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
+		}
+		
 
 		//Destroy();
 
@@ -239,6 +273,11 @@ void ASTrackerBot::OnRep_PowerLevelChange()
 	}
 }
 
+void ASTrackerBot::RefreshPath()
+{
+	NextPathPoint = GetNextPathPoint();
+}
+
 // Called every frame
 void ASTrackerBot::Tick(float DeltaTime)
 {
@@ -263,6 +302,16 @@ void ASTrackerBot::Tick(float DeltaTime)
 			ForceDirection *= MovementForce;
 
 			MeshComp->AddForce(ForceDirection, NAME_None, bUseVelocityChange);
+
+			if (DebugTrackerBotDrawing)
+			{
+				DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ForceDirection, 32, FColor::Yellow, false, 0.f, 0, 1.f);
+			}
+
+		}
+		if (DebugTrackerBotDrawing)
+		{
+			DrawDebugSphere(GetWorld(), NextPathPoint, 20, 12, FColor::Yellow, false, 0.f, 1.f);
 		}
 	}
 }
@@ -276,7 +325,8 @@ void ASTrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 	{
 		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
 
-		if (PlayerPawn)
+		// Make sure only explode if overlap with enemy
+		if (PlayerPawn && !USHealthComponent::IsFriendly(OtherActor, this))
 		{
 			if (Role == ROLE_Authority)
 			{

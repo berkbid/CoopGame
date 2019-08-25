@@ -64,6 +64,8 @@ void ASGameMode::PrepareForNextWave()
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &ASGameMode::StartWave, TimeBetweenWaves, false);
 
 	SetWaveState(EWaveState::WaitingToStart);
+
+	RestartDeadPlayers();
 }
 
 void ASGameMode::CheckWaveState()
@@ -150,6 +152,20 @@ void ASGameMode::SetWaveState(EWaveState NewState)
 		// This method in GS will handle replicating new wave state for server and clients
 		GS->SetWaveState(NewState);
 		
+	}
+}
+
+void ASGameMode::RestartDeadPlayers()
+{
+	// Respawn everyone not alive, iterate over server player controllers, ALL PLAYER CONTROLLERS ARE AVAILABLE
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		// Only need to check if doesnt have pawn
+		if (PC && (PC->GetPawn() == nullptr))
+		{
+			RestartPlayer(PC);
+		}
 	}
 }
 

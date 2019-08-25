@@ -95,6 +95,10 @@ protected:
 	// Derived from RateOfFire
 	float TimeBetweenShots;
 
+	/* Bullet Spread in Degrees */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin=0.f))
+	float BulletSpread;
+
 	// Trigger function OnRep_HitScanTrace every time property is replicated(changed) because "ReplicatedUsing=..."
 	// Thus, whenever we shoot on server, need to update struct for clients to trigger this function and play effects
 	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)

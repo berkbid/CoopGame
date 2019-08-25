@@ -4,10 +4,9 @@
 #include "SHealthComponent.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
-#include "Components/WidgetComponent.h"
-#include "Blueprint/WidgetTree.h"
 #include "SGameMode.h"
 #include "Engine/World.h"
+#include "STrackerBot.h"
 
 // Sets default values for this component's properties
 USHealthComponent::USHealthComponent()
@@ -16,6 +15,8 @@ USHealthComponent::USHealthComponent()
 	MyOwner = nullptr;
 	Health = DefaultHealth;
 	bIsDead = false;
+
+	TeamNum = 255;
 
 	SetIsReplicated(true);
 }
@@ -56,6 +57,12 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 		return;
 	}
 
+	// Return so do not apply friendly fire if on same team, allow self damage though
+	if (DamageCauser != DamagedActor && IsFriendly(DamagedActor, DamageCauser))
+	{
+		return;
+	}
+
 	// Update health clamped
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
 	UE_LOG(LogTemp, Warning, TEXT("%s Health: %f"), *MyOwner->GetName(), Health);
@@ -67,22 +74,21 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 	{
 		bIsDead = true;
 		// This will only be valid on the server
-		ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
-		if (GM)
+
+		// If our owner is a bot then do this? not upon player dieing?
+		if (ASTrackerBot * CurActor = Cast<ASTrackerBot>(GetOwner()))
 		{
-			GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
-			//if (DamageCauser)
-			//{
-			//	AActor* DamageCauserOwner = DamageCauser->GetOwner();
-			//	if (DamageCauserOwner)
-			//	{
-			//		//UE_LOG(LogTemp, Warning, TEXT("Victim Actor: %s"), *GetOwner()->GetName());
-			//		GM->OnActorKilled.Broadcast(GetOwner(), DamageCauserOwner, InstigatedBy);
-			//	}
-			//		
-			//}
-			
+			ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
+			if (GM)
+			{
+				if (DamageCauser && InstigatedBy)
+				{
+					GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
+				}
+
+			}
 		}
+
 	}
 
 }
@@ -103,6 +109,27 @@ void USHealthComponent::Heal(float HealAmount)
 	Health = FMath::Clamp(Health + HealAmount, 0.f, DefaultHealth);
 	//UE_LOG(LogTemp, Warning, TEXT("%s HEALED FOR: %f new health: %f"), *MyOwner->GetName(), HealAmount, Health);
 	OnHealthChanged.Broadcast(this, Health, -HealAmount, nullptr, nullptr, nullptr);
+}
+
+bool USHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
+{
+	if (ActorA == nullptr || ActorB == nullptr) 
+	{
+		// Assume friendly
+		return true;
+	}
+
+	USHealthComponent* HealthCompA = Cast<USHealthComponent>(ActorA->GetComponentByClass(USHealthComponent::StaticClass()));
+	USHealthComponent* HealthCompB = Cast<USHealthComponent>(ActorB->GetComponentByClass(USHealthComponent::StaticClass()));
+
+	if (HealthCompA == nullptr || HealthCompB == nullptr)
+	{
+		// Assume friendly
+		return true;
+	}
+
+	// If on same team, they are friendly
+	return HealthCompA->TeamNum == HealthCompB->TeamNum;
 }
 
 void USHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
