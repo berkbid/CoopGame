@@ -173,6 +173,7 @@ void ASGameMode::RestartDeadPlayers()
 
 void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, AController* KillerController)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Died: %s"), *VictimActor->GetName());
 	// If the killing actor is a player, add score
 	ASPlayerCharacter* KillerPawn = Cast<ASPlayerCharacter>(KillerActor);
 	if (KillerPawn)

@@ -114,13 +114,11 @@ void ASPlayerCharacter::MoveRight(float Amount)
 
 void ASPlayerCharacter::BeginCrouch()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Crouching"));
 	Crouch();
 }
 
 void ASPlayerCharacter::EndCrouch()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Un-Crouching"));
 	UnCrouch();
 }
 

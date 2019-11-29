@@ -71,20 +71,15 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 	bIsDead = (Health <= 0.f);
 	if (bIsDead)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("We are dead"));
 		bIsDead = true;
 		// This will only be valid on the server
 
-		// If our owner is a bot then do this? not upon player dieing?
 
+		// If owning actor is dead, broadcast event on game mode to handle this
 		ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
 		if (GM)
 		{
-			if (DamageCauser && InstigatedBy)
-			{
-				GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
-			}
-
+			GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
 		}
 	}
 }

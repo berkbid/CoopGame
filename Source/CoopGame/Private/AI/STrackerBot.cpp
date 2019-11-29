@@ -17,6 +17,7 @@
 #include "Public/TimerManager.h"
 #include "Sound/SoundCue.h"
 #include "Net/UnrealNetwork.h"
+#include "SWidgetCompHealthBar.h"
 
 static int32 DebugTrackerBotDrawing = 0;
 FAutoConsoleVariableRef CVARDebugTrackerBotDrawing(
@@ -36,9 +37,13 @@ ASTrackerBot::ASTrackerBot()
 	MeshComp->SetSimulatePhysics(true);
 	RootComponent = MeshComp;
 
+
 	HealthComp = CreateDefaultSubobject<USHealthComponent>("HealthComp");
 	// This event only subscribes to the server as shown in SHealthComponent.cpp, but gets triggered to all clients!
 	HealthComp->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
+
+	HealthBar = CreateDefaultSubobject<USWidgetCompHealthBar>("HealthBar");
+	HealthBar->SetupAttachment(RootComponent);
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	SphereComp->SetSphereRadius(200.f);

@@ -27,12 +27,14 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	class USHealthComponent* HealthComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class USWidgetCompHealthBar* HealthBar;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	class USphereComponent* SphereComp;
 
 	UFUNCTION()
-	void HandleTakeDamage(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const class UDamageType* DamageType, 
-		class AController* InstigatedBy, AActor* DamageCauser);
+	void HandleTakeDamage(class USHealthComponent* HealthCompNew, float Health, float HealthDelt, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	FVector GetNextPathPoint();
 
@@ -50,7 +52,6 @@ protected:
 
 	// Dynamic material to pulse on damage
 	class UMaterialInstanceDynamic* MatInst;
-
 
 	void SelfDestruct();
 

@@ -11,6 +11,8 @@
 #include "SWeapon.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/DamageType.h"
+#include "SWidgetCompHealthBar.h"
 
 
 // Sets default values
@@ -27,6 +29,9 @@ ASCharacter::ASCharacter()
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	HealthComp = CreateDefaultSubobject<USHealthComponent>("HealthComp");
+
+	HealthBar = CreateDefaultSubobject<USWidgetCompHealthBar>("HealthBar");
+	HealthBar->SetupAttachment(RootComponent);
 
 	bDied = false;
 }
@@ -76,7 +81,7 @@ void ASCharacter::StopFire()
 }
 
 // Only called on server because we only hooked this on the server
-void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	// This was previously never run on the client because bDied replicates the same time HealthChanged event triggers on the client
 	if (Health <= 0.f && !bDied)
@@ -102,6 +107,10 @@ void ASCharacter::OnRep_Death()
 	// Added this line myself
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->DisableMovement();
+	if (HealthBar)
+	{
+		HealthBar->SetVisibility(false);
+	}
 	// Detaches player from the actor, then actor destroys in 10 seconds
 	DetachFromControllerPendingDestroy();
 	SetLifeSpan(10.f);
