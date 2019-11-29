@@ -65,32 +65,28 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 
 	// Update health clamped
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
-	UE_LOG(LogTemp, Warning, TEXT("%s Health: %f"), *MyOwner->GetName(), Health);
 
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
 
 	bIsDead = (Health <= 0.f);
 	if (bIsDead)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("We are dead"));
 		bIsDead = true;
 		// This will only be valid on the server
 
 		// If our owner is a bot then do this? not upon player dieing?
-		if (ASTrackerBot * CurActor = Cast<ASTrackerBot>(GetOwner()))
+
+		ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
+		if (GM)
 		{
-			ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
-			if (GM)
+			if (DamageCauser && InstigatedBy)
 			{
-				if (DamageCauser && InstigatedBy)
-				{
-					GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
-				}
-
+				GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
 			}
+
 		}
-
 	}
-
 }
 
 float USHealthComponent::GetHealth() const

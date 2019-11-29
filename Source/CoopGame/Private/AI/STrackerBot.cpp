@@ -3,6 +3,7 @@
 
 #include "STrackerBot.h"
 #include "Engine/StaticMesh.h"
+#include "Components/StaticMeshComponent.h"
 #include "Public/NavigationSystem.h"
 #include "Public/NavigationPath.h"
 #include "Kismet/GameplayStatics.h"
@@ -48,7 +49,7 @@ ASTrackerBot::ASTrackerBot()
 	SphereComp->SetupAttachment(RootComponent);
 
 	bUseVelocityChange = false;
-	MovementForce = 1000.f;
+	MovementForce = 200.f;
 	RequiredDistanceToTarget = 100.f;
 	ExplosionDamage = 60.f;
 	ExplosionRadius = 350.f;
@@ -67,7 +68,7 @@ void ASTrackerBot::BeginPlay()
 		NextPathPoint = GetNextPathPoint();
 
 		// Every 1 second, update powerlevel depending on nearby bots
-		GetWorldTimerManager().SetTimer(TimerHandle_CheckPowerLevel, this, &ASTrackerBot::OnCheckNearbyBots, 1.f, true);
+		//GetWorldTimerManager().SetTimer(TimerHandle_CheckPowerLevel, this, &ASTrackerBot::OnCheckNearbyBots, 1.f, true);
 	}
 	
 }
@@ -98,7 +99,6 @@ void ASTrackerBot::HandleTakeDamage(USHealthComponent* HealthCompNew, float Heal
 
 FVector ASTrackerBot::GetNextPathPoint()
 {
-
 	AActor* BestTarget = nullptr;
 	float NearestTargetDistance = FLT_MAX;
 
@@ -111,8 +111,10 @@ FVector ASTrackerBot::GetNextPathPoint()
 		// Maybe need to check if TestPawn->IsControlled() ??
 		//  || USHealthComponent::IsFriendly(TestPawn, this)
 		//  
+
 		if (TestPawn == nullptr || USHealthComponent::IsFriendly(TestPawn, this))
 		{
+			//UE_LOG(LogTemp, Warning, TEXT("%s is friendly to me: %s"), *TestPawn->GetName(), *GetName());
 			continue;
 		}
 
@@ -132,6 +134,7 @@ FVector ASTrackerBot::GetNextPathPoint()
 
 	if (BestTarget)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("%s found best target: %s"), *GetName(), *BestTarget->GetName());
 		// This is server only thing
 		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), BestTarget);
 
@@ -141,6 +144,7 @@ FVector ASTrackerBot::GetNextPathPoint()
 		{
 			if (NavPath->PathPoints.Num() > 1)
 			{
+				//DrawDebugSphere(GetWorld(), NavPath->PathPoints[1], ExplosionRadius, 12, FColor::Blue, false, 3.0f, 0, 3.0f);
 				// Return next point in the path
 				return NavPath->PathPoints[1];
 			}
@@ -293,9 +297,11 @@ void ASTrackerBot::Tick(float DeltaTime)
 		{
 			NextPathPoint = GetNextPathPoint();
 		}
+
 		else
 		{
 			// Keep moving towards nextpathpoint
+			
 			FVector ForceDirection = NextPathPoint - GetActorLocation();
 			ForceDirection.Normalize();
 
@@ -309,6 +315,7 @@ void ASTrackerBot::Tick(float DeltaTime)
 			}
 
 		}
+
 		if (DebugTrackerBotDrawing)
 		{
 			DrawDebugSphere(GetWorld(), NextPathPoint, 20, 12, FColor::Yellow, false, 0.f, 1.f);

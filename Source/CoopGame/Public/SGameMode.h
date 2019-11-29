@@ -47,6 +47,9 @@ protected:
 
 	void RestartDeadPlayers();
 
+	UFUNCTION()
+	void HandleActorKilled(class AActor* VictimActor, class AActor* KillerActor, class AController* KillerController);
+
 protected:
 
 	FTimerHandle TimerHandle_BotSpawner;
@@ -64,9 +67,9 @@ protected:
 public:
 	ASGameMode();
 
-	virtual void StartPlay() override;
+	virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaSeconds) override;
+	virtual void StartPlay() override;
 
 	// Event for blueprint to hook on when actor gets killed
 	UPROPERTY(BlueprintAssignable, Category = "GameMode")

@@ -8,6 +8,8 @@
 #include "STrackerBot.h"
 #include "SGameState.h"
 #include "SPlayerState.h"
+#include "SPlayerCharacter.h"
+#include "SAICharacter.h"
 
 ASGameMode::ASGameMode()
 {
@@ -16,12 +18,16 @@ ASGameMode::ASGameMode()
 	// Setup default gamestate class
 	GameStateClass = ASGameState::StaticClass();
 	PlayerStateClass = ASPlayerState::StaticClass();
-
-	PrimaryActorTick.bCanEverTick = true;
-	// Set tick interval to 1 second
-	PrimaryActorTick.TickInterval = 1.f;
+	
 }
 
+
+void ASGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnActorKilled.AddDynamic(this, &ASGameMode::HandleActorKilled);
+}
 
 void ASGameMode::StartWave()
 {
@@ -83,16 +89,12 @@ void ASGameMode::CheckWaveState()
 	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
 	{
 		APawn* TestPawn = It->Get();
-		ASTrackerBot* TrackerBot = Cast<ASTrackerBot>(TestPawn);
-
-		// will need to update for other types of bots
-		// Maybe need to check if TestPawn->IsControlled() ??
-		if (TrackerBot == nullptr || TestPawn->IsPlayerControlled())
+		if (TestPawn == nullptr || TestPawn->IsPlayerControlled())
 		{
 			continue;
 		}
 		
-		USHealthComponent* HealthComp = Cast<USHealthComponent>(TrackerBot->GetComponentByClass(USHealthComponent::StaticClass()));
+		USHealthComponent* HealthComp = Cast<USHealthComponent>(TestPawn->GetComponentByClass(USHealthComponent::StaticClass()));
 		if (HealthComp && HealthComp->GetHealth() > 0.f)
 		{
 			bIsAnyBotAlive = true;
@@ -111,7 +113,7 @@ void ASGameMode::CheckWaveState()
 void ASGameMode::CheckAnyPlayerAlive()
 {
 
-	UE_LOG(LogTemp, Warning, TEXT("CHECKING PLAYERS ALIVE"));
+	//UE_LOG(LogTemp, Warning, TEXT("CHECKING PLAYERS ALIVE"));
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PC = It->Get();
@@ -140,14 +142,13 @@ void ASGameMode::GameOver()
 
 	SetWaveState(EWaveState::GameOver);
 	// @TODO: Finish up the match, present 'game over' to players.
-	UE_LOG(LogTemp, Warning, TEXT("GAME OVER! Players Died"));
 }
 
 void ASGameMode::SetWaveState(EWaveState NewState)
 {
 	ASGameState* GS = GetGameState<ASGameState>();
 	// Need to be notified if this check doesnt succeed, "ensureAlways"
-	if (ensureAlways(GS))
+	if (GS)
 	{
 		// This method in GS will handle replicating new wave state for server and clients
 		GS->SetWaveState(NewState);
@@ -170,24 +171,40 @@ void ASGameMode::RestartDeadPlayers()
 }
 
 
+void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, AController* KillerController)
+{
+	// If the killing actor is a player, add score
+	ASPlayerCharacter* KillerPawn = Cast<ASPlayerCharacter>(KillerActor);
+	if (KillerPawn)
+	{
+
+		APlayerState* PS = KillerPawn->GetPlayerState();
+		if (PS)
+		{
+			PS->Score += 20.f;
+		}
+
+	}
+
+	
+	ASPlayerCharacter* VictimPawn = Cast<ASPlayerCharacter>(VictimActor);
+	// If victim is player, check if any player is alive
+	if (VictimPawn)
+	{
+		CheckAnyPlayerAlive();
+	}
+	// If victim is a bot, check wave state
+	else
+	{
+		CheckWaveState();
+	}
+}
+
 // Overriden from GameStateBase
 void ASGameMode::StartPlay()
 {
 	Super::StartPlay();
 
 	PrepareForNextWave();
-
-}
-
-// This tick function set to tick once per second, instead of creating another timer
-void ASGameMode::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	// Instead of checking every second, could bind event to bot being destroyed and hook to it
-	CheckWaveState();
-
-	// Could also bind to when players die instead of check every second
-	CheckAnyPlayerAlive();
 
 }

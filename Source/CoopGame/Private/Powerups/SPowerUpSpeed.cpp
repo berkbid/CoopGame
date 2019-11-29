@@ -9,10 +9,10 @@
 
 void ASPowerUpSpeed::OnRep_SpeedChange()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnRep Called"));
+	//UE_LOG(LogTemp, Warning, TEXT("OnRep Called"));
 	if (MoveComp)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MoveComp Found"));
+		//UE_LOG(LogTemp, Warning, TEXT("MoveComp Found"));
 		MoveComp->MaxWalkSpeed = NewMaxSpeed;
 	}
 }
@@ -21,13 +21,13 @@ void ASPowerUpSpeed::OnRep_SpeedChange()
 void ASPowerUpSpeed::OnSpeedTick()
 {
 	TicksSoFar++;
-	UE_LOG(LogTemp, Warning, TEXT("Speed Tick"));
+	//UE_LOG(LogTemp, Warning, TEXT("Speed Tick"));
 	// Undo previous increase to CharacterMovementComponent
 	if (TicksSoFar >= TotalNrOfTicks)
 	{
 		if (PowerupTargetActor)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Decreasing speed"));
+			//UE_LOG(LogTemp, Warning, TEXT("Decreasing speed"));
 			NewMaxSpeed = DefaultMaxWalkSpeed;
 			OnRep_SpeedChange();
 
@@ -46,7 +46,7 @@ void ASPowerUpSpeed::OnSpeedTick()
 			{
 				// Need to replicate this code
 				DefaultMaxWalkSpeed = MoveComp->MaxWalkSpeed;
-				UE_LOG(LogTemp, Warning, TEXT("Increasing speed"));
+				//UE_LOG(LogTemp, Warning, TEXT("Increasing speed"));
 				NewMaxSpeed = DefaultMaxWalkSpeed * 2;
 				OnRep_SpeedChange();
 			}
