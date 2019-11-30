@@ -5,6 +5,7 @@
 #include "SHealthComponent.h"
 #include "Components/ActorComponent.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 //#include "Runtime/UMG/Public/UMG.h"
 //#include "Runtime/UMG/Public/UMGStyle.h"
 //#include "Runtime/UMG/Public/Slate/SObjectWidget.h"
@@ -27,6 +28,12 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 	if (OwningActor == NewOwner) { return; }
 
 	OwningActor = NewOwner;
+
+	// Update player name text on widget
+	if (NameText)
+	{
+		NameText->SetText(FText::FromString(OwningActor->GetName()));
+	}
 
 	// Get health component reference of owner to bind to health changed event dispatcher
 	USHealthComponent* HealthComp = Cast<USHealthComponent>(OwningActor->GetComponentByClass(USHealthComponent::StaticClass()));

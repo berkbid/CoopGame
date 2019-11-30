@@ -56,11 +56,6 @@ protected:
 
 	FTimerHandle TimerHandle_NextWaveStart;
 
-	// Bots to spawn in current wave
-	int32 NrOfBotsToSpawn;
-
-	int32 WaveCount;
-
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	float TimeBetweenWaves;
 
@@ -74,5 +69,11 @@ public:
 	// Event for blueprint to hook on when actor gets killed
 	UPROPERTY(BlueprintAssignable, Category = "GameMode")
 	FOnActorKilled OnActorKilled;
+
+	UPROPERTY(BlueprintReadOnly, Category = "GameMode")
+	int32 NrOfBotsToSpawn;
+
+	UPROPERTY(BlueprintReadOnly, Category = "GameMode")
+	int32 WaveCount;
 
 };

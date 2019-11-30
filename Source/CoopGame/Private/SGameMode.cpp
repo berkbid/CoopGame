@@ -34,7 +34,7 @@ void ASGameMode::StartWave()
 	WaveCount++;
 	NrOfBotsToSpawn = 2 * WaveCount;
 
-	UE_LOG(LogTemp, Warning, TEXT("StartWave(), nrbots: %d"), NrOfBotsToSpawn);
+	//UE_LOG(LogTemp, Warning, TEXT("StartWave(), nrbots: %d"), NrOfBotsToSpawn);
 	GetWorldTimerManager().SetTimer(TimerHandle_BotSpawner, this, &ASGameMode::SpawnBotTimerElapsed, 1.f, true, 0.f);
 
 
@@ -66,7 +66,7 @@ void ASGameMode::EndWave()
 
 void ASGameMode::PrepareForNextWave()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PrepareForNextWave()"))
+	//UE_LOG(LogTemp, Warning, TEXT("PrepareForNextWave()"))
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &ASGameMode::StartWave, TimeBetweenWaves, false);
 
 	SetWaveState(EWaveState::WaitingToStart);
@@ -173,18 +173,15 @@ void ASGameMode::RestartDeadPlayers()
 
 void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, AController* KillerController)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Died: %s"), *VictimActor->GetName());
 	// If the killing actor is a player, add score
 	ASPlayerCharacter* KillerPawn = Cast<ASPlayerCharacter>(KillerActor);
 	if (KillerPawn)
 	{
-
-		APlayerState* PS = KillerPawn->GetPlayerState();
+		ASPlayerState* PS = Cast<ASPlayerState>(KillerPawn->GetPlayerState());
 		if (PS)
 		{
-			PS->Score += 20.f;
+			PS->AddScore(20.f);
 		}
-
 	}
 
 	

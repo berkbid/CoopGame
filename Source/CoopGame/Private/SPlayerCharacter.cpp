@@ -29,7 +29,7 @@ void ASPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Should this not be run on s
+	// Should this not be run on server
 	DefaultFOV = CameraComp->FieldOfView;
 
 }

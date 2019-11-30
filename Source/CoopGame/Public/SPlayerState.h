@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerState.h"
 #include "SPlayerState.generated.h"
 
+
+// On health changed event
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChangedSignature, float, NewScore);
 /**
  * 
  */
@@ -18,4 +21,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
 	void AddScore(float ScoreDelta);
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnScoreChangedSignature OnScoreChanged;
 };
