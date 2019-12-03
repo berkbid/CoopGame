@@ -12,8 +12,8 @@ void ASPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	// Only local controllers can add widgets
-	if (Role < ROLE_Authority)
-	//if (IsLocalController())
+	//if (Role < ROLE_Authority)
+	if (IsLocalController())
 	{
 		// Add Game Info widget to viewport
 		if (wGameInfo)

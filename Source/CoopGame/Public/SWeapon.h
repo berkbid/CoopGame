@@ -7,25 +7,6 @@
 #include "SWeapon.generated.h"
 
 
-// Contains information of a single hitscan weapon linetrace
-USTRUCT()
-struct FHitScanTrace
-{
-	GENERATED_BODY()
-
-public:
-
-	UPROPERTY()
-	TEnumAsByte<EPhysicalSurface> SurfaceType;
-
-	UPROPERTY()
-	FVector_NetQuantize TraceTo;
-
-	// Used to update struct on a line trace to the SAME TraceTo value
-	UPROPERTY()
-	uint8 ReplicationCount;
-};
-
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -40,33 +21,11 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void PlayFireEffect(FVector TracerEndPoint);
-
-	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<class UDamageType> DamageType;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName MuzzleSocketName;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	FName TracerTargetName;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	class UParticleSystem* MuzzleEffect;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	class UParticleSystem* DefaultImpactEffect;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	class UParticleSystem* FleshImpactEffect;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	class UParticleSystem* TracerEffect;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<class UCameraShake> FireCamShake;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float BaseDamage;
@@ -77,10 +36,9 @@ protected:
 	virtual void Fire();
 
 	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
-// WithValidation is required for something
+	// WithValidation is required for something
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
-
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
@@ -95,17 +53,6 @@ protected:
 	// Derived from RateOfFire
 	float TimeBetweenShots;
 
-	/* Bullet Spread in Degrees */
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin=0.f))
-	float BulletSpread;
-
-	// Trigger function OnRep_HitScanTrace every time property is replicated(changed) because "ReplicatedUsing=..."
-	// Thus, whenever we shoot on server, need to update struct for clients to trigger this function and play effects
-	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
-	FHitScanTrace HitScanTrace;
-
-	UFUNCTION()
-	void OnRep_HitScanTrace();
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -114,5 +61,7 @@ public:
 	void StartFire();
 
 	void StopFire();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 };

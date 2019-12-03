@@ -10,14 +10,6 @@ ASProjectileWeapon::ASProjectileWeapon()
 	RateOfFire = 50.f;
 }
 
-//void ASProjectileWeapon::BeginPlay()
-//{
-//	Super::BeginPlay();
-//
-//	TimeBetweenShots = 60.f / RateOfFire;
-//
-//}
-
 void ASProjectileWeapon::Fire()
 {
 	// So if we are a client, we run ServerFire() to run this Fire function for us

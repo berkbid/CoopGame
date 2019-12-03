@@ -10,17 +10,23 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Engine/Player.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 ASGrenadeProjectile::ASGrenadeProjectile()
 {
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	
 
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	Cast<UPrimitiveComponent>(MeshComp)->SetSimulatePhysics(true);
 	// Set to physics body to let radial component affect us (eg. when a nearby barrel explodes)
 	Cast<UPrimitiveComponent>(MeshComp)->SetCollisionObjectType(ECC_PhysicsBody);
 	RootComponent = Cast<USceneComponent>(MeshComp);
+
+	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	SphereComp->SetupAttachment(RootComponent);
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
 	MovementComp->InitialSpeed = 2000.f;
@@ -55,12 +61,8 @@ void ASGrenadeProjectile::BeginPlay()
 	// Only hook Explode timer on server
 	if (Role == ROLE_Authority)
 	{
-		//if (AActor * MyOwner = GetOwner())
-		//{
-		//	UE_LOG(LogTemp, Warning, TEXT("Owner: %s"), *MyOwner->GetName());
-		//}
-		
 		GetWorldTimerManager().SetTimer(TimerHandle_TimeUntilExplode, this, &ASGrenadeProjectile::Explode, 1.f);
+		
 	}
 	
 }
@@ -69,7 +71,7 @@ void ASGrenadeProjectile::Explode()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Explode Called"));
 	// Deal Damage, only do this on server
-	UGameplayStatics::ApplyRadialDamage(this, 50.f, GetActorLocation(), 300.f, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
+	UGameplayStatics::ApplyRadialDamage(this, 35.f, GetActorLocation(), 300.f, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
 	// Blast away nearby physics actors, if they are being replicated then server can do this alone, else need to replicate this call
 	RadialForceComp->FireImpulse();
 
@@ -86,5 +88,10 @@ void ASGrenadeProjectile::MyOnDestroyed(AActor* DestroyedActor)
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 }
 
+void ASGrenadeProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Overlapped: %s"), *OtherActor->GetName());
+	//Explode();
+}
 
 

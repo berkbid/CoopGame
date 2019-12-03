@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class URadialForceComponent* RadialForceComp;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class USphereComponent* SphereComp;
+
 	FTimerHandle TimerHandle_TimeUntilExplode;
 
 	void Explode();
@@ -40,5 +43,5 @@ protected:
 
 public:	
 
-
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 };
