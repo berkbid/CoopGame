@@ -49,12 +49,18 @@ protected:
 
 	void EndZoom();
 
+	void EquipSlotOne();
+	void EquipSlotTwo();
+	void EquipSlotThree();
+	void EquipSlotFour();
+	void EquipSlotFive();
+
 	bool bIsZooming;
 	bool bIsZoomingIn;
 	bool bIsZoomingOut;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
-		float ZoomedFOV;
+	float ZoomedFOV;
 
 	/* Default FOV set during begin play*/
 	float DefaultFOV;
@@ -62,4 +68,12 @@ protected:
 	// Clamps the values to change in edit from 0.1 to 100
 	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
 	float ZoomInterpSpeed;
+
+	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
+	// WithValidation is required for something
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass);
+
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

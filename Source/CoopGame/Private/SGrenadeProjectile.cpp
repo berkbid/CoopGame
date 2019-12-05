@@ -61,8 +61,10 @@ void ASGrenadeProjectile::BeginPlay()
 	// Only hook Explode timer on server
 	if (Role == ROLE_Authority)
 	{
+		// Bind to overlap event on server because functionality needs to be run on server
+		OnActorBeginOverlap.AddDynamic(this, &ASGrenadeProjectile::HandleBeginOverlap);
+
 		GetWorldTimerManager().SetTimer(TimerHandle_TimeUntilExplode, this, &ASGrenadeProjectile::Explode, 1.f);
-		
 	}
 	
 }
@@ -88,16 +90,12 @@ void ASGrenadeProjectile::MyOnDestroyed(AActor* DestroyedActor)
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 }
 
-void ASGrenadeProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
+// This is only called on server since it is bound to server on begin play
+void ASGrenadeProjectile::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	Super::NotifyActorBeginOverlap(OtherActor);
-
-	// Only call explode logic on server
-	if (Role == ROLE_Authority)
-	{
-		Explode();
-	}
-	
+	Explode();
 }
+
+
 
 

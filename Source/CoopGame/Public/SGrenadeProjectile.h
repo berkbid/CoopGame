@@ -41,7 +41,7 @@ protected:
 	UFUNCTION()
 	void MyOnDestroyed(AActor* DestroyedActor);
 
-public:	
+	UFUNCTION()
+	void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 };

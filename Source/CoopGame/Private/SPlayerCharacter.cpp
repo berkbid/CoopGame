@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/InputComponent.h"
+#include "SWeapon.h"
 
 
 ASPlayerCharacter::ASPlayerCharacter()
@@ -90,6 +91,12 @@ void ASPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASPlayerCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASPlayerCharacter::StopFire);
+
+	PlayerInputComponent->BindAction("Weapon1", IE_Pressed, this, &ASPlayerCharacter::EquipSlotOne);
+	PlayerInputComponent->BindAction("Weapon2", IE_Pressed, this, &ASPlayerCharacter::EquipSlotTwo);
+	PlayerInputComponent->BindAction("Weapon3", IE_Pressed, this, &ASPlayerCharacter::EquipSlotThree);
+	PlayerInputComponent->BindAction("Weapon4", IE_Pressed, this, &ASPlayerCharacter::EquipSlotFour);
+	PlayerInputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerCharacter::EquipSlotFive);
 }
 
 FVector ASPlayerCharacter::GetPawnViewLocation() const
@@ -134,4 +141,51 @@ void ASPlayerCharacter::EndZoom()
 	bIsZooming = true;
 	bIsZoomingIn = false;
 	bIsZoomingOut = true;
+}
+
+void ASPlayerCharacter::EquipSlotOne()
+{
+	if (!FirstWeaponClass || (CurrentWeapon->GetClass() == FirstWeaponClass)) { return; }
+	ServerChangeWeapons(FirstWeaponClass);
+}
+
+void ASPlayerCharacter::EquipSlotTwo()
+{
+	if (!SecondWeaponClass || (CurrentWeapon->GetClass() == SecondWeaponClass)) { return; }
+	ServerChangeWeapons(SecondWeaponClass);
+}
+
+void ASPlayerCharacter::EquipSlotThree()
+{
+	if (!ThirdWeaponClass || (CurrentWeapon->GetClass() == ThirdWeaponClass)) { return; }
+	ServerChangeWeapons(ThirdWeaponClass);
+}
+
+void ASPlayerCharacter::EquipSlotFour()
+{
+	if (!FourthWeaponClass || (CurrentWeapon->GetClass() == FourthWeaponClass)) { return; }
+	ServerChangeWeapons(FourthWeaponClass);
+}
+
+void ASPlayerCharacter::EquipSlotFive()
+{
+	if (!FifthWeaponClass || (CurrentWeapon->GetClass() == FifthWeaponClass)) { return; }
+	ServerChangeWeapons(FifthWeaponClass);
+}
+
+// MUST prefix with Server and require _Implementation
+void ASPlayerCharacter::ServerChangeWeapons_Implementation(TSubclassOf<ASWeapon> NewWeaponClass)
+{
+	ChangeWeapons(NewWeaponClass);
+}
+
+bool ASPlayerCharacter::ServerChangeWeapons_Validate(TSubclassOf<ASWeapon> NewWeaponClass)
+{
+	// This is for anti cheat stuff
+	return true;
+}
+
+void ASPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

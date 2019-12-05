@@ -19,6 +19,7 @@
 ASCharacter::ASCharacter()
 {
 	CurrentWeapon = nullptr;
+
 	WeaponAttachSocketName = "WeaponSocket";
 
 	// We do not want capsule to block the weapon trace, only the mesh of character
@@ -47,19 +48,8 @@ void ASCharacter::BeginPlay()
 	// Only runs this code on server
 	// Spawn weapon on server, it is set to replicated in SWeapon.cpp thus will exist on clients as well
 	if (Role == ROLE_Authority)
-	{
-		// Spawn a default weapon
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
-		CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-
-		if (CurrentWeapon)
-		{
-			CurrentWeapon->SetOwner(this);
-			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-		}
+	{	
+		ChangeWeapons(FirstWeaponClass);
 	}
 
 }
@@ -116,6 +106,33 @@ void ASCharacter::OnRep_Death()
 	SetLifeSpan(10.f);
 }
 
+
+// This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
+// AI could call this directly to change weapons
+void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass)
+{
+	// Don't try to change weapons if invalid new weapon class
+	if (!NewWeaponClass) { return; }
+
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Destroy();
+	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("Server Equipping Slot: 2"));
+	// Spawn a default weapon
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
+	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->SetOwner(this);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+	}
+}
 
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

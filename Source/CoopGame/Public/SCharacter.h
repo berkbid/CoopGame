@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
 {
@@ -19,14 +20,25 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-
 	// Replicate this variable for clients to have access as well!
 	UPROPERTY(Replicated)
 	class ASWeapon* CurrentWeapon;
 
-	// Weapon that we spawn with
+	// Weapon types
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
-	TSubclassOf<class ASWeapon> StarterWeaponClass;
+	TSubclassOf<class ASWeapon> FirstWeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<class ASWeapon> SecondWeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<class ASWeapon> ThirdWeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<class ASWeapon> FourthWeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<class ASWeapon> FifthWeaponClass;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
@@ -47,6 +59,8 @@ protected:
 	UFUNCTION()
 	void OnRep_Death();
 
+	void ChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass);
+
 public:	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -56,4 +70,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFire();
+	
 };
