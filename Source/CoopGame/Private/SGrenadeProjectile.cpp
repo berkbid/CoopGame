@@ -90,8 +90,14 @@ void ASGrenadeProjectile::MyOnDestroyed(AActor* DestroyedActor)
 
 void ASGrenadeProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlapped: %s"), *OtherActor->GetName());
-	//Explode();
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	// Only call explode logic on server
+	if (Role == ROLE_Authority)
+	{
+		Explode();
+	}
+	
 }
 
 
