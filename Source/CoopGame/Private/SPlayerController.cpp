@@ -37,3 +37,12 @@ void ASPlayerController::SetScoreText(float NewScore)
 		MyGameInfo->HandleScoreChanged(NewScore);
 	}
 }
+
+// Client should call this, not server
+void ASPlayerController::SetCurrentWeapon(int WeaponSlot)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->HandleWeaponChange(WeaponSlot);
+	}
+}

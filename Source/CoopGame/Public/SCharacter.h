@@ -40,6 +40,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class ASWeapon> FifthWeaponClass;
 
+	/* Keep track of which weapon slot is currently equipped*/
+	int CurrentSlot;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
 
@@ -59,7 +62,7 @@ protected:
 	UFUNCTION()
 	void OnRep_Death();
 
-	void ChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass);
+	void ChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass, int NewWeaponSlot);
 
 public:	
 

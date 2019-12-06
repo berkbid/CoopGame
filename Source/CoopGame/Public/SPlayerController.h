@@ -24,6 +24,8 @@ public:
 
 	void SetScoreText(float NewScore);
 
+	void SetCurrentWeapon(int WeaponSlot);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UUserWidget> wGameInfo;
 

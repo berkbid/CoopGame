@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/DamageType.h"
 #include "SWidgetCompHealthBar.h"
+#include "SPlayerController.h"
 
 
 // Sets default values
@@ -49,7 +50,7 @@ void ASCharacter::BeginPlay()
 	// Spawn weapon on server, it is set to replicated in SWeapon.cpp thus will exist on clients as well
 	if (Role == ROLE_Authority)
 	{	
-		ChangeWeapons(FirstWeaponClass);
+		ChangeWeapons(FirstWeaponClass, 1);
 	}
 
 }
@@ -88,13 +89,11 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 	}
 }
 
+// Replicated actions for death
 void ASCharacter::OnRep_Death()
 {
-	// DIE!
-
 	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// Added this line myself
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->DisableMovement();
 	if (HealthBar)
@@ -109,8 +108,11 @@ void ASCharacter::OnRep_Death()
 
 // This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
 // AI could call this directly to change weapons
-void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass)
+void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
 {
+	//CurrentSlot only used set and used by server
+	if (CurrentSlot == NewWeaponSlot) { return; }
+
 	// Don't try to change weapons if invalid new weapon class
 	if (!NewWeaponClass) { return; }
 
@@ -119,7 +121,6 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass)
 		CurrentWeapon->Destroy();
 	}
 
-	//UE_LOG(LogTemp, Warning, TEXT("Server Equipping Slot: 2"));
 	// Spawn a default weapon
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -131,6 +132,9 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass)
 	{
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+
+		// Update value of CurrentSlot so this function isn't called on the same weapon slot that is equipped
+		CurrentSlot = NewWeaponSlot;
 	}
 }
 

@@ -28,6 +28,24 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* StateText;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* FirstSlot;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* SecondSlot;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* ThirdSlot;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* FourthSlot;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* FifthSlot;
+
+	class UBorder* CurrentSlot;
+
+
 public:
 
 	virtual bool Initialize() override;
@@ -38,5 +56,8 @@ public:
 
 	UFUNCTION()
 	void HandleScoreChanged(float NewScore);
+
+	UFUNCTION()
+	void HandleWeaponChange(int WeaponSlot);
 	
 };

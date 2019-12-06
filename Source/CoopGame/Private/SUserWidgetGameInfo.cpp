@@ -3,6 +3,7 @@
 
 #include "SUserWidgetGameInfo.h"
 #include "Components/TextBlock.h"
+#include "Components/Border.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerState.h"
 
@@ -46,4 +47,71 @@ void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
 		ScoreText->SetText(FText::FromString(tempString));
 
 	}
+}
+
+void USUserWidgetGameInfo::HandleWeaponChange(int WeaponSlot)
+{
+	switch (WeaponSlot)
+	{
+		case 1:
+			if (CurrentSlot)
+			{
+				CurrentSlot->SetBrushColor(FColor::White);
+			}
+			if (FirstSlot)
+			{
+				FirstSlot->SetBrushColor(FColor::Blue);
+				CurrentSlot = FirstSlot;
+			}
+			break;
+		case 2:
+			if (CurrentSlot)
+			{
+				CurrentSlot->SetBrushColor(FColor::White);
+			}
+			if (SecondSlot)
+			{
+				SecondSlot->SetBrushColor(FColor::Blue);
+				CurrentSlot = SecondSlot;
+			}
+			break;
+		case 3:
+			if (CurrentSlot)
+			{
+				CurrentSlot->SetBrushColor(FColor::White);
+			}
+			if (ThirdSlot)
+			{
+				ThirdSlot->SetBrushColor(FColor::Blue);
+				CurrentSlot = ThirdSlot;
+			}
+			break;
+		case 4:
+			if (CurrentSlot)
+			{
+				CurrentSlot->SetBrushColor(FColor::White);
+			}
+			if (FourthSlot)
+			{
+				FourthSlot->SetBrushColor(FColor::Blue);
+				CurrentSlot = FourthSlot;
+			}
+			break;
+		case 5:
+			if (CurrentSlot)
+			{
+				CurrentSlot->SetBrushColor(FColor::White);
+			}
+			if (FifthSlot)
+			{
+				FifthSlot->SetBrushColor(FColor::Blue);
+				CurrentSlot = FifthSlot;
+			}
+			break;
+	
+	default:
+		break;
+	}
+
+
 }

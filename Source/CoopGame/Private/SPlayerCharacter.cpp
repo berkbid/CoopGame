@@ -6,7 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/InputComponent.h"
 #include "SWeapon.h"
-
+#include "SPlayerController.h"
 
 ASPlayerCharacter::ASPlayerCharacter()
 {
@@ -30,8 +30,16 @@ void ASPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Should this not be run on server
-	DefaultFOV = CameraComp->FieldOfView;
+
+	// Only do these things on clients, and listening server client
+	if (IsLocallyControlled())
+	{
+		DefaultFOV = CameraComp->FieldOfView;
+		if (ASPlayerController* PC = Cast<ASPlayerController>(GetController()))
+		{
+			PC->SetCurrentWeapon(1);
+		}
+	}
 
 }
 
@@ -145,41 +153,47 @@ void ASPlayerCharacter::EndZoom()
 
 void ASPlayerCharacter::EquipSlotOne()
 {
-	if (!FirstWeaponClass || (CurrentWeapon->GetClass() == FirstWeaponClass)) { return; }
-	ServerChangeWeapons(FirstWeaponClass);
+	if (!FirstWeaponClass) { return; }
+	ServerChangeWeapons(FirstWeaponClass, 1);
+	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(1); }
+
 }
 
 void ASPlayerCharacter::EquipSlotTwo()
 {
-	if (!SecondWeaponClass || (CurrentWeapon->GetClass() == SecondWeaponClass)) { return; }
-	ServerChangeWeapons(SecondWeaponClass);
+	if (!FirstWeaponClass) { return; }
+	ServerChangeWeapons(SecondWeaponClass, 2);
+	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(2); }
 }
 
 void ASPlayerCharacter::EquipSlotThree()
 {
-	if (!ThirdWeaponClass || (CurrentWeapon->GetClass() == ThirdWeaponClass)) { return; }
-	ServerChangeWeapons(ThirdWeaponClass);
+	if (!FirstWeaponClass) { return; }
+	ServerChangeWeapons(ThirdWeaponClass, 3);
+	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(3); }
 }
 
 void ASPlayerCharacter::EquipSlotFour()
 {
-	if (!FourthWeaponClass || (CurrentWeapon->GetClass() == FourthWeaponClass)) { return; }
-	ServerChangeWeapons(FourthWeaponClass);
+	if (!FirstWeaponClass) { return; }
+	ServerChangeWeapons(FourthWeaponClass, 4);
+	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(4); }
 }
 
 void ASPlayerCharacter::EquipSlotFive()
 {
-	if (!FifthWeaponClass || (CurrentWeapon->GetClass() == FifthWeaponClass)) { return; }
-	ServerChangeWeapons(FifthWeaponClass);
+	if (!FirstWeaponClass) { return; }
+	ServerChangeWeapons(FifthWeaponClass, 5);
+	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(5); }
 }
 
 // MUST prefix with Server and require _Implementation
-void ASPlayerCharacter::ServerChangeWeapons_Implementation(TSubclassOf<ASWeapon> NewWeaponClass)
+void ASPlayerCharacter::ServerChangeWeapons_Implementation(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
 {
-	ChangeWeapons(NewWeaponClass);
+	ChangeWeapons(NewWeaponClass, NewWeaponSlot);
 }
 
-bool ASPlayerCharacter::ServerChangeWeapons_Validate(TSubclassOf<ASWeapon> NewWeaponClass)
+bool ASPlayerCharacter::ServerChangeWeapons_Validate(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
 {
 	// This is for anti cheat stuff
 	return true;
