@@ -64,6 +64,11 @@ protected:
 
 	void ChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass, int NewWeaponSlot);
 
+	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
+	// WithValidation is required for something
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass, int NewWeaponSlot);
+
 public:	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

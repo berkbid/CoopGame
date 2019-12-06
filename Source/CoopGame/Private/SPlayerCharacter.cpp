@@ -154,52 +154,35 @@ void ASPlayerCharacter::EndZoom()
 void ASPlayerCharacter::EquipSlotOne()
 {
 	if (!FirstWeaponClass) { return; }
-	ServerChangeWeapons(FirstWeaponClass, 1);
+	ChangeWeapons(FirstWeaponClass, 1);
 	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(1); }
 
 }
 
 void ASPlayerCharacter::EquipSlotTwo()
 {
-	if (!FirstWeaponClass) { return; }
-	ServerChangeWeapons(SecondWeaponClass, 2);
+	if (!SecondWeaponClass) { return; }
+	ChangeWeapons(SecondWeaponClass, 2);
 	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(2); }
 }
 
 void ASPlayerCharacter::EquipSlotThree()
 {
-	if (!FirstWeaponClass) { return; }
-	ServerChangeWeapons(ThirdWeaponClass, 3);
+	if (!ThirdWeaponClass) { return; }
+	ChangeWeapons(ThirdWeaponClass, 3);
 	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(3); }
 }
 
 void ASPlayerCharacter::EquipSlotFour()
 {
-	if (!FirstWeaponClass) { return; }
-	ServerChangeWeapons(FourthWeaponClass, 4);
+	if (!FourthWeaponClass) { return; }
+	ChangeWeapons(FourthWeaponClass, 4);
 	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(4); }
 }
 
 void ASPlayerCharacter::EquipSlotFive()
 {
-	if (!FirstWeaponClass) { return; }
-	ServerChangeWeapons(FifthWeaponClass, 5);
+	if (!FifthWeaponClass) { return; }
+	ChangeWeapons(FifthWeaponClass, 5);
 	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(5); }
-}
-
-// MUST prefix with Server and require _Implementation
-void ASPlayerCharacter::ServerChangeWeapons_Implementation(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
-{
-	ChangeWeapons(NewWeaponClass, NewWeaponSlot);
-}
-
-bool ASPlayerCharacter::ServerChangeWeapons_Validate(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
-{
-	// This is for anti cheat stuff
-	return true;
-}
-
-void ASPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

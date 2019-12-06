@@ -110,6 +110,13 @@ void ASCharacter::OnRep_Death()
 // AI could call this directly to change weapons
 void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
 {
+	// When we call this on client, call it on server instead
+	if (Role < ROLE_Authority)
+	{
+		ServerChangeWeapons(NewWeaponClass, NewWeaponSlot);
+		return;
+	}
+
 	//CurrentSlot only used set and used by server
 	if (CurrentSlot == NewWeaponSlot) { return; }
 
@@ -136,6 +143,18 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 		// Update value of CurrentSlot so this function isn't called on the same weapon slot that is equipped
 		CurrentSlot = NewWeaponSlot;
 	}
+}
+
+// MUST prefix with Server and require _Implementation
+void ASCharacter::ServerChangeWeapons_Implementation(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
+{
+	ChangeWeapons(NewWeaponClass, NewWeaponSlot);
+}
+
+bool ASCharacter::ServerChangeWeapons_Validate(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
+{
+	// This is for anti cheat stuff
+	return true;
 }
 
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
