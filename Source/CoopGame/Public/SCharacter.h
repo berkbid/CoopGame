@@ -24,20 +24,23 @@ protected:
 	UPROPERTY(Replicated)
 	class ASWeapon* CurrentWeapon;
 
-	// Weapon types
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
+
+	// Weapon types
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class ASWeapon> FirstWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class ASWeapon> SecondWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class ASWeapon> ThirdWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class ASWeapon> FourthWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class ASWeapon> FifthWeaponClass;
 
 	/* Keep track of which weapon slot is currently equipped*/
@@ -69,6 +72,9 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass, int NewWeaponSlot);
 
+	UFUNCTION(Client, unreliable)
+	void ClientSetHUD(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot);
+
 public:	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -78,5 +84,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFire();
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void PickupWeapon(TSubclassOf<class ASWeapon> NewWeaponClass);
+
 };

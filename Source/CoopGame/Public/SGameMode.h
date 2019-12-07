@@ -59,6 +59,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	float TimeBetweenWaves;
 
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
+	int32 NrOfBotsToSpawn;
+
 public:
 	ASGameMode();
 
@@ -71,7 +74,7 @@ public:
 	FOnActorKilled OnActorKilled;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GameMode")
-	int32 NrOfBotsToSpawn;
+	int32 NrOfBotsThisWave;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GameMode")
 	int32 WaveCount;

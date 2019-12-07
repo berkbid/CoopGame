@@ -7,6 +7,7 @@
 #include "Components/InputComponent.h"
 #include "SWeapon.h"
 #include "SPlayerController.h"
+#include "SUserWidgetGameInfo.h"
 
 ASPlayerCharacter::ASPlayerCharacter()
 {
@@ -35,10 +36,49 @@ void ASPlayerCharacter::BeginPlay()
 	if (IsLocallyControlled())
 	{
 		DefaultFOV = CameraComp->FieldOfView;
+
+		// Check which weapon slots are valid, fill in their images, and set current weapon to fist class if it is valid
 		if (ASPlayerController* PC = Cast<ASPlayerController>(GetController()))
 		{
-			PC->SetCurrentWeapon(1);
+			// If we have a weapon equipped, then set the HUD accordingly
+			if (FirstWeaponClass)
+			{
+				PC->SetCurrentWeapon(FirstWeaponClass, 0);
+			}
+			if (SecondWeaponClass)
+			{
+				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
+				if (WGI)
+				{
+					WGI->SetInventoryImage(SecondWeaponClass, 1);
+				}
+			}
+			if (ThirdWeaponClass)
+			{
+				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
+				if (WGI)
+				{
+					WGI->SetInventoryImage(ThirdWeaponClass, 2);
+				}
+			}
+			if (FourthWeaponClass)
+			{
+				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
+				if (WGI)
+				{
+					WGI->SetInventoryImage(FourthWeaponClass, 3);
+				}
+			}
+			if (FifthWeaponClass)
+			{
+				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
+				if (WGI)
+				{
+					WGI->SetInventoryImage(FifthWeaponClass, 4);
+				}
+			}
 		}
+
 	}
 
 }
@@ -154,35 +194,29 @@ void ASPlayerCharacter::EndZoom()
 void ASPlayerCharacter::EquipSlotOne()
 {
 	if (!FirstWeaponClass) { return; }
-	ChangeWeapons(FirstWeaponClass, 1);
-	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(1); }
-
+	ChangeWeapons(FirstWeaponClass, 0);
 }
 
 void ASPlayerCharacter::EquipSlotTwo()
 {
 	if (!SecondWeaponClass) { return; }
-	ChangeWeapons(SecondWeaponClass, 2);
-	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(2); }
+	ChangeWeapons(SecondWeaponClass, 1);
 }
 
 void ASPlayerCharacter::EquipSlotThree()
 {
 	if (!ThirdWeaponClass) { return; }
-	ChangeWeapons(ThirdWeaponClass, 3);
-	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(3); }
+	ChangeWeapons(ThirdWeaponClass, 2);
 }
 
 void ASPlayerCharacter::EquipSlotFour()
 {
 	if (!FourthWeaponClass) { return; }
-	ChangeWeapons(FourthWeaponClass, 4);
-	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(4); }
+	ChangeWeapons(FourthWeaponClass, 3);
 }
 
 void ASPlayerCharacter::EquipSlotFive()
 {
 	if (!FifthWeaponClass) { return; }
-	ChangeWeapons(FifthWeaponClass, 5);
-	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) { PC->SetCurrentWeapon(5); }
+	ChangeWeapons(FifthWeaponClass, 4);
 }

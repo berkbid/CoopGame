@@ -20,6 +20,8 @@
 ASCharacter::ASCharacter()
 {
 	CurrentWeapon = nullptr;
+	// Start with invalid current slot index
+	CurrentSlot = -1;
 
 	WeaponAttachSocketName = "WeaponSocket";
 
@@ -48,9 +50,10 @@ void ASCharacter::BeginPlay()
 
 	// Only runs this code on server
 	// Spawn weapon on server, it is set to replicated in SWeapon.cpp thus will exist on clients as well
+	// This won't work if character doesn't have a fist weapon class to begin
 	if (Role == ROLE_Authority)
 	{	
-		ChangeWeapons(FirstWeaponClass, 1);
+		ChangeWeapons(FirstWeaponClass, 0);
 	}
 
 }
@@ -69,6 +72,29 @@ void ASCharacter::StopFire()
 	{
 		CurrentWeapon->StopFire();
 	}
+}
+
+// Being called by server only
+void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass)
+{
+	if (!NewWeaponClass) { return; }
+	// Determine weapon slot to equip weapon then set valid class reference for that slot
+	// need to set the weapon class to the type we picked up and then change to the weapon
+
+	// If we are setting the first weapon slot, these are the actions we want to perform
+	//if (!FirstWeaponClass)
+	//{
+	//	// This class update gets replicated to owner only
+	//	FirstWeaponClass = NewWeaponClass;
+	//	ChangeWeapons(FirstWeaponClass, 0);
+	//}
+	//else
+	//{
+	//	SecondWeaponClass = NewWeaponClass;
+	//	ChangeWeapons(SecondWeaponClass, 1);
+	//}
+	
+
 }
 
 // Only called on server because we only hooked this on the server
@@ -140,8 +166,20 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 
+		// COuld replicate this variable instead and call functionality on_rep
 		// Update value of CurrentSlot so this function isn't called on the same weapon slot that is equipped
 		CurrentSlot = NewWeaponSlot;
+
+		//Update HUD info on client
+		ClientSetHUD(NewWeaponClass, CurrentSlot);
+	}
+}
+
+void ASCharacter::ClientSetHUD_Implementation(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot)
+{
+	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) 
+	{ 
+		PC->SetCurrentWeapon(WeaponClass, WeaponSlot);
 	}
 }
 
@@ -165,5 +203,10 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	// In .h file we say we want to replicate CurrentWeapon variable, now we specify where we want to replicate to
 	// This replicates to any client connected to us
 	DOREPLIFETIME(ASCharacter, CurrentWeapon);
+	DOREPLIFETIME_CONDITION(ASCharacter, FirstWeaponClass, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ASCharacter, SecondWeaponClass, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ASCharacter, ThirdWeaponClass, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ASCharacter, FourthWeaponClass, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ASCharacter, FifthWeaponClass, COND_OwnerOnly);
 	DOREPLIFETIME(ASCharacter, bDied);
 }

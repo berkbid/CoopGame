@@ -42,7 +42,6 @@ void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
 {
 	if (ScoreText)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Really changing score: %f"), NewScore);
 		FString tempString("SCORE: " + FString::SanitizeFloat(NewScore));
 		ScoreText->SetText(FText::FromString(tempString));
 
@@ -53,7 +52,7 @@ void USUserWidgetGameInfo::HandleWeaponChange(int WeaponSlot)
 {
 	switch (WeaponSlot)
 	{
-		case 1:
+		case 0:
 			if (CurrentSlot)
 			{
 				CurrentSlot->SetBrushColor(FColor::White);
@@ -64,7 +63,7 @@ void USUserWidgetGameInfo::HandleWeaponChange(int WeaponSlot)
 				CurrentSlot = FirstSlot;
 			}
 			break;
-		case 2:
+		case 1:
 			if (CurrentSlot)
 			{
 				CurrentSlot->SetBrushColor(FColor::White);
@@ -75,7 +74,7 @@ void USUserWidgetGameInfo::HandleWeaponChange(int WeaponSlot)
 				CurrentSlot = SecondSlot;
 			}
 			break;
-		case 3:
+		case 2:
 			if (CurrentSlot)
 			{
 				CurrentSlot->SetBrushColor(FColor::White);
@@ -86,7 +85,7 @@ void USUserWidgetGameInfo::HandleWeaponChange(int WeaponSlot)
 				CurrentSlot = ThirdSlot;
 			}
 			break;
-		case 4:
+		case 3:
 			if (CurrentSlot)
 			{
 				CurrentSlot->SetBrushColor(FColor::White);
@@ -97,7 +96,7 @@ void USUserWidgetGameInfo::HandleWeaponChange(int WeaponSlot)
 				CurrentSlot = FourthSlot;
 			}
 			break;
-		case 5:
+		case 4:
 			if (CurrentSlot)
 			{
 				CurrentSlot->SetBrushColor(FColor::White);

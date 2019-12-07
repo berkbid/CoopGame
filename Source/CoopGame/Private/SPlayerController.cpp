@@ -3,6 +3,7 @@
 
 #include "SPlayerController.h"
 #include "SUserWidgetGameInfo.h"
+#include "SWeapon.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -39,10 +40,11 @@ void ASPlayerController::SetScoreText(float NewScore)
 }
 
 // Client should call this, not server
-void ASPlayerController::SetCurrentWeapon(int WeaponSlot)
+void ASPlayerController::SetCurrentWeapon(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot)
 {
 	if (MyGameInfo)
 	{
 		MyGameInfo->HandleWeaponChange(WeaponSlot);
+		MyGameInfo->SetInventoryImage(WeaponClass, WeaponSlot);
 	}
 }

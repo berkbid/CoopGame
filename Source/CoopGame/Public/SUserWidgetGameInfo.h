@@ -46,6 +46,7 @@ protected:
 	class UBorder* CurrentSlot;
 
 
+
 public:
 
 	virtual bool Initialize() override;
@@ -59,5 +60,9 @@ public:
 
 	UFUNCTION()
 	void HandleWeaponChange(int WeaponSlot);
+
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetInventoryImage(TSubclassOf<class ASWeapon> InventoryItemClass, int BorderSlot);
 	
 };

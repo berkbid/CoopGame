@@ -14,6 +14,7 @@
 ASGameMode::ASGameMode()
 {
 	TimeBetweenWaves = 2.f;
+	NrOfBotsToSpawn = 2;
 
 	// Setup default gamestate class
 	GameStateClass = ASGameState::StaticClass();
@@ -32,9 +33,9 @@ void ASGameMode::BeginPlay()
 void ASGameMode::StartWave()
 {
 	WaveCount++;
-	NrOfBotsToSpawn = 2 * WaveCount;
+	NrOfBotsThisWave = NrOfBotsToSpawn * WaveCount;
 
-	//UE_LOG(LogTemp, Warning, TEXT("StartWave(), nrbots: %d"), NrOfBotsToSpawn);
+	//UE_LOG(LogTemp, Warning, TEXT("StartWave(), nrbots: %d"), NrOfBotsThisWave);
 	GetWorldTimerManager().SetTimer(TimerHandle_BotSpawner, this, &ASGameMode::SpawnBotTimerElapsed, 1.f, true, 0.f);
 
 
@@ -46,10 +47,10 @@ void ASGameMode::SpawnBotTimerElapsed()
 	// Blueprint function
 	SpawnNewBot();
 
-	NrOfBotsToSpawn--;
+	NrOfBotsThisWave--;
 
-	//UE_LOG(LogTemp, Warning, TEXT("nrOfBotsToSpawn="));
-	if (NrOfBotsToSpawn <= 0)
+	//UE_LOG(LogTemp, Warning, TEXT("NrOfBotsThisWave="));
+	if (NrOfBotsThisWave <= 0)
 	{
 		EndWave();
 	}
@@ -79,7 +80,7 @@ void ASGameMode::CheckWaveState()
 	bool bIsPreparingForWave = GetWorldTimerManager().IsTimerActive(TimerHandle_NextWaveStart);
 
 	// Never want to prepare for next wave if already preparing or if still have bots to spawn
-	if (NrOfBotsToSpawn > 0 ||  bIsPreparingForWave)
+	if (NrOfBotsThisWave > 0 ||  bIsPreparingForWave)
 	{
 		return;
 	}
