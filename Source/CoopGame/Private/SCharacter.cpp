@@ -74,6 +74,12 @@ void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass)
 
 	if (!NewWeaponClass) { return; }
 	
+	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
+	if (PC)
+	{
+		PC->PickedUpNewWeapon(NewWeaponClass);
+	}
+
 	// We can replicate this array, so when it is changed, client updates HUD appropriately
 	// If we pick up a weapon, just add it to our weapon inventory if we have space!!!
 	//WeaponInventory.Add(NewWeaponClass);
@@ -170,17 +176,6 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 	{
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-
-		//Update HUD info on client now that we ACTUALLY attached a new weapon
-		ClientSetHUD(NewWeaponClass, NewWeaponSlot);
-	}
-}
-
-void ASCharacter::ClientSetHUD_Implementation(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot)
-{
-	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) 
-	{ 
-		PC->SetInventorySlotImage(WeaponClass, WeaponSlot);
 
 	}
 }

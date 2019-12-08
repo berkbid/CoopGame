@@ -45,9 +45,6 @@ protected:
 	UFUNCTION()
 	void OnRep_Death();
 
-	UFUNCTION(Client, unreliable)
-	void ClientSetHUD(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot);
-
 public:	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

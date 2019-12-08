@@ -24,4 +24,6 @@ protected:
 	/* Keep track of which weapon slot is currently equipped */
 	int CurrentSlot;
 
+public:
+	ASAIController(const FObjectInitializer& ObjectInitializer);
 };

@@ -12,6 +12,9 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 {
 	// Start with invalid first slot, so when it is set to 0 on possess, we replicate this change so client can update HUD
 	CurrentSlot = -1;
+	SlotToUpdate = -1;
+
+	WeaponInventory.Init(NULL, 5);
 }
 
 void ASPlayerController::BeginPlay()
@@ -37,7 +40,6 @@ void ASPlayerController::BeginPlay()
 				{
 					if (WeaponInventory[i])
 					{
-						
 						if (i == CurrentSlot)
 						{
 							MyGameInfo->SetInventoryColor(CurrentSlot);
@@ -74,8 +76,14 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 		// If we possess a SCharacter, try to equip first weapon slot if it has a weapon
 		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 
-		// Reset Currently Equipped Slot back to 0 on possess new pawn
-		CurrentSlot = 0;
+		// Remove this "if statement" if you want player to always start with first inventory slot selected and equipped
+		if (CurrentSlot < 0)
+		{
+			// Reset Currently Equipped Slot back to 0 on possess new pawn
+			CurrentSlot = 0;
+			OnRep_SlotChange();
+		}
+
 
 		// Try equip weapon at currentslot
 		if (WeaponInventory.Num() > CurrentSlot)
@@ -94,15 +102,6 @@ void ASPlayerController::SetScoreText(float NewScore)
 	if (MyGameInfo)
 	{
 		MyGameInfo->HandleScoreChanged(NewScore);
-	}
-}
-
-// Client should call this, not server
-void ASPlayerController::SetInventorySlotImage(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot)
-{
-	if (MyGameInfo)
-	{
-		MyGameInfo->SetInventoryImage(WeaponClass, WeaponSlot);
 	}
 }
 
@@ -136,11 +135,46 @@ void ASPlayerController::EquipSlotFive()
 	ServerEquipWeapon(4);
 }
 
+// Only server should be inside this call
+void ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
+{
+	// Loop through inventory looking for empty slot
+	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
+	{
+		// If we find an empty slot, give new weapon type and update HUD image for slot
+		if (WeaponInventory[i] == NULL)
+		{
+			// Update weaponinventory slot to new weaponclass
+			WeaponInventory[i] = WeaponClass;
+
+			// Update HUD image for client/listen server
+			SlotToUpdate = i;
+			OnRep_SlotToUpdate();
+
+			// If we pick up a weapon into a new inventory slot, AND we are selected on that item slot, then try to equip weapon!!
+			if (CurrentSlot == i)
+			{
+				ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
+				if (MyPawn)
+				{
+					MyPawn->ChangeWeapons(WeaponClass, i);
+				}
+			}
+
+			// Don't loop anymore, we found the inventory slot to fill already
+			break;
+		}
+	}
+}
+
+
 // MUST prefix with Server and require _Implementation
 void ASPlayerController::ServerEquipWeapon_Implementation(int NewWeaponSlot)
 {
 	// Replicated, Update current slot even if we have no weapon in that slot
 	CurrentSlot = NewWeaponSlot;
+	OnRep_SlotChange();
+
 	TSubclassOf<ASWeapon> NewWeaponClass;
 
 	// If array is long enough, try to set NewWeaponClass to the value at its index
@@ -171,11 +205,23 @@ void ASPlayerController::OnRep_SlotChange()
 	if (MyGameInfo) { MyGameInfo->SetInventoryColor(CurrentSlot); }
 }
 
+void ASPlayerController::OnRep_SlotToUpdate()
+{
+	if (MyGameInfo)
+	{
+		if (WeaponInventory.Num() > SlotToUpdate)
+		{
+			MyGameInfo->SetInventoryImage(WeaponInventory[SlotToUpdate], SlotToUpdate);
+		}
+	}
+}
+
 void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASPlayerController, WeaponInventory, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASPlayerController, CurrentSlot, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ASPlayerController, SlotToUpdate, COND_OwnerOnly);
 
 }

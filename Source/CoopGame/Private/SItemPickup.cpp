@@ -41,14 +41,13 @@ void ASItemPickup::BeginPlay()
 
 void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Overlapped Actor"));
-
 	if (ItemType)
 	{
 		ASCharacter* OverlappedCharacter = Cast<ASCharacter>(OtherActor);
 		if (OverlappedCharacter)
 		{
 			OverlappedCharacter->PickupWeapon(ItemType);
+			Destroy();
 		}
 	}
 }

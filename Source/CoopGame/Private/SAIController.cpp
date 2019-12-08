@@ -5,16 +5,29 @@
 #include "SCharacter.h"
 #include "SWeapon.h"
 
+ASAIController::ASAIController(const FObjectInitializer& ObjectInitializer)
+{
+	CurrentSlot = -1;
+	WeaponInventory.Init(NULL, 5);
+}
+
 void ASAIController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 
+	CurrentSlot = 0;
+
 	// If we possess a SCharacter, try to equip first weapon slot
 	ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-	TSubclassOf<ASWeapon> FirstWeaponClass = WeaponInventory[0];
+	if (!MyPawn) { return; }
 
-	if (MyPawn && FirstWeaponClass)
+	// Don't try to access invalid index
+	if (WeaponInventory.Num() > CurrentSlot)
 	{
-		MyPawn->ChangeWeapons(FirstWeaponClass, 0);
+
+		MyPawn->ChangeWeapons(WeaponInventory[CurrentSlot], CurrentSlot);
+		
 	}
 }
+
+

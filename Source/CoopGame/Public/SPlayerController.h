@@ -25,8 +25,6 @@ public:
 
 	void SetScoreText(float NewScore);
 
-	void SetInventorySlotImage(TSubclassOf<class ASWeapon> WeaponClass, int WeaponSlot);
-
 	void EquipSlotOne();
 	void EquipSlotTwo();
 	void EquipSlotThree();
@@ -37,6 +35,8 @@ public:
 	TSubclassOf<class UUserWidget> wGameInfo;
 
 	class USUserWidgetGameInfo* MyGameInfo;
+
+	void PickedUpNewWeapon(TSubclassOf<class ASWeapon> WeaponClass);
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -56,5 +56,11 @@ protected:
 	UPROPERTY(ReplicatedUsing=OnRep_SlotChange)
 	int CurrentSlot;
 
-	
+	UFUNCTION()
+	void OnRep_SlotToUpdate();
+
+	/* This is so client can update HUD slot image when it needs to be changed */
+	UPROPERTY(ReplicatedUsing = OnRep_SlotToUpdate)
+	int SlotToUpdate;
+
 };
