@@ -19,16 +19,38 @@ public:
 	
 	ASPlayerController(const FObjectInitializer& ObjectInitializer);
 
-	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual void BeginPlay() override;
 
 	void SetScoreText(float NewScore);
 
 	void SetCurrentWeapon(TSubclassOf<class ASWeapon> WeaponClass, int WeaponSlot);
 
+	void EquipSlotOne();
+	void EquipSlotTwo();
+	void EquipSlotThree();
+	void EquipSlotFour();
+	void EquipSlotFive();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UUserWidget> wGameInfo;
 
 	class USUserWidgetGameInfo* MyGameInfo;
+
+protected:
+	virtual void SetupInputComponent() override;
+
+	virtual void OnPossess(APawn* aPawn) override;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerEquipWeapon(int NewWeaponSlot);
+
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
+	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
+
+	/* Keep track of which weapon slot is currently equipped */
+	int CurrentSlot;
+
 	
 };

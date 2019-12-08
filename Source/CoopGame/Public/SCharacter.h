@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+class ASWeapon;
+
 
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
@@ -23,28 +25,6 @@ protected:
 	// Replicate this variable for clients to have access as well!
 	UPROPERTY(Replicated)
 	class ASWeapon* CurrentWeapon;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
-	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
-
-	// Weapon types
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
-	TSubclassOf<class ASWeapon> FirstWeaponClass;
-
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
-	TSubclassOf<class ASWeapon> SecondWeaponClass;
-
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
-	TSubclassOf<class ASWeapon> ThirdWeaponClass;
-
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
-	TSubclassOf<class ASWeapon> FourthWeaponClass;
-
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Player")
-	TSubclassOf<class ASWeapon> FifthWeaponClass;
-
-	/* Keep track of which weapon slot is currently equipped*/
-	int CurrentSlot;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
@@ -65,12 +45,10 @@ protected:
 	UFUNCTION()
 	void OnRep_Death();
 
-	void ChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass, int NewWeaponSlot);
-
 	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
 	// WithValidation is required for something
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerChangeWeapons(TSubclassOf<class ASWeapon> NewWeaponClass, int NewWeaponSlot);
+	void ServerChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot);
 
 	UFUNCTION(Client, unreliable)
 	void ClientSetHUD(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot);
@@ -86,6 +64,8 @@ public:
 	void StopFire();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void PickupWeapon(TSubclassOf<class ASWeapon> NewWeaponClass);
+	void PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass);
+
+	void ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot);
 
 };

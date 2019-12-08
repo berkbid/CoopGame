@@ -20,8 +20,6 @@
 ASCharacter::ASCharacter()
 {
 	CurrentWeapon = nullptr;
-	// Start with invalid current slot index
-	CurrentSlot = -1;
 
 	WeaponAttachSocketName = "WeaponSocket";
 
@@ -45,17 +43,10 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
-
-	// Only runs this code on server
-	// Spawn weapon on server, it is set to replicated in SWeapon.cpp thus will exist on clients as well
-	// This won't work if character doesn't have a fist weapon class to begin
 	if (Role == ROLE_Authority)
-	{	
-		ChangeWeapons(FirstWeaponClass, 0);
+	{
+		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 	}
-
 }
 
 void ASCharacter::StartFire()
@@ -77,11 +68,24 @@ void ASCharacter::StopFire()
 // Being called by server only
 void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass)
 {
-	if (!NewWeaponClass) { return; }
-	// Determine weapon slot to equip weapon then set valid class reference for that slot
-	// need to set the weapon class to the type we picked up and then change to the weapon
+	//int InventorySize = WeaponInventory.Num();
+	// Don't pick up weapon if we already have 5 inventory items, don't pick up next item
+	//if (InventorySize >= 5) { return; }
 
-	// If we are setting the first weapon slot, these are the actions we want to perform
+	if (!NewWeaponClass) { return; }
+	
+	// We can replicate this array, so when it is changed, client updates HUD appropriately
+	// If we pick up a weapon, just add it to our weapon inventory if we have space!!!
+	//WeaponInventory.Add(NewWeaponClass);
+
+
+	// Don't need to change to the weapon
+	// If we have 1 weapon in inventory, that is the 0th index weapon slot
+	//ChangeWeapons(NewWeaponClass, WeaponInventory.Num() - 1);
+
+
+
+	//if(WeaponInventory)
 	//if (!FirstWeaponClass)
 	//{
 	//	// This class update gets replicated to owner only
@@ -144,7 +148,7 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 	}
 
 	//CurrentSlot only used set and used by server
-	if (CurrentSlot == NewWeaponSlot) { return; }
+	//if (CurrentSlot == NewWeaponSlot) { return; }
 
 	// Don't try to change weapons if invalid new weapon class
 	if (!NewWeaponClass) { return; }
@@ -166,12 +170,8 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 
-		// COuld replicate this variable instead and call functionality on_rep
-		// Update value of CurrentSlot so this function isn't called on the same weapon slot that is equipped
-		CurrentSlot = NewWeaponSlot;
-
-		//Update HUD info on client
-		ClientSetHUD(NewWeaponClass, CurrentSlot);
+		//Update HUD info on client now that we ACTUALLY attached a new weapon
+		ClientSetHUD(NewWeaponClass, NewWeaponSlot);
 	}
 }
 
@@ -203,10 +203,5 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	// In .h file we say we want to replicate CurrentWeapon variable, now we specify where we want to replicate to
 	// This replicates to any client connected to us
 	DOREPLIFETIME(ASCharacter, CurrentWeapon);
-	DOREPLIFETIME_CONDITION(ASCharacter, FirstWeaponClass, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ASCharacter, SecondWeaponClass, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ASCharacter, ThirdWeaponClass, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ASCharacter, FourthWeaponClass, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ASCharacter, FifthWeaponClass, COND_OwnerOnly);
 	DOREPLIFETIME(ASCharacter, bDied);
 }

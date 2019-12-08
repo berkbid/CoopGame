@@ -49,12 +49,6 @@ protected:
 
 	void EndZoom();
 
-	void EquipSlotOne();
-	void EquipSlotTwo();
-	void EquipSlotThree();
-	void EquipSlotFour();
-	void EquipSlotFive();
-
 	bool bIsZooming;
 	bool bIsZoomingIn;
 	bool bIsZoomingOut;

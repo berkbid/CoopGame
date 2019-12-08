@@ -59,7 +59,7 @@ public:
 	void HandleScoreChanged(float NewScore);
 
 	UFUNCTION()
-	void HandleWeaponChange(int WeaponSlot);
+	void SetInventoryColor(int WeaponSlot);
 
 
 	UFUNCTION(BlueprintImplementableEvent)

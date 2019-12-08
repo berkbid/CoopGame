@@ -36,51 +36,7 @@ void ASPlayerCharacter::BeginPlay()
 	if (IsLocallyControlled())
 	{
 		DefaultFOV = CameraComp->FieldOfView;
-
-		// Check which weapon slots are valid, fill in their images, and set current weapon to fist class if it is valid
-		if (ASPlayerController* PC = Cast<ASPlayerController>(GetController()))
-		{
-			// If we have a weapon equipped, then set the HUD accordingly
-			if (FirstWeaponClass)
-			{
-				PC->SetCurrentWeapon(FirstWeaponClass, 0);
-			}
-			if (SecondWeaponClass)
-			{
-				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
-				if (WGI)
-				{
-					WGI->SetInventoryImage(SecondWeaponClass, 1);
-				}
-			}
-			if (ThirdWeaponClass)
-			{
-				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
-				if (WGI)
-				{
-					WGI->SetInventoryImage(ThirdWeaponClass, 2);
-				}
-			}
-			if (FourthWeaponClass)
-			{
-				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
-				if (WGI)
-				{
-					WGI->SetInventoryImage(FourthWeaponClass, 3);
-				}
-			}
-			if (FifthWeaponClass)
-			{
-				USUserWidgetGameInfo* WGI = PC->MyGameInfo;
-				if (WGI)
-				{
-					WGI->SetInventoryImage(FifthWeaponClass, 4);
-				}
-			}
-		}
-
 	}
-
 }
 
 // Called every frame
@@ -140,11 +96,6 @@ void ASPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASPlayerCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASPlayerCharacter::StopFire);
 
-	PlayerInputComponent->BindAction("Weapon1", IE_Pressed, this, &ASPlayerCharacter::EquipSlotOne);
-	PlayerInputComponent->BindAction("Weapon2", IE_Pressed, this, &ASPlayerCharacter::EquipSlotTwo);
-	PlayerInputComponent->BindAction("Weapon3", IE_Pressed, this, &ASPlayerCharacter::EquipSlotThree);
-	PlayerInputComponent->BindAction("Weapon4", IE_Pressed, this, &ASPlayerCharacter::EquipSlotFour);
-	PlayerInputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerCharacter::EquipSlotFive);
 }
 
 FVector ASPlayerCharacter::GetPawnViewLocation() const
@@ -189,34 +140,4 @@ void ASPlayerCharacter::EndZoom()
 	bIsZooming = true;
 	bIsZoomingIn = false;
 	bIsZoomingOut = true;
-}
-
-void ASPlayerCharacter::EquipSlotOne()
-{
-	if (!FirstWeaponClass) { return; }
-	ChangeWeapons(FirstWeaponClass, 0);
-}
-
-void ASPlayerCharacter::EquipSlotTwo()
-{
-	if (!SecondWeaponClass) { return; }
-	ChangeWeapons(SecondWeaponClass, 1);
-}
-
-void ASPlayerCharacter::EquipSlotThree()
-{
-	if (!ThirdWeaponClass) { return; }
-	ChangeWeapons(ThirdWeaponClass, 2);
-}
-
-void ASPlayerCharacter::EquipSlotFour()
-{
-	if (!FourthWeaponClass) { return; }
-	ChangeWeapons(FourthWeaponClass, 3);
-}
-
-void ASPlayerCharacter::EquipSlotFive()
-{
-	if (!FifthWeaponClass) { return; }
-	ChangeWeapons(FifthWeaponClass, 4);
 }

@@ -48,7 +48,7 @@ void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
 	}
 }
 
-void USUserWidgetGameInfo::HandleWeaponChange(int WeaponSlot)
+void USUserWidgetGameInfo::SetInventoryColor(int WeaponSlot)
 {
 	switch (WeaponSlot)
 	{

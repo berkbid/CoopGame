@@ -14,6 +14,7 @@ ASItemPickup::ASItemPickup()
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
 	CapsuleComp->SetCanEverAffectNavigation(false);
 	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	RootComponent = CapsuleComp;
 
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
