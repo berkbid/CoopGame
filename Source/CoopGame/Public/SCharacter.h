@@ -45,11 +45,6 @@ protected:
 	UFUNCTION()
 	void OnRep_Death();
 
-	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
-	// WithValidation is required for something
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot);
-
 	UFUNCTION(Client, unreliable)
 	void ClientSetHUD(TSubclassOf<ASWeapon> WeaponClass, int WeaponSlot);
 

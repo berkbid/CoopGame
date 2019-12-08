@@ -143,25 +143,26 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 	// When we call this on client, call it on server instead
 	if (Role < ROLE_Authority)
 	{
-		ServerChangeWeapons(NewWeaponClass, NewWeaponSlot);
+		// Shouldn't have to call this, client should never enter here anyways
+		//ServerChangeWeapons(NewWeaponClass, NewWeaponSlot);
 		return;
 	}
-
-	//CurrentSlot only used set and used by server
-	//if (CurrentSlot == NewWeaponSlot) { return; }
-
-	// Don't try to change weapons if invalid new weapon class
-	if (!NewWeaponClass) { return; }
 
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->Destroy();
 	}
 
-	// Spawn a default weapon
+	// If invalid new weapon class, destroy current weapon and don't try to equip new one
+	// This is completely valid, we allow for this, this is swapping to empty inventory slot
+	if (!NewWeaponClass) { return; }
+
+
+	// Spawn a weapon because it exists in the inventory slot, and update HUD image
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+	// Create On_Rep function for client to update HUD when weapon changes
 	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
 	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
 
@@ -179,20 +180,9 @@ void ASCharacter::ClientSetHUD_Implementation(TSubclassOf<ASWeapon> WeaponClass,
 {
 	if (ASPlayerController* PC = Cast<ASPlayerController>(GetController())) 
 	{ 
-		PC->SetCurrentWeapon(WeaponClass, WeaponSlot);
+		PC->SetInventorySlotImage(WeaponClass, WeaponSlot);
+
 	}
-}
-
-// MUST prefix with Server and require _Implementation
-void ASCharacter::ServerChangeWeapons_Implementation(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
-{
-	ChangeWeapons(NewWeaponClass, NewWeaponSlot);
-}
-
-bool ASCharacter::ServerChangeWeapons_Validate(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
-{
-	// This is for anti cheat stuff
-	return true;
 }
 
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

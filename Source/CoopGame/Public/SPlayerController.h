@@ -25,7 +25,7 @@ public:
 
 	void SetScoreText(float NewScore);
 
-	void SetCurrentWeapon(TSubclassOf<class ASWeapon> WeaponClass, int WeaponSlot);
+	void SetInventorySlotImage(TSubclassOf<class ASWeapon> WeaponClass, int WeaponSlot);
 
 	void EquipSlotOne();
 	void EquipSlotTwo();
@@ -49,7 +49,11 @@ protected:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
 	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
 
+	UFUNCTION()
+	void OnRep_SlotChange();
+
 	/* Keep track of which weapon slot is currently equipped */
+	UPROPERTY(ReplicatedUsing=OnRep_SlotChange)
 	int CurrentSlot;
 
 	
