@@ -46,8 +46,7 @@ void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActo
 		ASCharacter* OverlappedCharacter = Cast<ASCharacter>(OtherActor);
 		if (OverlappedCharacter)
 		{
-			OverlappedCharacter->PickupWeapon(ItemType);
-			Destroy();
+			OverlappedCharacter->PickupWeapon(ItemType, this);
 		}
 	}
 }

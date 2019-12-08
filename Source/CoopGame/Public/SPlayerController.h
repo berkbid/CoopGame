@@ -36,7 +36,8 @@ public:
 
 	class USUserWidgetGameInfo* MyGameInfo;
 
-	void PickedUpNewWeapon(TSubclassOf<class ASWeapon> WeaponClass);
+	// Return success or failure for picking up weapon, based on inventory space
+	bool PickedUpNewWeapon(TSubclassOf<class ASWeapon> WeaponClass);
 
 protected:
 	virtual void SetupInputComponent() override;

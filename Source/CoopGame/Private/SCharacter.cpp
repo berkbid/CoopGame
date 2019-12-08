@@ -66,45 +66,22 @@ void ASCharacter::StopFire()
 }
 
 // Being called by server only
-void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass)
+void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor)
 {
-	//int InventorySize = WeaponInventory.Num();
-	// Don't pick up weapon if we already have 5 inventory items, don't pick up next item
-	//if (InventorySize >= 5) { return; }
-
 	if (!NewWeaponClass) { return; }
 	
+	// This means AI don't pickup weapons because they have different controller class
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
+
 	if (PC)
 	{
-		PC->PickedUpNewWeapon(NewWeaponClass);
+		// Perhaps we could have a counter on how many items we own, and if it is >= inventory space, we just return much faster here
+		// Try to pickup weapon, and if we succeeded, destroy the pickup weapon actor
+		if (PC->PickedUpNewWeapon(NewWeaponClass))
+		{
+			PickupActor->Destroy();
+		}
 	}
-
-	// We can replicate this array, so when it is changed, client updates HUD appropriately
-	// If we pick up a weapon, just add it to our weapon inventory if we have space!!!
-	//WeaponInventory.Add(NewWeaponClass);
-
-
-	// Don't need to change to the weapon
-	// If we have 1 weapon in inventory, that is the 0th index weapon slot
-	//ChangeWeapons(NewWeaponClass, WeaponInventory.Num() - 1);
-
-
-
-	//if(WeaponInventory)
-	//if (!FirstWeaponClass)
-	//{
-	//	// This class update gets replicated to owner only
-	//	FirstWeaponClass = NewWeaponClass;
-	//	ChangeWeapons(FirstWeaponClass, 0);
-	//}
-	//else
-	//{
-	//	SecondWeaponClass = NewWeaponClass;
-	//	ChangeWeapons(SecondWeaponClass, 1);
-	//}
-	
-
 }
 
 // Only called on server because we only hooked this on the server

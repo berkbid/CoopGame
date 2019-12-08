@@ -136,8 +136,9 @@ void ASPlayerController::EquipSlotFive()
 }
 
 // Only server should be inside this call
-void ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
+bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 {
+	// Weaponclass will never be null in here, it is checked in the previous function call
 	// Loop through inventory looking for empty slot
 	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
 	{
@@ -160,11 +161,14 @@ void ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 					MyPawn->ChangeWeapons(WeaponClass, i);
 				}
 			}
-
-			// Don't loop anymore, we found the inventory slot to fill already
-			break;
+			
+			//We officially equipped new weapon, return success
+			return true;
 		}
 	}
+
+	// Return failure because we didn't find empty slot for weapon
+	return false;
 }
 
 

@@ -56,7 +56,7 @@ public:
 	void StopFire();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass);
+	void PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor);
 
 	void ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot);
 
