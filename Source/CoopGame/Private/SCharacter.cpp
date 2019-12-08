@@ -69,14 +69,15 @@ void ASCharacter::StopFire()
 void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor)
 {
 	if (!NewWeaponClass) { return; }
-	
+
+	// If we could get a boolean from player controller if inventory is full or not we could skip doing more work
 	// This means AI don't pickup weapons because they have different controller class
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
 
 	if (PC)
 	{
-		// Perhaps we could have a counter on how many items we own, and if it is >= inventory space, we just return much faster here
-		// Try to pickup weapon, and if we succeeded, destroy the pickup weapon actor
+		if (PC->bIsInventoryFull) { return; }
+
 		if (PC->PickedUpNewWeapon(NewWeaponClass))
 		{
 			PickupActor->Destroy();

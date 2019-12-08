@@ -10,44 +10,50 @@
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	CurrentInventorySize = 0;
+	InventoryMaxSize = 5;
+	bIsInventoryFull = false;
 	// Start with invalid first slot, so when it is set to 0 on possess, we replicate this change so client can update HUD
-	CurrentSlot = -1;
+	CurrentSlot = 0;
 	SlotToUpdate = -1;
-
-	WeaponInventory.Init(NULL, 5);
+	WeaponInventory.Init(NULL, InventoryMaxSize);
 }
 
 void ASPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
 	// Only local controllers can add widgets
-	//if (Role < ROLE_Authority)
 	if (IsLocalController())
 	{
 		// Add Game Info widget to viewport
-		if (wGameInfo)
+		if (!wGameInfo) { return; }
+		MyGameInfo = CreateWidget<USUserWidgetGameInfo>(this, wGameInfo);
+		if (!MyGameInfo) { return; }
+		
+
+		MyGameInfo->SetOwningController(this);
+		MyGameInfo->AddToViewport();
+
+		for (int32 i = 0; i != WeaponInventory.Num(); ++i)
 		{
-			MyGameInfo = CreateWidget<USUserWidgetGameInfo>(this, wGameInfo);
-
-			if (MyGameInfo)
+			if (WeaponInventory[i])
 			{
-				MyGameInfo->SetOwningController(this);
-				MyGameInfo->AddToViewport();
-
-
-				// Instead we can loop over our array of weaponclasses and update HUD
-				for (int32 i = 0; i != WeaponInventory.Num(); ++i)
+				// Must set color "active" inventory slot here because first OnPossess happens before beginplay
+				if (i == CurrentSlot)
 				{
-					if (WeaponInventory[i])
-					{
-						if (i == CurrentSlot)
-						{
-							MyGameInfo->SetInventoryColor(CurrentSlot);
-						}
-						MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
-					}
+					MyGameInfo->SetInventoryColor(CurrentSlot);
 				}
 
+				MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
+
+				// Update current inventory size, need to do this on server since it is used on server
+				CurrentInventorySize++;
+
+				if (CurrentInventorySize >= InventoryMaxSize)
+				{
+					bIsInventoryFull = true;
+				}
 			}
 		}
 	}
@@ -76,14 +82,12 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 		// If we possess a SCharacter, try to equip first weapon slot if it has a weapon
 		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 
-		// Remove this "if statement" if you want player to always start with first inventory slot selected and equipped
+		// Current slot shouldn't be 0 here, but handle it anyways
 		if (CurrentSlot < 0)
 		{
-			// Reset Currently Equipped Slot back to 0 on possess new pawn
 			CurrentSlot = 0;
 			OnRep_SlotChange();
 		}
-
 
 		// Try equip weapon at currentslot
 		if (WeaponInventory.Num() > CurrentSlot)
@@ -147,6 +151,12 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 		{
 			// Update weaponinventory slot to new weaponclass
 			WeaponInventory[i] = WeaponClass;
+			CurrentInventorySize++;
+
+			if (CurrentInventorySize >= InventoryMaxSize)
+			{
+				bIsInventoryFull = true;
+			}
 
 			// Update HUD image for client/listen server
 			SlotToUpdate = i;
@@ -206,7 +216,10 @@ bool ASPlayerController::ServerEquipWeapon_Validate(int NewWeaponSlot)
 // Replicated actions for death
 void ASPlayerController::OnRep_SlotChange()
 {
-	if (MyGameInfo) { MyGameInfo->SetInventoryColor(CurrentSlot); }
+	if (MyGameInfo) 
+	{ 
+		MyGameInfo->SetInventoryColor(CurrentSlot); 
+	}
 }
 
 void ASPlayerController::OnRep_SlotToUpdate()

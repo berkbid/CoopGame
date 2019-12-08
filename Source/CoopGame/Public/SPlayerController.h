@@ -39,6 +39,8 @@ public:
 	// Return success or failure for picking up weapon, based on inventory space
 	bool PickedUpNewWeapon(TSubclassOf<class ASWeapon> WeaponClass);
 
+	bool bIsInventoryFull;
+
 protected:
 	virtual void SetupInputComponent() override;
 
@@ -64,4 +66,9 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_SlotToUpdate)
 	int SlotToUpdate;
 
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	int InventoryMaxSize;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	int CurrentInventorySize;
 };
