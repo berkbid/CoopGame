@@ -7,8 +7,11 @@
 
 ASAIController::ASAIController(const FObjectInitializer& ObjectInitializer)
 {
+	CurrentInventorySize = 0;
+	InventoryMaxSize = 5;
+
 	CurrentSlot = -1;
-	WeaponInventory.Init(NULL, 5);
+	WeaponInventory.Init(NULL, InventoryMaxSize);
 }
 
 void ASAIController::OnPossess(APawn* aPawn)

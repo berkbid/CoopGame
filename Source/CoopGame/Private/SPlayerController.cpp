@@ -79,20 +79,17 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 	
 	if (Role == ROLE_Authority)
 	{
-		// If we possess a SCharacter, try to equip first weapon slot if it has a weapon
-		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-
-		// Current slot shouldn't be 0 here, but handle it anyways
-		if (CurrentSlot < 0)
-		{
-			CurrentSlot = 0;
-			OnRep_SlotChange();
-		}
-
-		// Try equip weapon at currentslot
+		// Uncomment to have players reset to current slot being 0 upon possessing new pawn
+		//CurrentSlot = 0;
+		//OnRep_SlotChange();
+		
+		// If our current slot is a valid inventory index
 		if (WeaponInventory.Num() > CurrentSlot)
 		{
-			// Try to equip weapon at slot if it exists
+			// Try cast the pawn to a SCharacter
+			ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
+
+			// Equip whatever weapon is in the current slot if we are a SCharacter
 			if (MyPawn)
 			{
 				MyPawn->ChangeWeapons(WeaponInventory[CurrentSlot], CurrentSlot);

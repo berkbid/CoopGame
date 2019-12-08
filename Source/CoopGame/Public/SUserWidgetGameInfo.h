@@ -43,9 +43,26 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UBorder* FifthSlot;
 
-	class UBorder* CurrentSlot;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UOverlay* FirstOverlay;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UOverlay* SecondOverlay;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UOverlay* ThirdOverlay;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UOverlay* FourthOverlay;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UOverlay* FifthOverlay;
+
+	class UOverlay* CurrentOverlay;
+
+	void ResetOldInventorySlot();
+
+	void UpdateNewInventorySlot(class UOverlay* NewOverlay);
 
 public:
 

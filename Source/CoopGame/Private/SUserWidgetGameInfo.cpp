@@ -4,8 +4,34 @@
 #include "SUserWidgetGameInfo.h"
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
+#include "Components/Overlay.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerState.h"
+
+void USUserWidgetGameInfo::ResetOldInventorySlot()
+{
+	if (!CurrentOverlay) { return; }
+	
+	//UE_LOG(LogTemp, Warning, TEXT("found current overlay"));
+	if (UBorder* TempBorder = Cast<UBorder>(CurrentOverlay->GetChildAt(0)))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("found current Border));
+		TempBorder->SetBrushColor(FColor::White);
+	}
+	CurrentOverlay->SetRenderTranslation(FVector2D(0.f, 0.f));
+}
+
+void USUserWidgetGameInfo::UpdateNewInventorySlot(UOverlay* NewOverlay)
+{
+	if (!NewOverlay) { return; }
+
+	if (UBorder* TempBorder = Cast<UBorder>(NewOverlay->GetChildAt(0)))
+	{
+		TempBorder->SetBrushColor(FColor::Blue);
+		NewOverlay->SetRenderTranslation(FVector2D(0.f, -10.f));
+		CurrentOverlay = NewOverlay;
+	}
+}
 
 bool USUserWidgetGameInfo::Initialize()
 {
@@ -53,64 +79,27 @@ void USUserWidgetGameInfo::SetInventoryColor(int WeaponSlot)
 	switch (WeaponSlot)
 	{
 		case 0:
-			if (CurrentSlot)
-			{
-				CurrentSlot->SetBrushColor(FColor::White);
-			}
-			if (FirstSlot)
-			{
-				FirstSlot->SetBrushColor(FColor::Blue);
-				CurrentSlot = FirstSlot;
-			}
+			ResetOldInventorySlot();
+			UpdateNewInventorySlot(FirstOverlay);
 			break;
+
 		case 1:
-			if (CurrentSlot)
-			{
-				CurrentSlot->SetBrushColor(FColor::White);
-			}
-			if (SecondSlot)
-			{
-				SecondSlot->SetBrushColor(FColor::Blue);
-				CurrentSlot = SecondSlot;
-			}
+			ResetOldInventorySlot();
+			UpdateNewInventorySlot(SecondOverlay);
 			break;
 		case 2:
-			if (CurrentSlot)
-			{
-				CurrentSlot->SetBrushColor(FColor::White);
-			}
-			if (ThirdSlot)
-			{
-				ThirdSlot->SetBrushColor(FColor::Blue);
-				CurrentSlot = ThirdSlot;
-			}
+			ResetOldInventorySlot();
+			UpdateNewInventorySlot(ThirdOverlay);
 			break;
 		case 3:
-			if (CurrentSlot)
-			{
-				CurrentSlot->SetBrushColor(FColor::White);
-			}
-			if (FourthSlot)
-			{
-				FourthSlot->SetBrushColor(FColor::Blue);
-				CurrentSlot = FourthSlot;
-			}
+			ResetOldInventorySlot();
+			UpdateNewInventorySlot(FourthOverlay);
 			break;
 		case 4:
-			if (CurrentSlot)
-			{
-				CurrentSlot->SetBrushColor(FColor::White);
-			}
-			if (FifthSlot)
-			{
-				FifthSlot->SetBrushColor(FColor::Blue);
-				CurrentSlot = FifthSlot;
-			}
+			ResetOldInventorySlot();
+			UpdateNewInventorySlot(FifthOverlay);
 			break;
-	
 	default:
 		break;
 	}
-
-
 }

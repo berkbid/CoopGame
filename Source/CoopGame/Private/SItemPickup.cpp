@@ -29,16 +29,15 @@ void ASItemPickup::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Only hook Explode timer on server
+	// Only hook overlap event on server
 	if (Role == ROLE_Authority)
 	{
 		// Bind to overlap event on server because functionality needs to be run on server
 		OnActorBeginOverlap.AddDynamic(this, &ASItemPickup::HandleBeginOverlap);
-
 	}
-	
 }
 
+// Only server hooks onto this event
 void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (ItemType)

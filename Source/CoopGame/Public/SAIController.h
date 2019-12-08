@@ -24,6 +24,12 @@ protected:
 	/* Keep track of which weapon slot is currently equipped */
 	int CurrentSlot;
 
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	int InventoryMaxSize;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	int CurrentInventorySize;
+
 public:
 	ASAIController(const FObjectInitializer& ObjectInitializer);
 };
