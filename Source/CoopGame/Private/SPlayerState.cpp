@@ -36,4 +36,6 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 	// This replicates to any client connected to us
 	DOREPLIFETIME(ASPlayerState, PlayerNumber);
+	DOREPLIFETIME(ASPlayerState, PlayerKills);
+	DOREPLIFETIME(ASPlayerState, PlayerDeaths);
 }

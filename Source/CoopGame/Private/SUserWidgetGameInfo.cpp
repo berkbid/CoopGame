@@ -46,6 +46,7 @@ void USUserWidgetGameInfo::ResetOldInventorySlot()
 	{
 		TempBorder->SetBrushColor(FColor::White);
 	}
+
 	CurrentOverlay->SetRenderTranslation(FVector2D(0.f, 0.f));
 }
 
@@ -56,9 +57,10 @@ void USUserWidgetGameInfo::UpdateNewInventorySlot(UOverlay* NewOverlay)
 	if (UBorder* TempBorder = Cast<UBorder>(NewOverlay->GetChildAt(0)))
 	{
 		TempBorder->SetBrushColor(FColor::Blue);
-		NewOverlay->SetRenderTranslation(FVector2D(0.f, -10.f));
-		CurrentOverlay = NewOverlay;
 	}
+
+	NewOverlay->SetRenderTranslation(FVector2D(0.f, -20.f));
+	CurrentOverlay = NewOverlay;
 }
 
 void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)
