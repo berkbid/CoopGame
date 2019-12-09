@@ -10,6 +10,7 @@
 #include "SPlayerState.h"
 #include "SPlayerCharacter.h"
 #include "SAICharacter.h"
+#include "SPlayerController.h"
 
 ASGameMode::ASGameMode()
 {
@@ -232,10 +233,22 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 			if (GS)
 			{
 				// Set new players number to the current size of PlayerArray found in the GameState class
-				PS->PlayerNumber = GS->PlayerArray.Num();
+				uint8 NewPlayerNum = GS->PlayerArray.Num();
+				PS->PlayerNumber = NewPlayerNum;
+
+				// Set new players name to include player number
+				FString NewPlayerName = FString("Player") + FString::FromInt(NewPlayerNum);
+				PS->SetPlayerName(NewPlayerName);
+
+				// Call Client function on player controller to setup initial HUD
+				ASPlayerController* SPC = Cast<ASPlayerController>(NewPlayer);
+				if (SPC)
+				{
+					SPC->ClientPostLogin();
+				}
 
 				// If we play as listen server, we don't see these printouts unless we use multiple processes
-				UE_LOG(LogTemp, Warning, TEXT("Found Player Num: %d"), GS->PlayerArray.Num());
+				UE_LOG(LogTemp, Warning, TEXT("Found New Player: %s"), *PS->GetPlayerName());
 			}
 		}
 	}

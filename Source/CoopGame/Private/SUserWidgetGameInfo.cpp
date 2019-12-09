@@ -38,10 +38,11 @@ void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
 	}
 }
 
+// HUD actions to represent de-selecting an old inventory slot
 void USUserWidgetGameInfo::ResetOldInventorySlot()
 {
 	if (!CurrentOverlay) { return; }
-
+	
 	if (UBorder* TempBorder = Cast<UBorder>(CurrentOverlay->GetChildAt(0)))
 	{
 		TempBorder->SetBrushColor(FColor::White);
@@ -50,6 +51,7 @@ void USUserWidgetGameInfo::ResetOldInventorySlot()
 	CurrentOverlay->SetRenderTranslation(FVector2D(0.f, 0.f));
 }
 
+// HUD actions to represent selecting a new inventory slot
 void USUserWidgetGameInfo::UpdateNewInventorySlot(UOverlay* NewOverlay)
 {
 	if (!NewOverlay) { return; }
@@ -63,6 +65,7 @@ void USUserWidgetGameInfo::UpdateNewInventorySlot(UOverlay* NewOverlay)
 	CurrentOverlay = NewOverlay;
 }
 
+// Called on PlayerController when server updates variable of CurrentSlot, triggers OnRep to owning client to call this code
 void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)
 {
 	switch (WeaponSlot)

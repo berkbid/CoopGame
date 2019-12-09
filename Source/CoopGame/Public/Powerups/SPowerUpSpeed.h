@@ -16,9 +16,6 @@ class COOPGAME_API ASPowerUpSpeed : public ASPowerupActor
 	
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = "SpeedActor")
-	TSubclassOf<class UCharacterMovementComponent> MovementComponentClass;
-
 	UPROPERTY(Replicated)
 	class UCharacterMovementComponent* MoveComp;
 

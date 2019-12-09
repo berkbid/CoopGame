@@ -15,16 +15,11 @@ void ASPowerUpHealth::OnTickPowerup()
 {
 	TicksSoFar++;
 
-	// If want to heal all actors can get them with this
-	//TArray<AActor*> CharArray;
-	//UGameplayStatics::GetAllActorsOfClass(this, CharClass, CharArray);
-
 	if (PowerupTargetActor)
 	{
 		USHealthComponent* HealthComp = Cast<USHealthComponent>(PowerupTargetActor->GetComponentByClass(HealthComponentClass));
 		if (HealthComp)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("HEALING"));
 			HealthComp->Heal(HealAmount);
 		}
 	}

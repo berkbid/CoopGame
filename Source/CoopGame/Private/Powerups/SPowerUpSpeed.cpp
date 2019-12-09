@@ -21,13 +21,12 @@ void ASPowerUpSpeed::OnRep_SpeedChange()
 void ASPowerUpSpeed::OnSpeedTick()
 {
 	TicksSoFar++;
-	//UE_LOG(LogTemp, Warning, TEXT("Speed Tick"));
+
 	// Undo previous increase to CharacterMovementComponent
 	if (TicksSoFar >= TotalNrOfTicks)
 	{
 		if (PowerupTargetActor)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Decreasing speed"));
 			NewMaxSpeed = DefaultMaxWalkSpeed;
 			OnRep_SpeedChange();
 
@@ -46,7 +45,7 @@ void ASPowerUpSpeed::OnSpeedTick()
 			{
 				// Need to replicate this code
 				DefaultMaxWalkSpeed = MoveComp->MaxWalkSpeed;
-				//UE_LOG(LogTemp, Warning, TEXT("Increasing speed"));
+
 				NewMaxSpeed = DefaultMaxWalkSpeed * 2;
 				OnRep_SpeedChange();
 			}
@@ -54,17 +53,20 @@ void ASPowerUpSpeed::OnSpeedTick()
 	}
 }
 
+// Server runs this code
 void ASPowerUpSpeed::ActivatePowerup(AActor* PowerActor)
 {
 	PowerupTargetActor = PowerActor;
 
-	// Trigger replication for clients
+	// Trigger replication for clients, setting actor invisible
 	bIsPowerupActive = true;
 	// Call function manually for server
 	OnRep_PowerupActive();
 
 	// Using PowerActor instead of PowerupTargetActor to get the component
-	MoveComp = Cast<UCharacterMovementComponent>(PowerActor->GetComponentByClass(MovementComponentClass));
+	// Server updates this variable, that is why it is replicated, so when clients enter OnRep_SpeedChange, they have a valid copy
+	// of MoveComp in order to run the replicated code
+	MoveComp = Cast<UCharacterMovementComponent>(PowerActor->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 
 	if (PowerupInterval > 0.f)
 	{

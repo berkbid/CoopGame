@@ -23,6 +23,10 @@ public:
 
 	virtual void BeginPlay() override;
 
+	// Needs to be set Reliable
+	UFUNCTION(Client, Reliable)
+	void ClientPostLogin();
+
 	void SetScoreText(float NewScore);
 
 	void EquipSlotOne();
