@@ -76,7 +76,7 @@ public:
 	void HandleScoreChanged(float NewScore);
 
 	UFUNCTION()
-	void SetInventoryColor(int WeaponSlot);
+	void UpdateInventoryHUD(int WeaponSlot);
 
 
 	UFUNCTION(BlueprintImplementableEvent)

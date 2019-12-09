@@ -207,3 +207,36 @@ void ASGameMode::StartPlay()
 	PrepareForNextWave();
 
 }
+
+void ASGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+}
+
+APlayerController* ASGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+	return Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
+}
+
+void ASGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	// As server, manipulate replicated properties on the PlayerState connected to the new PlayerController
+	if (Role == ROLE_Authority)
+	{
+		ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
+		if (PS)
+		{
+			ASGameState* GS = GetGameState<ASGameState>();
+			if (GS)
+			{
+				// Set new players number to the current size of PlayerArray found in the GameState class
+				PS->PlayerNumber = GS->PlayerArray.Num();
+
+				// If we play as listen server, we don't see these printouts unless we use multiple processes
+				UE_LOG(LogTemp, Warning, TEXT("Found Player Num: %d"), GS->PlayerArray.Num());
+			}
+		}
+	}
+}

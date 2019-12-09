@@ -7,8 +7,6 @@
 #include "SPlayerState.generated.h"
 
 
-// On health changed event
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChangedSignature, float, NewScore);
 /**
  * 
  */
@@ -19,9 +17,15 @@ class COOPGAME_API ASPlayerState : public APlayerState
 	
 public:
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
 	void AddScore(float ScoreDelta);
 
-	UPROPERTY(BlueprintAssignable, Category = "Events")
-	FOnScoreChangedSignature OnScoreChanged;
+	virtual void OnRep_Score() override;
+
+	// Could replicate this using a function so when a new player joins, ALL clients UPDATE their HUD OnRep_PlayerNumber
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Player")
+	uint8 PlayerNumber;
+
 };

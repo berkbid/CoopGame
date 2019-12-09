@@ -42,7 +42,7 @@ void ASPlayerController::BeginPlay()
 				// Must set color "active" inventory slot here because first OnPossess happens before beginplay
 				if (i == CurrentSlot)
 				{
-					MyGameInfo->SetInventoryColor(CurrentSlot);
+					MyGameInfo->UpdateInventoryHUD(CurrentSlot);
 				}
 
 				MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
@@ -215,7 +215,7 @@ void ASPlayerController::OnRep_SlotChange()
 {
 	if (MyGameInfo) 
 	{ 
-		MyGameInfo->SetInventoryColor(CurrentSlot); 
+		MyGameInfo->UpdateInventoryHUD(CurrentSlot);
 	}
 }
 

@@ -8,14 +8,42 @@
 #include "GameFramework/PlayerController.h"
 #include "SPlayerState.h"
 
+
+bool USUserWidgetGameInfo::Initialize()
+{
+	// Bind to delegates of widget components here
+	// eg OkayButton->OnClicked.AddDynamic(this, &UMainMenu::BeginGame);
+
+	// For some reason Super::Initialize() call doesn't work
+	return UUserWidget::Initialize();
+
+}
+
+// Player controller calls this after creating this widget and passes reference to itself
+void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
+{
+	// Skip repeated calls
+	if (OwningController == NewController) { return; }
+	OwningController = NewController;
+	//UE_LOG(LogTemp, Warning, TEXT("PS: %s"), NewController->PlayerState);
+}
+
+void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
+{
+	if (ScoreText)
+	{
+		FString tempString("SCORE: " + FString::SanitizeFloat(NewScore));
+		ScoreText->SetText(FText::FromString(tempString));
+
+	}
+}
+
 void USUserWidgetGameInfo::ResetOldInventorySlot()
 {
 	if (!CurrentOverlay) { return; }
-	
-	//UE_LOG(LogTemp, Warning, TEXT("found current overlay"));
+
 	if (UBorder* TempBorder = Cast<UBorder>(CurrentOverlay->GetChildAt(0)))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("found current Border));
 		TempBorder->SetBrushColor(FColor::White);
 	}
 	CurrentOverlay->SetRenderTranslation(FVector2D(0.f, 0.f));
@@ -33,48 +61,7 @@ void USUserWidgetGameInfo::UpdateNewInventorySlot(UOverlay* NewOverlay)
 	}
 }
 
-bool USUserWidgetGameInfo::Initialize()
-{
-	// Bind to delegates of widget components here
-	// eg OkayButton->OnClicked.AddDynamic(this, &UMainMenu::BeginGame);
-
-	// For some reason Super::Initialize() call doesn't work
-	return UUserWidget::Initialize();
-
-}
-
-void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
-{
-	// Skip repeated calls
-	if (OwningController == NewController) { return; }
-
-	OwningController = NewController;
-
-	// Bind to delegate on controller not playerstate
-	// Save player state?
-	//ASPlayerState* PS = Cast<ASPlayerState>(OwningController->PlayerState);
-
-	//if (PS)
-	//{
-		//PS->OnScoreChanged.AddDynamic(this, &USUserWidgetGameInfo::HandleScoreChanged);
-
-		// Set initial score text
-		//HandleScoreChanged(PS->Score);
-	//}
-
-}
-
-void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
-{
-	if (ScoreText)
-	{
-		FString tempString("SCORE: " + FString::SanitizeFloat(NewScore));
-		ScoreText->SetText(FText::FromString(tempString));
-
-	}
-}
-
-void USUserWidgetGameInfo::SetInventoryColor(int WeaponSlot)
+void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)
 {
 	switch (WeaponSlot)
 	{
