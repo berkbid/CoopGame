@@ -7,6 +7,7 @@
 #include "SCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "SGameState.h"
+#include "SPlayerState.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -27,6 +28,19 @@ void ASPlayerController::BeginPlay()
 	Super::BeginPlay();
 }
 
+// This gets replicated when PlayerState is assigned to this controller and is valid for the first time
+void ASPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// Add self stats to scoreboard now that our playerstate is valid to access
+	ASPlayerState* PS = Cast<ASPlayerState>(PlayerState);
+	if (PS && MyGameInfo)
+	{
+		MyGameInfo->AddPlayerToScoreboard(PS->GetPlayerName(), FString::FromInt(PS->PlayerKills), FString::FromInt(PS->PlayerDeaths), FString::SanitizeFloat(PS->Score));
+	}
+}
+
 void ASPlayerController::ClientPostLogin_Implementation()
 {
 	// Create and setup initial HUD state
@@ -41,48 +55,43 @@ void ASPlayerController::ClientPostLogin_Implementation()
 		// Pass reference of ourself to widget while calling setup logic on widget
 		MyGameInfo->SetOwningController(this);
 		MyGameInfo->AddToViewport();
-		MyGameInfo->HandleScoreChanged(0.f);
 
-		
-
-		// Loop through WeaponInventory array and update HUD images if weapons are present
-		for (int32 i = 0; i != WeaponInventory.Num(); ++i)
-		{
-			if (WeaponInventory[i])
-			{
-				// Must set color for selected inventory slot here because first OnPossess happens before BeginPlay
-				if (i == CurrentSlot)
-				{
-					MyGameInfo->UpdateInventoryHUD(CurrentSlot);
-				}
-
-				MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
-
-				// Update current inventory size, need to do this on server since it is used on server
-				CurrentInventorySize++;
-
-				if (CurrentInventorySize >= InventoryMaxSize)
-				{
-					bIsInventoryFull = true;
-				}
-			}
-		}
-		//Player Controller -> HUD -> Game Mode -> Game State -> Player State ->Level
+		// Call HUD functions to setup initial HUD state
+		SetupInitialHUDState();
 
 	}
 }
 
-void ASPlayerController::SetupInputComponent()
+// Self contained function in charge of setting initial values in different HUD objects
+void ASPlayerController::SetupInitialHUDState()
 {
-	Super::SetupInputComponent();
+	if (!MyGameInfo) { return; }
 
-	//check(InputComponent);
-	// PlayerController is in charge of weapon changing, this can happen without a pawn, pawn uses the weapons
-	InputComponent->BindAction("Weapon1", IE_Pressed, this, &ASPlayerController::EquipSlotOne);
-	InputComponent->BindAction("Weapon2", IE_Pressed, this, &ASPlayerController::EquipSlotTwo);
-	InputComponent->BindAction("Weapon3", IE_Pressed, this, &ASPlayerController::EquipSlotThree);
-	InputComponent->BindAction("Weapon4", IE_Pressed, this, &ASPlayerController::EquipSlotFour);
-	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
+	// Set starting score value to 0
+	MyGameInfo->HandleScoreChanged(0.f);
+
+	// Loop through WeaponInventory array and update HUD images if weapons are present
+	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
+	{
+		if (WeaponInventory[i])
+		{
+			// Must set color for selected inventory slot here because first OnPossess happens before BeginPlay
+			if (i == CurrentSlot)
+			{
+				MyGameInfo->UpdateInventoryHUD(CurrentSlot);
+			}
+
+			MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
+
+			// Update current inventory size, need to do this on server since it is used on server
+			CurrentInventorySize++;
+
+			if (CurrentInventorySize >= InventoryMaxSize)
+			{
+				bIsInventoryFull = true;
+			}
+		}
+	}
 }
 
 void ASPlayerController::OnPossess(APawn* aPawn)
@@ -110,12 +119,17 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 	}
 }
 
-void ASPlayerController::SetScoreText(float NewScore)
+void ASPlayerController::SetupInputComponent()
 {
-	if (MyGameInfo)
-	{
-		MyGameInfo->HandleScoreChanged(NewScore);
-	}
+	Super::SetupInputComponent();
+
+	//check(InputComponent);
+	// PlayerController is in charge of weapon changing, this can happen without a pawn, pawn uses the weapons
+	InputComponent->BindAction("Weapon1", IE_Pressed, this, &ASPlayerController::EquipSlotOne);
+	InputComponent->BindAction("Weapon2", IE_Pressed, this, &ASPlayerController::EquipSlotTwo);
+	InputComponent->BindAction("Weapon3", IE_Pressed, this, &ASPlayerController::EquipSlotThree);
+	InputComponent->BindAction("Weapon4", IE_Pressed, this, &ASPlayerController::EquipSlotFour);
+	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
 }
 
 void ASPlayerController::EquipSlotOne()
@@ -173,6 +187,38 @@ void ASPlayerController::ServerEquipWeaponFive_Implementation()
 	EquipWeapon(4);
 }
 
+// Method that handles equipping a new weapon slot of the inventory, only server should ever call this function
+void ASPlayerController::EquipWeapon(int NewWeaponSlot)
+{
+	// Only server should call this function, this is precautionary
+	if (Role < ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Should NOT call EquipWeapon as client! See SPlayerController.cpp"));
+		return;
+	}
+
+	// Replicated, Update current slot even if we have no weapon in that slot
+	CurrentSlot = NewWeaponSlot;
+	// If we are listen server, call function manually
+	if (IsLocalController()) { OnRep_SlotChange(); }
+
+	TSubclassOf<ASWeapon> NewWeaponClass;
+
+	// If array is long enough, try to set NewWeaponClass to the value at its index
+	if (WeaponInventory.Num() > NewWeaponSlot) {
+
+		NewWeaponClass = WeaponInventory[NewWeaponSlot];
+	}
+
+	// Call ChangeWeapons, allowing for NewWeaponClass to be null going in, this will destroy current weapon
+	// It is the same as changing to a new inventory slot that doesn't have a weapon in it
+	ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
+	if (MyPawn)
+	{
+		MyPawn->ChangeWeapons(NewWeaponClass, NewWeaponSlot);
+	}
+}
+
 // Only server should be inside this call
 bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 {
@@ -220,39 +266,6 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 	return false;
 }
 
-
-// Method that handles equipping a new weapon slot of the inventory, only server should ever call this function
-void ASPlayerController::EquipWeapon(int NewWeaponSlot)
-{
-	// Only server should call this function, this is precautionary
-	if (Role < ROLE_Authority) 
-	{ 
-		UE_LOG(LogTemp, Warning, TEXT("Should NOT call EquipWeapon as client! See SPlayerController.cpp"));
-		return; 
-	}
-
-	// Replicated, Update current slot even if we have no weapon in that slot
-	CurrentSlot = NewWeaponSlot;
-	// If we are listen server, call function manually
-	if (IsLocalController()) { OnRep_SlotChange(); }
-	
-	TSubclassOf<ASWeapon> NewWeaponClass;
-
-	// If array is long enough, try to set NewWeaponClass to the value at its index
-	if (WeaponInventory.Num() > NewWeaponSlot) {
-
-		NewWeaponClass = WeaponInventory[NewWeaponSlot];
-	}
-
-	// Call ChangeWeapons, allowing for NewWeaponClass to be null going in, this will destroy current weapon
-	// It is the same as changing to a new inventory slot that doesn't have a weapon in it
-	ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-	if (MyPawn)
-	{
-		MyPawn->ChangeWeapons(NewWeaponClass, NewWeaponSlot);
-	}
-}
-
 // When server updates CurrentSlot property, owning client updates their HUD
 void ASPlayerController::OnRep_SlotChange()
 {
@@ -272,6 +285,23 @@ void ASPlayerController::OnRep_SlotToUpdate()
 		{
 			MyGameInfo->SetInventoryImage(WeaponInventory[SlotToUpdate], SlotToUpdate);
 		}
+	}
+}
+
+void ASPlayerController::AddPlayerToHUDScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore)
+{
+	// MyGameInfo isn't valid at this point in time
+	if (MyGameInfo)
+	{
+		MyGameInfo->AddPlayerToScoreboard(NewName, NewKills, NewDeath, NewScore);
+	}
+}
+
+void ASPlayerController::SetScoreText(float NewScore)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->HandleScoreChanged(NewScore);
 	}
 }
 

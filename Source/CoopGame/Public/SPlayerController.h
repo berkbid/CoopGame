@@ -23,9 +23,13 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void OnRep_PlayerState() override;
+
 	// Needs to be set Reliable, GameMode calls this OnPostLogin
 	UFUNCTION(Client, Reliable)
 	void ClientPostLogin();
+
+	void AddPlayerToHUDScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore);
 
 	void SetScoreText(float NewScore);
 
@@ -49,6 +53,8 @@ protected:
 	virtual void SetupInputComponent() override;
 
 	virtual void OnPossess(APawn* aPawn) override;
+
+	void SetupInitialHUDState();
 
 	void EquipWeapon(int NewWeaponSlot);
 

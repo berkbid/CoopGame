@@ -89,6 +89,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetInventoryImage(TSubclassOf<class ASWeapon> InventoryItemClass, int BorderSlot);
 
-	//void AddPlayerToScoreboard();
+	void AddPlayerToScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore);
 	
 };

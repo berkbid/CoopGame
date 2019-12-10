@@ -29,14 +29,16 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 	// Skip repeated calls
 	if (OwningController == NewController) { return; }
 	OwningController = NewController;
+}
 
-
-	if (wPlayerStats) 
+void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore)
+{
+	if (wPlayerStats)
 	{
 		USUserWidgetPlayerStats* NewPlayerStats = CreateWidget<USUserWidgetPlayerStats>(this, wPlayerStats);
-
 		if (NewPlayerStats && ScoreboardEntryBox)
 		{
+			NewPlayerStats->SetAllText(NewName, NewKills, NewDeath, NewScore);
 			ScoreboardEntryBox->AddChild(NewPlayerStats);
 		}
 	}
@@ -109,3 +111,4 @@ void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)
 		break;
 	}
 }
+

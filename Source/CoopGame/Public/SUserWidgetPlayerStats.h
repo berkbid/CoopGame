@@ -28,4 +28,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* ScoreText;
+
+public:
+	void SetAllText(FString NewName, FString NewKills, FString NewDeath, FString NewScore);
 };

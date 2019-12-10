@@ -38,4 +38,5 @@ public:
 	UPROPERTY(Replicated, VisibleAnywhere, Category = "Player")
 	uint8 PlayerDeaths;
 
+
 };

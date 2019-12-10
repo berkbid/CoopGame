@@ -240,15 +240,13 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 				FString NewPlayerName = FString("Player") + FString::FromInt(NewPlayerNum);
 				PS->SetPlayerName(NewPlayerName);
 
+				
 				// Call Client function on player controller to setup initial HUD
 				ASPlayerController* SPC = Cast<ASPlayerController>(NewPlayer);
 				if (SPC)
 				{
 					SPC->ClientPostLogin();
 				}
-
-				// If we play as listen server, we don't see these printouts unless we use multiple processes
-				UE_LOG(LogTemp, Warning, TEXT("Found New Player: %s"), *PS->GetPlayerName());
 			}
 		}
 	}
