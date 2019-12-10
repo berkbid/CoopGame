@@ -115,32 +115,57 @@ void ASPlayerController::SetScoreText(float NewScore)
 
 void ASPlayerController::EquipSlotOne()
 {
-	if (CurrentSlot == 0) { return; }
-	ServerEquipWeapon(0);
+	ServerEquipWeaponOne();
 }
 
 void ASPlayerController::EquipSlotTwo()
 {
-	if (CurrentSlot == 1) { return; }
-	ServerEquipWeapon(1);
+	ServerEquipWeaponTwo();
 }
 
 void ASPlayerController::EquipSlotThree()
 {
-	if (CurrentSlot == 2) { return; }
-	ServerEquipWeapon(2);
+	ServerEquipWeaponThree();
 }
 
 void ASPlayerController::EquipSlotFour()
 {
-	if (CurrentSlot == 3) { return; }
-	ServerEquipWeapon(3);
+	ServerEquipWeaponFour();
 }
 
 void ASPlayerController::EquipSlotFive()
 {
+	ServerEquipWeaponFive();
+}
+
+void ASPlayerController::ServerEquipWeaponOne_Implementation()
+{
+	if (CurrentSlot == 0) { return; }
+	EquipWeapon(0);
+}
+
+void ASPlayerController::ServerEquipWeaponTwo_Implementation()
+{
+	if (CurrentSlot == 1) { return; }
+	EquipWeapon(1);
+}
+
+void ASPlayerController::ServerEquipWeaponThree_Implementation()
+{
+	if (CurrentSlot == 2) { return; }
+	EquipWeapon(2);
+}
+
+void ASPlayerController::ServerEquipWeaponFour_Implementation()
+{
+	if (CurrentSlot == 3) { return; }
+	EquipWeapon(3);
+}
+
+void ASPlayerController::ServerEquipWeaponFive_Implementation()
+{
 	if (CurrentSlot == 4) { return; }
-	ServerEquipWeapon(4);
+	EquipWeapon(4);
 }
 
 // Only server should be inside this call
@@ -185,9 +210,16 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 }
 
 
-// MUST prefix with Server and require _Implementation
-void ASPlayerController::ServerEquipWeapon_Implementation(int NewWeaponSlot)
+// Method that handles equipping a new weapon slot of the inventory, only server should ever call this function
+void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 {
+	// Only server should call this function, this is precautionary
+	if (Role < ROLE_Authority) 
+	{ 
+		UE_LOG(LogTemp, Warning, TEXT("Should NOT call EquipWeapon as client! See SPlayerController.cpp"));
+		return; 
+	}
+
 	// Replicated, Update current slot even if we have no weapon in that slot
 	CurrentSlot = NewWeaponSlot;
 	// If we are listen server, call function manually
@@ -208,13 +240,6 @@ void ASPlayerController::ServerEquipWeapon_Implementation(int NewWeaponSlot)
 	{
 		MyPawn->ChangeWeapons(NewWeaponClass, NewWeaponSlot);
 	}
-	
-}
-
-bool ASPlayerController::ServerEquipWeapon_Validate(int NewWeaponSlot)
-{
-	// This is for anti cheat stuff
-	return true;
 }
 
 // When server updates CurrentSlot property, owning client updates their HUD

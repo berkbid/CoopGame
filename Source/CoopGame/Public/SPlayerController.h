@@ -50,8 +50,22 @@ protected:
 
 	virtual void OnPossess(APawn* aPawn) override;
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerEquipWeapon(int NewWeaponSlot);
+	void EquipWeapon(int NewWeaponSlot);
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeaponOne();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeaponTwo();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeaponThree();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeaponFour();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeaponFive();
 
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
 	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
