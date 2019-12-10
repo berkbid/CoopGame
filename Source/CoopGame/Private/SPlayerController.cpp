@@ -25,7 +25,6 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 void ASPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void ASPlayerController::ClientPostLogin_Implementation()
@@ -73,14 +72,12 @@ void ASPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	//check(InputComponent);
-
 	// PlayerController is in charge of weapon changing, this can happen without a pawn, pawn uses the weapons
 	InputComponent->BindAction("Weapon1", IE_Pressed, this, &ASPlayerController::EquipSlotOne);
 	InputComponent->BindAction("Weapon2", IE_Pressed, this, &ASPlayerController::EquipSlotTwo);
 	InputComponent->BindAction("Weapon3", IE_Pressed, this, &ASPlayerController::EquipSlotThree);
 	InputComponent->BindAction("Weapon4", IE_Pressed, this, &ASPlayerController::EquipSlotFour);
 	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
-
 }
 
 void ASPlayerController::OnPossess(APawn* aPawn)
@@ -167,8 +164,9 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 
 			// Update HUD image for client/listen server
 			SlotToUpdate = i;
-			OnRep_SlotToUpdate();
-
+			// If we are listen server, call function manually
+			if (IsLocalController()) { OnRep_SlotToUpdate(); }
+			
 			// If we pick up a weapon into a new inventory slot, AND we are selected on that item slot, then try to equip weapon!!
 			if (CurrentSlot == i)
 			{
@@ -178,12 +176,10 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 					MyPawn->ChangeWeapons(WeaponClass, i);
 				}
 			}
-			
 			//We officially equipped new weapon, return success
 			return true;
 		}
 	}
-
 	// Return failure because we didn't find empty slot for weapon
 	return false;
 }
@@ -194,8 +190,9 @@ void ASPlayerController::ServerEquipWeapon_Implementation(int NewWeaponSlot)
 {
 	// Replicated, Update current slot even if we have no weapon in that slot
 	CurrentSlot = NewWeaponSlot;
-	OnRep_SlotChange();
-
+	// If we are listen server, call function manually
+	if (IsLocalController()) { OnRep_SlotChange(); }
+	
 	TSubclassOf<ASWeapon> NewWeaponClass;
 
 	// If array is long enough, try to set NewWeaponClass to the value at its index
@@ -254,5 +251,4 @@ void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// Server updates this property and owning client reacts by updating HUD showing newly "acquired" inventory slot
 	DOREPLIFETIME_CONDITION(ASPlayerController, SlotToUpdate, COND_OwnerOnly);
-
 }

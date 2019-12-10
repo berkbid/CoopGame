@@ -23,7 +23,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-	// Needs to be set Reliable
+	// Needs to be set Reliable, GameMode calls this OnPostLogin
 	UFUNCTION(Client, Reliable)
 	void ClientPostLogin();
 
