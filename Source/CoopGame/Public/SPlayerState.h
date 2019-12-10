@@ -24,6 +24,8 @@ public:
 
 	virtual void OnRep_Score() override;
 
+	virtual void OnRep_PlayerName() override;
+
 	// Could replicate this using a function so when a new player joins, ALL clients UPDATE their HUD OnRep_PlayerNumber
 	UPROPERTY(Replicated, VisibleAnywhere, Category = "Player")
 	uint8 PlayerNumber;

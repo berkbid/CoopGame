@@ -14,19 +14,37 @@ void ASPlayerState::AddScore(float ScoreDelta)
 	if (Role == ROLE_Authority)
 	{
 		Score += ScoreDelta;
+		
+		// RepNotify callback won't get called by net code if we are the server
+		ENetMode NetMode = GetNetMode();
+		if (NetMode == NM_Standalone || NetMode == NM_ListenServer)
+		{
+			OnRep_Score();
+		}
 	}
 
 }
 
+void ASPlayerState::OnRep_PlayerName()
+{
+	Super::OnRep_PlayerName();
+
+	//UE_LOG(LogTemp, Warning, TEXT("FOUND Name: %s"), *PlayerName);
+}
 // All clients pickup on this function
 // Listen server does not run this code
 void ASPlayerState::OnRep_Score()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Name: %s, Controller: %s, New Score: %f"),*GetPawn()->GetName(), *GetOwner()->GetName(), Score);
+	Super::OnRep_Score();
+	
+	// Owner if playerstate is of type playercontroller, this is only valid on owning client
+	ASPlayerController* PC = Cast<ASPlayerController>(GetOwner());
+	if (PC)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("FOUND OWNER: %s, Score: %f"), *PC->GetName(), Score);
+		PC->SetScoreText(Score);
+	}
 
-	// each client update their own HUD for this playerstate's entry!
-	
-	
 }
 
 void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

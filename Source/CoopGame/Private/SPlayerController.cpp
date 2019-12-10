@@ -6,7 +6,7 @@
 #include "SWeapon.h"
 #include "SCharacter.h"
 #include "Net/UnrealNetwork.h"
-
+#include "SGameState.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -41,6 +41,9 @@ void ASPlayerController::ClientPostLogin_Implementation()
 		// Pass reference of ourself to widget while calling setup logic on widget
 		MyGameInfo->SetOwningController(this);
 		MyGameInfo->AddToViewport();
+		MyGameInfo->HandleScoreChanged(0.f);
+
+		
 
 		// Loop through WeaponInventory array and update HUD images if weapons are present
 		for (int32 i = 0; i != WeaponInventory.Num(); ++i)
@@ -64,6 +67,8 @@ void ASPlayerController::ClientPostLogin_Implementation()
 				}
 			}
 		}
+		//Player Controller -> HUD -> Game Mode -> Game State -> Player State ->Level
+
 	}
 }
 
@@ -171,6 +176,12 @@ void ASPlayerController::ServerEquipWeaponFive_Implementation()
 // Only server should be inside this call
 bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 {
+	// Only server should call this function, this is precautionary
+	if (Role < ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Should NOT call PickedUpNewWeapon as client! See SPlayerController.cpp"));
+		return false;
+	}
 	// Weaponclass will never be null in here, it is checked in the previous function call
 	// Loop through inventory looking for empty slot
 	for (int32 i = 0; i != WeaponInventory.Num(); ++i)

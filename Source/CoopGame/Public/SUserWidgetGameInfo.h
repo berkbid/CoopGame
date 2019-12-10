@@ -23,6 +23,9 @@ protected:
 	//you can make the binding optional with BindWidgetOptional instead. But don’t forget to null check!
 /* Reference to HealthBar ProgressBar in Widget*/
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UVerticalBox* ScoreboardEntryBox;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* ScoreText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -64,6 +67,11 @@ protected:
 
 	void UpdateNewInventorySlot(class UOverlay* NewOverlay);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Scoreboard")
+	TSubclassOf<class USUserWidgetPlayerStats> wPlayerStats;
+
+	//class USUserWidgetPlayerStats* MyPlayerStats;
+
 public:
 
 	virtual bool Initialize() override;
@@ -78,8 +86,9 @@ public:
 	UFUNCTION()
 	void UpdateInventoryHUD(int WeaponSlot);
 
-
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetInventoryImage(TSubclassOf<class ASWeapon> InventoryItemClass, int BorderSlot);
+
+	//void AddPlayerToScoreboard();
 	
 };

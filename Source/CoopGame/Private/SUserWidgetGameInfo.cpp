@@ -5,9 +5,13 @@
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Components/Overlay.h"
+#include "Components/VerticalBox.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerState.h"
-
+#include "SUserWidgetPlayerStats.h"
+#include "Engine/World.h"
+#include "SGameState.h"
+#include "GameFramework/PlayerState.h"
 
 bool USUserWidgetGameInfo::Initialize()
 {
@@ -25,7 +29,17 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 	// Skip repeated calls
 	if (OwningController == NewController) { return; }
 	OwningController = NewController;
-	//UE_LOG(LogTemp, Warning, TEXT("PS: %s"), NewController->PlayerState);
+
+
+	if (wPlayerStats) 
+	{
+		USUserWidgetPlayerStats* NewPlayerStats = CreateWidget<USUserWidgetPlayerStats>(this, wPlayerStats);
+
+		if (NewPlayerStats && ScoreboardEntryBox)
+		{
+			ScoreboardEntryBox->AddChild(NewPlayerStats);
+		}
+	}
 }
 
 void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
