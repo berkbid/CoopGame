@@ -49,6 +49,12 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	/**
+	* Called when this Pawn is possessed. Only called on the server (or in standalone).
+	* @param NewController The controller possessing this pawn
+	*/
+	virtual void PossessedBy(AController* NewController) override;
+
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StartFire();
 

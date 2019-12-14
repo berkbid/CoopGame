@@ -45,4 +45,8 @@ protected:
 public:
 
 	void SetWaveState(EWaveState NewState);
+
+	void UpdateWaveStateHUD();
+
+	FString GetWaveStateString();
 };

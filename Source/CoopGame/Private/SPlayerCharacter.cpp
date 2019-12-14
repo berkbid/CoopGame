@@ -31,12 +31,8 @@ void ASPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	DefaultFOV = CameraComp->FieldOfView;
 
-	// Only do these things on clients, and listening server client
-	if (IsLocallyControlled())
-	{
-		DefaultFOV = CameraComp->FieldOfView;
-	}
 }
 
 // Called every frame

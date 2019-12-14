@@ -31,6 +31,14 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 	OwningController = NewController;
 }
 
+void USUserWidgetGameInfo::SetStateText(FString NewState)
+{
+	if (StateText)
+	{
+		StateText->SetText(FText::FromString(NewState));
+	}
+}
+
 void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore)
 {
 	if (wPlayerStats)

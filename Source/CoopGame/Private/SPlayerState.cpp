@@ -36,7 +36,7 @@ void ASPlayerState::OnRep_PlayerName()
 
 
 // All clients pickup on this function
-// Listen server does not run this code
+// Listen server does not run this code naturally
 void ASPlayerState::OnRep_Score()
 {
 	Super::OnRep_Score();

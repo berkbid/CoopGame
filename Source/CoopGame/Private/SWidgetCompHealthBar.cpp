@@ -6,6 +6,7 @@
 
 
 
+
 USWidgetCompHealthBar::USWidgetCompHealthBar()
 {
 	// Set common defaults when using widgets on Actors
@@ -14,12 +15,13 @@ USWidgetCompHealthBar::USWidgetCompHealthBar()
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-
+// This code is replicated to everyone
 void USWidgetCompHealthBar::InitWidget()
 {
 	// Base implementation creates the 'Widget' instance
 	Super::InitWidget();
-
+	
+	
 	if (Widget)
 	{
 #if !UE_BUILD_SHIPPING
@@ -33,8 +35,20 @@ void USWidgetCompHealthBar::InitWidget()
 
 		if (WidgetInst)
 		{
+			
 			// Assign the owner, now we have easy access in the widget itself
 			WidgetInst->SetOwningActor(GetOwner());
+
 		}
+	}
+}
+
+void USWidgetCompHealthBar::UpdateNameText(FString NewName)
+{
+	USUserWidgetHealthBar* WidgetInst = Cast<USUserWidgetHealthBar>(Widget);
+
+	if (WidgetInst)
+	{
+		WidgetInst->SetNameText(NewName);
 	}
 }

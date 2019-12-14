@@ -39,6 +39,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LODZERO|UI")
 	void SetOwningActor(AActor* NewOwner);
 
+	void SetNameText(FString NewName);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "New Widget")
 	FString PlayerWidget;
 

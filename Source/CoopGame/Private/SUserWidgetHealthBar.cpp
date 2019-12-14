@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "GameFramework/Pawn.h"
+#include "SPlayerState.h"
 //#include "Runtime/UMG/Public/UMG.h"
 //#include "Runtime/UMG/Public/UMGStyle.h"
 //#include "Runtime/UMG/Public/Slate/SObjectWidget.h"
@@ -22,6 +24,7 @@ bool USUserWidgetHealthBar::Initialize()
 
 }
 
+// All clients and server run this code!!!
 void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 {
 	// Skip repeated calls
@@ -29,11 +32,8 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 
 	OwningActor = NewOwner;
 
-	// Update player name text on widget
-	if (NameText)
-	{
-		NameText->SetText(FText::FromString(OwningActor->GetName()));
-	}
+	//Name is set different for players initially, but after respawn it gets corrected
+	SetNameText(OwningActor->GetName());
 
 	// Get health component reference of owner to bind to health changed event dispatcher
 	USHealthComponent* HealthComp = Cast<USHealthComponent>(OwningActor->GetComponentByClass(USHealthComponent::StaticClass()));
@@ -42,24 +42,35 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 	{
 		// Remove the delegate before binding it. (Its always safe to unbind a delegate.)
 		HealthComp->OnHealthChanged.RemoveDynamic(this, &USUserWidgetHealthBar::HandleHealthChanged);
+
 		// Bind the delegate from the PC that calls the BlueprintImplementableEvent.
 		HealthComp->OnHealthChanged.AddDynamic(this, &USUserWidgetHealthBar::HandleHealthChanged);
 
 		// Set MaxHealth variable used to compute progress bar percent
 		MaxHealth = HealthComp->DefaultHealth;
 
-		// Set initial health bar value
-		// Update HealthBar manually instead of calling BlueprintImplementableEvent
-		HealthBar->SetPercent(HealthComp->GetHealth() / MaxHealth);
-		//UpdateHealthBar(HealthComp);
+		if (HealthBar)
+		{
+			// Set initial health bar value
+			HealthBar->SetPercent(HealthComp->GetHealth() / MaxHealth);
+		}
+		
 	}
-
 }
 
+void USUserWidgetHealthBar::SetNameText(FString NewName)
+{
+	if (NameText)
+	{
+		NameText->SetText(FText::FromString(NewName));
+	}
+}
+
+// This code runs for all clients and server
 void USUserWidgetHealthBar::HandleHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	// Update HealthBar manually instead of calling BlueprintImplementableEvent
-	HealthBar->SetPercent(Health / MaxHealth);
-	//UpdateHealthBar(HealthComp);
-
+	if (HealthBar)
+	{
+		HealthBar->SetPercent(Health / MaxHealth);
+	}
 }

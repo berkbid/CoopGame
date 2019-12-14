@@ -8,6 +8,8 @@
 #include "Net/UnrealNetwork.h"
 #include "SGameState.h"
 #include "SPlayerState.h"
+#include "Engine/World.h"
+#include "SGameMode.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -26,13 +28,45 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 void ASPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Update some HUD info manually here for clients since they might load in late
+	if (MyGameInfo)
+	{
+		ASGameState* GS = GetWorld()->GetGameState<ASGameState>();
+		if (GS)
+		{
+			FString CurrentWaveStateString = GS->GetWaveStateString();
+			MyGameInfo->SetStateText(CurrentWaveStateString);
+		}
+
+		//ASPlayerState* PS = GetPlayerState<ASPlayerState>();
+		//if (PS)
+		//{
+		//	
+		//}
+	}
 }
 
+
+// Listen server doesn't run this code
 // This gets replicated when PlayerState is assigned to this controller and is valid for the first time
 void ASPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
+	AddPlayerToHUDScoreboard();
+
+}
+
+/** spawns and initializes the PlayerState for this Controller */
+void ASPlayerController::InitPlayerState()
+{
+	Super::InitPlayerState();
+}
+
+void ASPlayerController::AddPlayerToHUDScoreboard()
+{
+	// @TODO Listen server isn't running this code, need to fix
 	// Add self stats to scoreboard now that our playerstate is valid to access
 	ASPlayerState* PS = Cast<ASPlayerState>(PlayerState);
 	if (PS && MyGameInfo)
@@ -70,6 +104,7 @@ void ASPlayerController::SetupInitialHUDState()
 	// Set starting score value to 0
 	MyGameInfo->HandleScoreChanged(0.f);
 
+	// Can't initialize game state here, do this at begin play
 	// Loop through WeaponInventory array and update HUD images if weapons are present
 	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
 	{
@@ -288,20 +323,22 @@ void ASPlayerController::OnRep_SlotToUpdate()
 	}
 }
 
-void ASPlayerController::AddPlayerToHUDScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore)
-{
-	// MyGameInfo isn't valid at this point in time
-	if (MyGameInfo)
-	{
-		MyGameInfo->AddPlayerToScoreboard(NewName, NewKills, NewDeath, NewScore);
-	}
-}
-
 void ASPlayerController::SetScoreText(float NewScore)
 {
 	if (MyGameInfo)
 	{
 		MyGameInfo->HandleScoreChanged(NewScore);
+	}
+}
+
+void ASPlayerController::SetStateText(FString NewState)
+{
+	if (IsLocalController())
+	{
+		if (MyGameInfo)
+		{
+			MyGameInfo->SetStateText(NewState);
+		}
 	}
 }
 

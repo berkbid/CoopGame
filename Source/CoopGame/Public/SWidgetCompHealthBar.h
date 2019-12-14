@@ -19,5 +19,7 @@ public:
 
 	virtual void InitWidget() override;
 
+	void UpdateNameText(FString NewName);
+
 	USWidgetCompHealthBar();
 };

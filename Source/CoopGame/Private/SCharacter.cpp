@@ -14,6 +14,7 @@
 #include "GameFramework/DamageType.h"
 #include "SWidgetCompHealthBar.h"
 #include "SPlayerController.h"
+#include "SPlayerState.h"
 
 
 // Sets default values
@@ -47,6 +48,7 @@ void ASCharacter::BeginPlay()
 	{
 		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 	}
+	
 }
 
 void ASCharacter::StartFire()
@@ -167,4 +169,18 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	// This replicates to any client connected to us
 	DOREPLIFETIME(ASCharacter, CurrentWeapon);
 	DOREPLIFETIME(ASCharacter, bDied);
+}
+
+void ASCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	//UE_LOG(LogTemp, Warning, TEXT("1"));
+
+	//ASPlayerState* PS = NewController->GetPlayerState<ASPlayerState>();
+	//if (PS && HealthBar)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("3"));
+	//	HealthBar->UpdateNameText(PS->GetPlayerName());
+	//}
 }

@@ -25,13 +25,18 @@ public:
 
 	virtual void OnRep_PlayerState() override;
 
+	/** spawns and initializes the PlayerState for this Controller */
+	virtual void InitPlayerState() override;
+
 	// Needs to be set Reliable, GameMode calls this OnPostLogin
 	UFUNCTION(Client, Reliable)
 	void ClientPostLogin();
 
-	void AddPlayerToHUDScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore);
+	void AddPlayerToHUDScoreboard();
 
 	void SetScoreText(float NewScore);
+
+	void SetStateText(FString NewState);
 
 	void EquipSlotOne();
 	void EquipSlotTwo();
