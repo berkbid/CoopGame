@@ -43,7 +43,7 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 		// Remove the delegate before binding it. (Its always safe to unbind a delegate.)
 		HealthComp->OnHealthChanged.RemoveDynamic(this, &USUserWidgetHealthBar::HandleHealthChanged);
 
-		// Bind the delegate from the PC that calls the BlueprintImplementableEvent.
+		// Bind the delegate to update health bar
 		HealthComp->OnHealthChanged.AddDynamic(this, &USUserWidgetHealthBar::HandleHealthChanged);
 
 		// Set MaxHealth variable used to compute progress bar percent

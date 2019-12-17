@@ -41,12 +41,6 @@ public:
 
 	void SetNameText(FString NewName);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "New Widget")
-	FString PlayerWidget;
-
 	UFUNCTION()
 	void HandleHealthChanged(class USHealthComponent* HealthComp, float Health, float HealthDelt, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
-
-	//UFUNCTION(BlueprintImplementableEvent)
-	//void UpdateHealthBar(class UMMHealthComponent* HealthComp);
 };
