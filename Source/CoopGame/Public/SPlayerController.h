@@ -28,6 +28,8 @@ public:
 	/** spawns and initializes the PlayerState for this Controller */
 	virtual void InitPlayerState() override;
 
+	void AllPostLogin();
+
 	// Needs to be set Reliable, GameMode calls this OnPostLogin
 	UFUNCTION(Client, Reliable)
 	void ClientPostLogin();

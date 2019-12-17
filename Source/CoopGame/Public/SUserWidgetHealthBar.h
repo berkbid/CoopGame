@@ -39,7 +39,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LODZERO|UI")
 	void SetOwningActor(AActor* NewOwner);
 
-	void SetNameText(FString NewName);
+	void SetNameText(FString PlayerName);
 
 	UFUNCTION()
 	void HandleHealthChanged(class USHealthComponent* HealthComp, float Health, float HealthDelt, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

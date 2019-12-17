@@ -3,8 +3,8 @@
 
 #include "SWidgetCompHealthBar.h"
 #include "SUserWidgetHealthBar.h"
-
-
+#include "Net/UnrealNetwork.h"
+#include "SPlayerState.h"
 
 
 USWidgetCompHealthBar::USWidgetCompHealthBar()
@@ -12,9 +12,39 @@ USWidgetCompHealthBar::USWidgetCompHealthBar()
 	// Set common defaults when using widgets on Actors
 	SetDrawAtDesiredSize(true);
 	SetWidgetSpace(EWidgetSpace::Screen);
+	SetGenerateOverlapEvents(false);
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	
 }
 
+// The Super() calls InitWidget()
+void USWidgetCompHealthBar::BeginPlay()
+{
+	Super::BeginPlay();
+	//UE_LOG(LogTemp, Warning, TEXT("Hello"));
+	// Just call update name on health bar widget here
+	//player state is not always valid at this point
+	//APawn* OwningPawn = Cast<APawn>(GetOwner());
+
+	//if (OwningPawn)
+	//{
+	//	ASPlayerState* PS = Cast<ASPlayerState>(OwningPawn->GetPlayerState());
+	//	if (PS)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("FOUND PLAYERSTATE"));
+	//	}
+	//}
+
+}
+
+void USWidgetCompHealthBar::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+}
+
+// call this code onrep_playerstate in player controller for every1
 // This code is replicated to everyone
 void USWidgetCompHealthBar::InitWidget()
 {
@@ -31,24 +61,26 @@ void USWidgetCompHealthBar::InitWidget()
 			//UE_LOG(LogGame, Warning, TEXT("WidgetClass for %s does not derive from SActorWidget"), *GetNameSafe(GetOwner()));
 		}
 #endif
-		USUserWidgetHealthBar* WidgetInst = Cast<USUserWidgetHealthBar>(Widget);
+		HealthBarInst = Cast<USUserWidgetHealthBar>(Widget);
 
-		if (WidgetInst)
+		if (HealthBarInst)
 		{
 			
 			// Assign the owner, now we have easy access in the widget itself
-			WidgetInst->SetOwningActor(GetOwner());
+			HealthBarInst->SetOwningActor(GetOwner());
+			// CHeck if we are an AI and set name
 
 		}
 	}
 }
 
-void USWidgetCompHealthBar::UpdateNameText(FString NewName)
-{
-	USUserWidgetHealthBar* WidgetInst = Cast<USUserWidgetHealthBar>(Widget);
 
-	if (WidgetInst)
+void USWidgetCompHealthBar::UpdateWidgetName(const FString& PlayerName)
+{
+	if (HealthBarInst)
 	{
-		WidgetInst->SetNameText(NewName);
+		HealthBarInst->SetNameText(PlayerName);
 	}
 }
+
+

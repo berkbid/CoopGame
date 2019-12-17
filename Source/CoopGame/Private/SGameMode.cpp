@@ -245,7 +245,9 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 				ASPlayerController* SPC = Cast<ASPlayerController>(NewPlayer);
 				if (SPC)
 				{
-					SPC->ClientPostLogin();
+					// Call a server owned postlogin on player controller, so it can call RPC's if necessary
+					SPC->AllPostLogin();
+					//SPC->ClientPostLogin();
 				}
 			}
 		}

@@ -171,6 +171,15 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ASCharacter, bDied);
 }
 
+void ASCharacter::Multicast_UpdateName_Implementation(const FString& PlayerName)
+{
+	if (HealthBar)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("2"));
+		HealthBar->UpdateWidgetName(PlayerName);
+	}
+}
+
 void ASCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);

@@ -8,6 +8,7 @@
 #include "SWeapon.h"
 #include "SPlayerController.h"
 #include "SUserWidgetGameInfo.h"
+#include "SWidgetCompHealthBar.h"
 
 ASPlayerCharacter::ASPlayerCharacter()
 {

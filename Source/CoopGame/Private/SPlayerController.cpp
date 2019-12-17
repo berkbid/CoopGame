@@ -4,7 +4,7 @@
 #include "SPlayerController.h"
 #include "SUserWidgetGameInfo.h"
 #include "SWeapon.h"
-#include "SCharacter.h"
+#include "SPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "SGameState.h"
 #include "SPlayerState.h"
@@ -38,12 +38,6 @@ void ASPlayerController::BeginPlay()
 			FString CurrentWaveStateString = GS->GetWaveStateString();
 			MyGameInfo->SetStateText(CurrentWaveStateString);
 		}
-
-		//ASPlayerState* PS = GetPlayerState<ASPlayerState>();
-		//if (PS)
-		//{
-		//	
-		//}
 	}
 }
 
@@ -55,6 +49,8 @@ void ASPlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	AddPlayerToHUDScoreboard();
+	// now go into our widget and call a multicast !!
+	// do a multicast on name widget from here
 
 }
 
@@ -62,6 +58,13 @@ void ASPlayerController::OnRep_PlayerState()
 void ASPlayerController::InitPlayerState()
 {
 	Super::InitPlayerState();
+}
+
+void ASPlayerController::AllPostLogin()
+{
+
+	ClientPostLogin();
+	
 }
 
 void ASPlayerController::AddPlayerToHUDScoreboard()
@@ -92,6 +95,7 @@ void ASPlayerController::ClientPostLogin_Implementation()
 
 		// Call HUD functions to setup initial HUD state
 		SetupInitialHUDState();
+
 
 	}
 }
@@ -133,25 +137,46 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 	
+	// PlayerState is valid at this point, but playername is not set, so PostLogin hasent been called
 	if (Role == ROLE_Authority)
 	{
 		// Uncomment to have players reset to current slot being 0 upon possessing new pawn
 		//CurrentSlot = 0;
 		//OnRep_SlotChange();
-		
+
+		ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
+
 		// If our current slot is a valid inventory index
 		if (WeaponInventory.Num() > CurrentSlot)
 		{
-			// Try cast the pawn to a SCharacter
-			ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-
-			// Equip whatever weapon is in the current slot if we are a SCharacter
-			if (MyPawn)
+			if (MySPlayerChar)
 			{
-				MyPawn->ChangeWeapons(WeaponInventory[CurrentSlot], CurrentSlot);
+				// Equip whatever weapon is in the current slot if we are a SCharacter
+				MySPlayerChar->ChangeWeapons(WeaponInventory[CurrentSlot], CurrentSlot);
+
+			}
+		}
+
+		// Multicast update our pawn's widget playername text
+		// On first possession, everything is valid, except multicast doesn't reach any clients!
+		ASPlayerState* PS = GetPlayerState<ASPlayerState>();
+		if (PS)
+		{
+			ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
+
+			if (MySPlayerChar)
+			{
+				
+				FString PlayerName = PS->GetPlayerName();
+
+				// This multicast doesn't reach any clients on first pawn possession only server with inaccurate name
+				// On first possession, server gets this multicast only
+				//and playername is not set properly, it shows desktop name
+				MySPlayerChar->Multicast_UpdateName(PlayerName);
 			}
 		}
 	}
+
 }
 
 void ASPlayerController::SetupInputComponent()

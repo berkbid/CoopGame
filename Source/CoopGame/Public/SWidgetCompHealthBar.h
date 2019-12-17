@@ -16,10 +16,17 @@ class COOPGAME_API USWidgetCompHealthBar : public UWidgetComponent
 	
 
 public:
+	USWidgetCompHealthBar();
+
+	class USUserWidgetHealthBar* HealthBarInst;
+
+	/** UActorComponent Interface */
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 
 	virtual void InitWidget() override;
 
-	void UpdateNameText(FString NewName);
+	void UpdateWidgetName(const FString& PlayerName);
 
-	USWidgetCompHealthBar();
 };

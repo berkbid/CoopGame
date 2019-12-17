@@ -40,7 +40,10 @@ void ASPlayerState::OnRep_PlayerName()
 void ASPlayerState::OnRep_Score()
 {
 	Super::OnRep_Score();
-	
+	// We want to update everyone's scoreboard HUD
+
+
+
 	//ASPlayerController* PCC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	//if (PCC)
 	//{
