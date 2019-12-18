@@ -5,7 +5,7 @@ Multiplayer Game in Unreal Engine using C++, originally started from a course on
 
 ![CoopGame Image](https://berkbid.github.io/Images/CoopGame.png)
 
-## Additions
+## Personal Additions
 - Inventory HUD Display
 - Weapon pickups, working with inventory HUD
 - Weapon swapping, inventory HUD visualization for this as well
