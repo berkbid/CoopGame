@@ -49,9 +49,15 @@ void ASPlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	AddPlayerToHUDScoreboard();
-	// now go into our widget and call a multicast !!
-	// do a multicast on name widget from here
 
+	//// do a multicast on name widget from here
+	//ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
+	//if (MySPlayerChar)
+	//{
+	//	
+	//}
+	
+	
 }
 
 /** spawns and initializes the PlayerState for this Controller */
@@ -62,9 +68,10 @@ void ASPlayerController::InitPlayerState()
 
 void ASPlayerController::AllPostLogin()
 {
+	// Can run server code here if needed for RPC's
+
 
 	ClientPostLogin();
-	
 }
 
 void ASPlayerController::AddPlayerToHUDScoreboard()
@@ -154,22 +161,6 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 				// Equip whatever weapon is in the current slot if we are a SCharacter
 				MySPlayerChar->ChangeWeapons(WeaponInventory[CurrentSlot], CurrentSlot);
 
-			}
-		}
-
-		// Multicast update our pawn's widget playername text
-		// On first possession, everything is valid, except multicast doesn't reach any clients!
-		ASPlayerState* PS = GetPlayerState<ASPlayerState>();
-		if (PS)
-		{
-			if (MySPlayerChar)
-			{		
-				FString PlayerName = PS->GetPlayerName();
-
-				// This multicast doesn't reach any clients on first pawn possession only server with inaccurate name
-				// On first possession, server gets this multicast only
-				//and playername is not set properly, it shows desktop name
-				MySPlayerChar->Multicast_UpdateName(PlayerName);
 			}
 		}
 	}

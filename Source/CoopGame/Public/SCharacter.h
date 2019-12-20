@@ -49,9 +49,6 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_UpdateName(const FString& PlayerName);
-
 	/**
 	* Called when this Pawn is possessed. Only called on the server (or in standalone).
 	* @param NewController The controller possessing this pawn

@@ -6,7 +6,6 @@
 #include "Net/UnrealNetwork.h"
 #include "SPlayerState.h"
 
-
 USWidgetCompHealthBar::USWidgetCompHealthBar()
 {
 	// Set common defaults when using widgets on Actors
@@ -26,16 +25,6 @@ void USWidgetCompHealthBar::BeginPlay()
 	//UE_LOG(LogTemp, Warning, TEXT("Hello"));
 	// Just call update name on health bar widget here
 	//player state is not always valid at this point
-	//APawn* OwningPawn = Cast<APawn>(GetOwner());
-
-	//if (OwningPawn)
-	//{
-	//	ASPlayerState* PS = Cast<ASPlayerState>(OwningPawn->GetPlayerState());
-	//	if (PS)
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("FOUND PLAYERSTATE"));
-	//	}
-	//}
 
 }
 
@@ -65,12 +54,23 @@ void USWidgetCompHealthBar::InitWidget()
 
 		if (HealthBarInst)
 		{
-			// Assign the owner, now we have easy access in the widget itself
-			HealthBarInst->SetOwningActor(GetOwner());
+			APawn* OwningPawn = Cast<APawn>(GetOwner());
+			
+			if (OwningPawn)
+			{
+				// Assign the owner, now we have easy access in the widget itself
+				HealthBarInst->SetOwningActor(OwningPawn);
+
+			}
 		}
 	}
 }
 
+
+void USWidgetCompHealthBar::Multicast_UpdateName_Implementation(const FString& PlayerName)
+{
+	UpdateWidgetName(PlayerName);
+}
 
 void USWidgetCompHealthBar::UpdateWidgetName(const FString& PlayerName)
 {

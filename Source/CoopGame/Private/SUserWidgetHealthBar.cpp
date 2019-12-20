@@ -30,14 +30,13 @@ bool USUserWidgetHealthBar::Initialize()
 // All clients and server run this code!!! Called on beginplay of widgetcomponent
 void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 {
+	if (!NewOwner) { return; }
 	// Skip repeated calls
 	if (OwningActor == NewOwner) { return; }
 
 	OwningActor = NewOwner;
 
-	// Set default name text above health bar, this should get overriden if pawn is possessed by a player by the players name
-	SetNameText(OwningActor->GetName());
-
+	
 
 	// Get health component reference of owner to bind to health changed event dispatcher
 	USHealthComponent* HealthComp = Cast<USHealthComponent>(OwningActor->GetComponentByClass(USHealthComponent::StaticClass()));
@@ -58,6 +57,26 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 			// Set initial health bar value
 			HealthBar->SetPercent(HealthComp->GetHealth() / MaxHealth);
 		}	
+	}
+
+	// Shouldn't try to do stuff with playerstate here because for listen server, the actors are never connected to player controllers at this point
+	// so playerstate is invalid always for listen server
+	APawn* OwningPawn = Cast<APawn>(OwningActor);
+	// This PlayerState isn't always valid on begin play
+	if (OwningPawn)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("OwningActor: %s"), *OwningPawn->GetName());
+		ASPlayerState* PS = Cast<ASPlayerState>(OwningPawn->GetPlayerState());
+
+		if (PS)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Found PS: %s"), *PS->GetPlayerName());
+			SetNameText(PS->GetPlayerName());
+		}
+		else
+		{
+			SetNameText(OwningPawn->GetName());
+		}
 	}
 }
 

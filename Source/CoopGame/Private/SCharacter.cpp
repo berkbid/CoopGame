@@ -47,6 +47,7 @@ void ASCharacter::BeginPlay()
 	if (Role == ROLE_Authority)
 	{
 		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+
 	}
 	
 }
@@ -171,24 +172,17 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ASCharacter, bDied);
 }
 
-void ASCharacter::Multicast_UpdateName_Implementation(const FString& PlayerName)
-{
-	if (HealthBar)
-	{
-		HealthBar->UpdateWidgetName(PlayerName);
-	}
-}
-
+// Only server runs this code
 void ASCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	//UE_LOG(LogTemp, Warning, TEXT("1"));
-
-	//ASPlayerState* PS = NewController->GetPlayerState<ASPlayerState>();
-	//if (PS && HealthBar)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("3"));
-	//	HealthBar->UpdateNameText(PS->GetPlayerName());
-	//}
+	// Wrong playername on first call
+	ASPlayerState* PS = NewController->GetPlayerState<ASPlayerState>();
+	if (PS && HealthBar)
+	{
+		// Update names manually for listen server here 
+		//cannot multicast for initial possessed as no clients are connected yet when server is
+		HealthBar->UpdateWidgetName(PS->GetPlayerName());
+	}
 }

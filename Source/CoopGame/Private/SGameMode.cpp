@@ -186,7 +186,6 @@ void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, ACo
 		}
 	}
 
-	
 	ASPlayerCharacter* VictimPawn = Cast<ASPlayerCharacter>(VictimActor);
 	// If victim is player, check if any player is alive
 	if (VictimPawn)
@@ -239,7 +238,6 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 				// Set new players name to include player number
 				FString NewPlayerName = FString("Player") + FString::FromInt(NewPlayerNum);
 				PS->SetPlayerName(NewPlayerName);
-
 				
 				// Call Client function on player controller to setup initial HUD
 				ASPlayerController* SPC = Cast<ASPlayerController>(NewPlayer);
@@ -247,7 +245,6 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 				{
 					// Call a server owned postlogin on player controller, so it can call RPC's if necessary
 					SPC->AllPostLogin();
-					//SPC->ClientPostLogin();
 				}
 			}
 		}
