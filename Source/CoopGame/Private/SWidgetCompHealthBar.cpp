@@ -65,11 +65,8 @@ void USWidgetCompHealthBar::InitWidget()
 
 		if (HealthBarInst)
 		{
-			
 			// Assign the owner, now we have easy access in the widget itself
 			HealthBarInst->SetOwningActor(GetOwner());
-			// CHeck if we are an AI and set name
-
 		}
 	}
 }

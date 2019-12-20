@@ -162,11 +162,8 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 		ASPlayerState* PS = GetPlayerState<ASPlayerState>();
 		if (PS)
 		{
-			ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
-
 			if (MySPlayerChar)
-			{
-				
+			{		
 				FString PlayerName = PS->GetPlayerName();
 
 				// This multicast doesn't reach any clients on first pawn possession only server with inaccurate name
@@ -176,7 +173,6 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 			}
 		}
 	}
-
 }
 
 void ASPlayerController::SetupInputComponent()
