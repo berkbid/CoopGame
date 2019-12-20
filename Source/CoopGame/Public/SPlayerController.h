@@ -83,6 +83,9 @@ protected:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
 	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	class USoundBase* PickedupSound;
+
 	UFUNCTION()
 	void OnRep_SlotChange();
 

@@ -10,6 +10,8 @@
 #include "SPlayerState.h"
 #include "Engine/World.h"
 #include "SGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -305,6 +307,11 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 					MyPawn->ChangeWeapons(WeaponClass, i);
 				}
 			}
+			else
+			{
+				// Only want to play pickup sound in this scenario, or don't want to play weapon swap sound in "if" clause above
+			}
+
 			//We officially equipped new weapon, return success
 			return true;
 		}
@@ -320,6 +327,16 @@ void ASPlayerController::OnRep_SlotChange()
 	{ 
 		MyGameInfo->UpdateInventoryHUD(CurrentSlot);
 	}
+
+	// Play pickup sound also
+	//if (PickedupSound)
+	//{
+	//	APawn* ControlledPawn = GetPawn();
+	//	if (ControlledPawn)
+	//	{
+	//		UGameplayStatics::PlaySoundAtLocation(this, PickedupSound, ControlledPawn->GetActorLocation());
+	//	}
+	//}
 }
 
 // When server picks up new weapon, updates SlotToUpdate so owning client updates HUD for that slot
@@ -331,6 +348,22 @@ void ASPlayerController::OnRep_SlotToUpdate()
 		if (WeaponInventory.Num() > SlotToUpdate)
 		{
 			MyGameInfo->SetInventoryImage(WeaponInventory[SlotToUpdate], SlotToUpdate);
+		}
+	}
+
+	// Only play weapon pickup sound if we aren't already selecting on new weapon slot, this is because weapon swap sound will play
+	// We don't want double sound. This works fine as long as weapon pickup sound is same as weapon swap sound.
+	// Instead of calling this code here, call a function on the pawn that gets the sound pointer from the actual weapon to play sound on pickups.
+	if (CurrentSlot != SlotToUpdate)
+	{
+		// Play pickup sound also
+		if (PickedupSound)
+		{
+			APawn* ControlledPawn = GetPawn();
+			if (ControlledPawn)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, PickedupSound, ControlledPawn->GetActorLocation());
+			}
 		}
 	}
 }

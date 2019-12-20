@@ -9,6 +9,8 @@
 #include "SPlayerController.h"
 #include "SUserWidgetGameInfo.h"
 #include "SWidgetCompHealthBar.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 ASPlayerCharacter::ASPlayerCharacter()
 {
@@ -34,6 +36,29 @@ void ASPlayerCharacter::BeginPlay()
 
 	DefaultFOV = CameraComp->FieldOfView;
 
+}
+
+// This triggers every time the CurrentWeapon variable changes, not for listen server
+void ASPlayerCharacter::OnRep_CurrentWeapon()
+{
+	Super::OnRep_CurrentWeapon();
+
+	// This makes it so the code isn't run on the initial weapon swap (On spawn of each player)
+	if (!bHasEquippedFirstWeapon)
+	{
+		bHasEquippedFirstWeapon = true;
+		return;
+	}
+
+	// This checks if we changed to an actual weapon
+	if (CurrentWeapon)
+	{
+		USoundBase* SB = CurrentWeapon->WeaponSwapSound;
+		if (SB)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, SB, GetActorLocation());
+		}
+	}
 }
 
 // Called every frame

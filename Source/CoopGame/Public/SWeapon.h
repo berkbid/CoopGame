@@ -58,6 +58,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* MeshComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	class USoundBase* WeaponSwapSound;
+
+
 	void StartFire();
 
 	void StopFire();

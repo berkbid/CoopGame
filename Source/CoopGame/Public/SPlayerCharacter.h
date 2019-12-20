@@ -27,9 +27,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void OnRep_CurrentWeapon() override;
+
+	// bool so OnRep_CurrentWeapon doesn't run code first time when player spawns and equips weapon slot 1
+	bool bHasEquippedFirstWeapon = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UCameraComponent* CameraComp;

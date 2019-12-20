@@ -52,6 +52,12 @@ void ASCharacter::BeginPlay()
 	
 }
 
+// This only calls when an actual weapon is equipped
+void ASCharacter::OnRep_CurrentWeapon()
+{
+
+}
+
 void ASCharacter::StartFire()
 {
 	if (CurrentWeapon)
@@ -127,11 +133,9 @@ void ASCharacter::OnRep_Death()
 // AI could call this directly to change weapons
 void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
 {
-	// When we call this on client, call it on server instead
+	// Should never be called on client
 	if (Role < ROLE_Authority)
 	{
-		// Shouldn't have to call this, client should never enter here anyways
-		//ServerChangeWeapons(NewWeaponClass, NewWeaponSlot);
 		return;
 	}
 
@@ -142,33 +146,40 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 
 	// If invalid new weapon class, destroy current weapon and don't try to equip new one
 	// This is completely valid, we allow for this, this is swapping to empty inventory slot
-	if (!NewWeaponClass) { return; }
+	if (!NewWeaponClass)
+	{
+		CurrentWeapon = nullptr;
+		//Call this for listen server
+		OnRep_CurrentWeapon();
+
+		return;
+	}
 
 
 	// Spawn a weapon because it exists in the inventory slot, and update HUD image
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	// Create On_Rep function for client to update HUD when weapon changes
+	// Create On_Rep function for client to update HUD when weapon changes and play sound
 	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
 	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+	//Call this for listen server
+	OnRep_CurrentWeapon();
 
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-
 	}
 }
+
 
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Specify what we want to replicate and how we want to replicate it
-	// In .h file we say we want to replicate CurrentWeapon variable, now we specify where we want to replicate to
-	// This replicates to any client connected to us
-	DOREPLIFETIME(ASCharacter, CurrentWeapon);
+
+	DOREPLIFETIME_CONDITION(ASCharacter, CurrentWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ASCharacter, bDied);
 }
 
