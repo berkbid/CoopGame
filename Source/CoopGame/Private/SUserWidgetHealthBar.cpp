@@ -36,8 +36,6 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 
 	OwningActor = NewOwner;
 
-	
-
 	// Get health component reference of owner to bind to health changed event dispatcher
 	USHealthComponent* HealthComp = Cast<USHealthComponent>(OwningActor->GetComponentByClass(USHealthComponent::StaticClass()));
 

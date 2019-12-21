@@ -92,7 +92,6 @@ void ASPlayerCharacter::Tick(float DeltaTime)
 				bIsZooming = false;
 			}
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("NewFOV = %f"), NewFOV);
 		CameraComp->SetFieldOfView(NewFOV);
 	}
 }

@@ -34,7 +34,7 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientPostLogin();
 
-	void AddPlayerToHUDScoreboard();
+	void AddPlayerToHUDScoreboard(class APlayerState* NewPlayerState);
 
 	void SetScoreText(float NewScore);
 

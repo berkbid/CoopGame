@@ -173,16 +173,6 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 	}
 }
 
-
-void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-
-	DOREPLIFETIME_CONDITION(ASCharacter, CurrentWeapon, COND_OwnerOnly);
-	DOREPLIFETIME(ASCharacter, bDied);
-}
-
 // Only server runs this code
 void ASCharacter::PossessedBy(AController* NewController)
 {
@@ -196,4 +186,13 @@ void ASCharacter::PossessedBy(AController* NewController)
 		//cannot multicast for initial possessed as no clients are connected yet when server is
 		HealthBar->UpdateWidgetName(PS->GetPlayerName());
 	}
+}
+
+void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME_CONDITION(ASCharacter, CurrentWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ASCharacter, bDied);
 }

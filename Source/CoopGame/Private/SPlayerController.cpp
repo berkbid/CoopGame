@@ -43,50 +43,32 @@ void ASPlayerController::BeginPlay()
 	}
 }
 
-
 // Listen server doesn't run this code
 // This gets replicated when PlayerState is assigned to this controller and is valid for the first time
 void ASPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	AddPlayerToHUDScoreboard();
-
-	//// do a multicast on name widget from here
-	//ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
-	//if (MySPlayerChar)
-	//{
-	//	
-	//}
-	
-	
+	// This works for all clients and not listen server
+	AddPlayerToHUDScoreboard(PlayerState);	
 }
 
 /** spawns and initializes the PlayerState for this Controller */
+// Called before possess and postlogin, only server runs this code
 void ASPlayerController::InitPlayerState()
 {
 	Super::InitPlayerState();
+
 }
 
 void ASPlayerController::AllPostLogin()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("PostLogin: %s"), *GetName());
 	// Can run server code here if needed for RPC's
-
-
 	ClientPostLogin();
 }
 
-void ASPlayerController::AddPlayerToHUDScoreboard()
-{
-	// @TODO Listen server isn't running this code, need to fix
-	// Add self stats to scoreboard now that our playerstate is valid to access
-	ASPlayerState* PS = Cast<ASPlayerState>(PlayerState);
-	if (PS && MyGameInfo)
-	{
-		MyGameInfo->AddPlayerToScoreboard(PS->GetPlayerName(), FString::FromInt(PS->PlayerKills), FString::FromInt(PS->PlayerDeaths), FString::SanitizeFloat(PS->Score));
-	}
-}
-
+// PlayerState isn't valid at this point for clients
 void ASPlayerController::ClientPostLogin_Implementation()
 {
 	// Create and setup initial HUD state
@@ -104,12 +86,11 @@ void ASPlayerController::ClientPostLogin_Implementation()
 
 		// Call HUD functions to setup initial HUD state
 		SetupInitialHUDState();
-
-
 	}
 }
 
 // Self contained function in charge of setting initial values in different HUD objects
+// PlayerState isn't valid here for clients, only for listen server
 void ASPlayerController::SetupInitialHUDState()
 {
 	if (!MyGameInfo) { return; }
@@ -140,12 +121,28 @@ void ASPlayerController::SetupInitialHUDState()
 			}
 		}
 	}
+	
+	// This works for listen server only but not any clients, playerstate is not valid yet for clients
+	// So we run this code OnRep_PlayerState which works for clients but not for listen server
+	AddPlayerToHUDScoreboard(PlayerState);
+}
+
+void ASPlayerController::AddPlayerToHUDScoreboard(APlayerState* NewPlayerState)
+{
+	if (!NewPlayerState) { return; }
+	// @TODO Listen server isn't running this code, need to fix
+	// Add self stats to scoreboard now that our playerstate is valid to access
+	ASPlayerState* PS = Cast<ASPlayerState>(NewPlayerState);
+	if (PS && MyGameInfo)
+	{
+		MyGameInfo->AddPlayerToScoreboard(PS->GetPlayerName(), FString::FromInt(PS->PlayerKills), FString::FromInt(PS->PlayerDeaths), FString::SanitizeFloat(PS->Score));
+	}
 }
 
 void ASPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
-	
+
 	// PlayerState is valid at this point, but playername is not set, so PostLogin hasent been called
 	if (Role == ROLE_Authority)
 	{
@@ -327,19 +324,9 @@ void ASPlayerController::OnRep_SlotChange()
 	{ 
 		MyGameInfo->UpdateInventoryHUD(CurrentSlot);
 	}
-
-	// Play pickup sound also
-	//if (PickedupSound)
-	//{
-	//	APawn* ControlledPawn = GetPawn();
-	//	if (ControlledPawn)
-	//	{
-	//		UGameplayStatics::PlaySoundAtLocation(this, PickedupSound, ControlledPawn->GetActorLocation());
-	//	}
-	//}
 }
 
-// When server picks up new weapon, updates SlotToUpdate so owning client updates HUD for that slot
+// When server PICKS UP NEW WEAPON, updates SlotToUpdate so owning client updates HUD for that slot
 // This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
 void ASPlayerController::OnRep_SlotToUpdate()
 {
