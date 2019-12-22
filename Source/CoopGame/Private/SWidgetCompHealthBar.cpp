@@ -4,8 +4,6 @@
 #include "SWidgetCompHealthBar.h"
 #include "SUserWidgetHealthBar.h"
 #include "Net/UnrealNetwork.h"
-#include "SPlayerState.h"
-#include "SPlayerCharacter.h"
 
 USWidgetCompHealthBar::USWidgetCompHealthBar()
 {
@@ -60,26 +58,6 @@ void USWidgetCompHealthBar::InitWidget()
 			{
 				// Assign the owner, now we have easy access in the widget itself
 				HealthBarInst->SetOwningActor(OwningPawn);
-
-				ASPlayerCharacter* OwningChar = Cast<ASPlayerCharacter>(OwningPawn);
-				// If our owner is a player, not a bot, set name properly
-				if (OwningChar)
-				{
-					ASPlayerState* PS = Cast<ASPlayerState>(OwningPawn->GetPlayerState());
-					if (PS)
-					{
-						UpdateWidgetName(PS->GetPlayerName());
-					}
-					else
-					{
-						UpdateWidgetName(OwningPawn->GetName());
-					}
-				}
-				// If owner is a bot, use bots default name
-				else
-				{
-					UpdateWidgetName(OwningPawn->GetName());
-				}
 
 			}
 		}

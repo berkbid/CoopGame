@@ -202,7 +202,6 @@ void ASCharacter::PossessedBy(AController* NewController)
 	ASPlayerState* PS = NewController->GetPlayerState<ASPlayerState>();
 	if (PS && HealthBar)
 	{
-		// Update names manually for listen server here 
 		HealthBar->UpdateWidgetName(PS->GetPlayerName());
 	}
 }
