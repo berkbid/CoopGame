@@ -44,7 +44,7 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 
@@ -134,7 +134,7 @@ void ASCharacter::OnRep_Death()
 void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
 {
 	// Should never be called on client
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		return;
 	}

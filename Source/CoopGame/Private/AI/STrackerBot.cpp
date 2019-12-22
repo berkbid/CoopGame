@@ -18,6 +18,7 @@
 #include "Sound/SoundCue.h"
 #include "Net/UnrealNetwork.h"
 #include "SWidgetCompHealthBar.h"
+#include "EngineUtils.h"
 
 static int32 DebugTrackerBotDrawing = 0;
 FAutoConsoleVariableRef CVARDebugTrackerBotDrawing(
@@ -67,7 +68,7 @@ void ASTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		// Find initial move-to
 		NextPathPoint = GetNextPathPoint();
@@ -107,15 +108,9 @@ FVector ASTrackerBot::GetNextPathPoint()
 	AActor* BestTarget = nullptr;
 	float NearestTargetDistance = FLT_MAX;
 
-	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+	for (TActorIterator<APawn> It(GetWorld()); It; ++It)
 	{
-		APawn* TestPawn = It->Get();
-		//ASTrackerBot* TrackerBot = Cast<ASTrackerBot>(TestPawn);
-
-		// will need to update for other types of bots
-		// Maybe need to check if TestPawn->IsControlled() ??
-		//  || USHealthComponent::IsFriendly(TestPawn, this)
-		//  
+		APawn* TestPawn = *It;
 
 		if (TestPawn == nullptr || USHealthComponent::IsFriendly(TestPawn, this))
 		{
@@ -181,7 +176,7 @@ void ASTrackerBot::SelfDestruct()
 	MeshComp->SetSimulatePhysics(false);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		TArray<AActor*> IgnoredActors;
 		IgnoredActors.Add(this);
@@ -293,7 +288,7 @@ void ASTrackerBot::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// Only server should do this stuff
-	if (Role == ROLE_Authority && !bExploded)
+	if (GetLocalRole() == ROLE_Authority && !bExploded)
 	{
 		// Size() will get the distance of this vector between these two points
 		float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();
@@ -340,7 +335,7 @@ void ASTrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 		// Make sure only explode if overlap with enemy
 		if (PlayerPawn && !USHealthComponent::IsFriendly(OtherActor, this))
 		{
-			if (Role == ROLE_Authority)
+			if (GetLocalRole() == ROLE_Authority)
 			{
 				// Start self damage sequence
 				GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf, SelfDamageInterval, true, 0.f);

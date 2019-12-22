@@ -59,7 +59,7 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 
 	// Return so do not apply friendly fire if on same team, allow self damage though
 	// Check instigator, since DamageCauser can be a projectile actor that was spawned from instigator weapon
-	if (DamageCauser != DamagedActor && IsFriendly(DamagedActor, DamageCauser->Instigator))
+	if (DamageCauser != DamagedActor && IsFriendly(DamagedActor, DamageCauser->GetInstigator()))
 	{
 		return;
 	}
@@ -80,7 +80,7 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 		ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
 		if (GM)
 		{
-			GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser->Instigator, InstigatedBy);
+			GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser->GetInstigator(), InstigatedBy);
 		}
 	}
 }

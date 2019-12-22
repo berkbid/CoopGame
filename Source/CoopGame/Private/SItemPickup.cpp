@@ -30,7 +30,7 @@ void ASItemPickup::BeginPlay()
 	Super::BeginPlay();
 
 	// Only hook overlap event on server
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		// Bind to overlap event on server because functionality needs to be run on server
 		OnActorBeginOverlap.AddDynamic(this, &ASItemPickup::HandleBeginOverlap);

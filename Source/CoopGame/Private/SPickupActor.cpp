@@ -33,7 +33,7 @@ void ASPickupActor::BeginPlay()
 	Super::BeginPlay();
 
 	// Only server handles this
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		Respawn();
 	}
@@ -63,7 +63,7 @@ void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 	Super::NotifyActorBeginOverlap(OtherActor);
 
 	// @TODO: Grant a powerup to player if available
-	if (Role == ROLE_Authority && PowerUpInstance)
+	if (GetLocalRole() == ROLE_Authority && PowerUpInstance)
 	{
 		ASCharacter* CurChar = Cast<ASCharacter>(OtherActor);
 

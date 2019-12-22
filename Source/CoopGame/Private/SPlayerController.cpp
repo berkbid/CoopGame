@@ -144,7 +144,7 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 	Super::OnPossess(aPawn);
 
 	// PlayerState is valid at this point, but playername is not set, so PostLogin hasent been called
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		// Uncomment to have players reset to current slot being 0 upon possessing new pawn
 		//CurrentSlot = 0;
@@ -237,7 +237,7 @@ void ASPlayerController::ServerEquipWeaponFive_Implementation()
 void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 {
 	// Only server should call this function, this is precautionary
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Should NOT call EquipWeapon as client! See SPlayerController.cpp"));
 		return;
@@ -269,7 +269,7 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 {
 	// Only server should call this function, this is precautionary
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Should NOT call PickedUpNewWeapon as client! See SPlayerController.cpp"));
 		return false;

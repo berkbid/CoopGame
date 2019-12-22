@@ -13,7 +13,7 @@ ASProjectileWeapon::ASProjectileWeapon()
 void ASProjectileWeapon::Fire()
 {
 	// So if we are a client, we run ServerFire() to run this Fire function for us
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerFire();
 		// Set this on client side since it is checked on client side in StartFire() in SWeapon.cpp

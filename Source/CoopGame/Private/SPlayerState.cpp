@@ -13,7 +13,7 @@
 // Allows blueprint to manipulate "Score" since it is marked BlueprintReadOnly in PlayerState.h
 void ASPlayerState::AddScore(float ScoreDelta)
 {
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		Score += ScoreDelta;
 		

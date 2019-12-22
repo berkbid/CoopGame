@@ -59,7 +59,7 @@ void ASGrenadeProjectile::BeginPlay()
 	OnDestroyed.AddDynamic(this, &ASGrenadeProjectile::MyOnDestroyed);
 
 	// Only hook Explode timer on server
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		// Bind to overlap event on server because functionality needs to be run on server
 		OnActorBeginOverlap.AddDynamic(this, &ASGrenadeProjectile::HandleBeginOverlap);

@@ -11,6 +11,7 @@
 #include "SPlayerCharacter.h"
 #include "SAICharacter.h"
 #include "SPlayerController.h"
+#include "EngineUtils.h"
 
 ASGameMode::ASGameMode()
 {
@@ -88,9 +89,10 @@ void ASGameMode::CheckWaveState()
 
 	bool bIsAnyBotAlive = false;
 
-	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+	for (TActorIterator<APawn> It(GetWorld()); It; ++It)
 	{
-		APawn* TestPawn = It->Get();
+		APawn* TestPawn = *It;
+
 		if (TestPawn == nullptr || TestPawn->IsPlayerControlled())
 		{
 			continue;
@@ -223,7 +225,7 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 
 	// As server, manipulate replicated properties on the PlayerState connected to the new PlayerController
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
 		if (PS)

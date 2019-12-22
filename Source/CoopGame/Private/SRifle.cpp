@@ -26,7 +26,7 @@ ASRifle::ASRifle()
 void ASRifle::Fire()
 {
 	// So if we are a client, we run ServerFire() instead of this Fire() function
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerFire();
 		// If we return here, the owning client will not run this code for itself
@@ -99,7 +99,7 @@ void ASRifle::Fire()
 		PlayFireEffect(TracerEndPoint);
 
 		// This will replicate the struct HitScanTrace to all clients triggering OnRep function
-		if (Role == ROLE_Authority)
+		if (GetLocalRole() == ROLE_Authority)
 		{
 			HitScanTrace.TraceTo = TracerEndPoint;
 			// Only overriden from default if we hit something
