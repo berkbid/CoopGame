@@ -13,7 +13,7 @@
 #include "GameFramework/Actor.h"
 #include "Public/DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
-#include "SCharacter.h"
+#include "SPlayerCharacter.h"
 #include "Public/TimerManager.h"
 #include "Sound/SoundCue.h"
 #include "Net/UnrealNetwork.h"
@@ -108,15 +108,10 @@ FVector ASTrackerBot::GetNextPathPoint()
 	AActor* BestTarget = nullptr;
 	float NearestTargetDistance = FLT_MAX;
 
-	for (TActorIterator<APawn> It(GetWorld()); It; ++It)
+	for (TActorIterator<ASPlayerCharacter> It(GetWorld()); It; ++It)
 	{
-		APawn* TestPawn = *It;
-
-		if (TestPawn == nullptr || USHealthComponent::IsFriendly(TestPawn, this))
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("%s is friendly to me: %s"), *TestPawn->GetName(), *GetName());
-			continue;
-		}
+		ASPlayerCharacter* TestPawn = *It;
+		if (!TestPawn) { continue; }
 
 
 		USHealthComponent* TestPawnHealthComp = Cast<USHealthComponent>(TestPawn->GetComponentByClass(USHealthComponent::StaticClass()));
@@ -330,17 +325,16 @@ void ASTrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 
 	if (!bStartedSelfDamage && !bExploded)
 	{
-		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
+		ASPlayerCharacter* PlayerPawn = Cast<ASPlayerCharacter>(OtherActor);
 
-		// Make sure only explode if overlap with enemy
-		if (PlayerPawn && !USHealthComponent::IsFriendly(OtherActor, this))
+		// Only explode if overlap with enemy
+		if (PlayerPawn)
 		{
 			if (GetLocalRole() == ROLE_Authority)
 			{
 				// Start self damage sequence
 				GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf, SelfDamageInterval, true, 0.f);
 			}
-			
 
 			bStartedSelfDamage = true;
 
