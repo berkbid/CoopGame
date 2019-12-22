@@ -5,6 +5,7 @@
 #include "SUserWidgetHealthBar.h"
 #include "Net/UnrealNetwork.h"
 #include "SPlayerState.h"
+#include "SPlayerCharacter.h"
 
 USWidgetCompHealthBar::USWidgetCompHealthBar()
 {
@@ -33,13 +34,11 @@ void USWidgetCompHealthBar::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-// call this code onrep_playerstate in player controller for every1
 // This code is replicated to everyone
 void USWidgetCompHealthBar::InitWidget()
 {
 	// Base implementation creates the 'Widget' instance
 	Super::InitWidget();
-	
 	
 	if (Widget)
 	{
@@ -54,12 +53,33 @@ void USWidgetCompHealthBar::InitWidget()
 
 		if (HealthBarInst)
 		{
+			
 			APawn* OwningPawn = Cast<APawn>(GetOwner());
 			
 			if (OwningPawn)
 			{
 				// Assign the owner, now we have easy access in the widget itself
 				HealthBarInst->SetOwningActor(OwningPawn);
+
+				ASPlayerCharacter* OwningChar = Cast<ASPlayerCharacter>(OwningPawn);
+				// If our owner is a player, not a bot, set name properly
+				if (OwningChar)
+				{
+					ASPlayerState* PS = Cast<ASPlayerState>(OwningPawn->GetPlayerState());
+					if (PS)
+					{
+						UpdateWidgetName(PS->GetPlayerName());
+					}
+					else
+					{
+						UpdateWidgetName(OwningPawn->GetName());
+					}
+				}
+				// If owner is a bot, use bots default name
+				else
+				{
+					UpdateWidgetName(OwningPawn->GetName());
+				}
 
 			}
 		}
@@ -72,7 +92,7 @@ void USWidgetCompHealthBar::Multicast_UpdateName_Implementation(const FString& P
 	UpdateWidgetName(PlayerName);
 }
 
-void USWidgetCompHealthBar::UpdateWidgetName(const FString& PlayerName)
+void USWidgetCompHealthBar::UpdateWidgetName(FString PlayerName)
 {
 	if (HealthBarInst)
 	{

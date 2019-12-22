@@ -50,7 +50,7 @@ void ASPlayerState::OnRep_Score()
 	//	UE_LOG(LogTemp, Warning, TEXT("FOUND Controller: %s"), *PCC->GetName());
 	//}
 
-	// Owner if playerstate is of type playercontroller, this is only valid on owning client
+	// Owner of playerstate is of type playercontroller, this is only valid on owning client
 	ASPlayerController* PC = Cast<ASPlayerController>(GetOwner());
 	if (PC)
 	{
@@ -62,8 +62,7 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-
-	// This replicates to any client connected to us
+	// This replicates to all clients
 	DOREPLIFETIME(ASPlayerState, PlayerNumber);
 	DOREPLIFETIME(ASPlayerState, PlayerKills);
 	DOREPLIFETIME(ASPlayerState, PlayerDeaths);

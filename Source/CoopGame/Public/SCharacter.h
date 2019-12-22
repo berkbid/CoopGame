@@ -22,10 +22,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Allows client to run functionality when weapon is changed
 	UFUNCTION()
 	virtual void OnRep_CurrentWeapon();
 
-	// Replicate this variable for clients to have access as well!
+	// Replicate this variable for owning client to have access as well
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Player")
 	class ASWeapon* CurrentWeapon;
 
@@ -68,5 +69,8 @@ public:
 	void PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor);
 
 	void ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot);
+
+	/** PlayerState Replication Notification Callback */
+	virtual void OnRep_PlayerState() override;
 
 };

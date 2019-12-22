@@ -30,6 +30,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_UpdateName(const FString& PlayerName);
 
-	void UpdateWidgetName(const FString& PlayerName);
+	void UpdateWidgetName(FString PlayerName);
 
 };

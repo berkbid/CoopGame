@@ -45,12 +45,29 @@ void ASPlayerController::BeginPlay()
 
 // Listen server doesn't run this code
 // This gets replicated when PlayerState is assigned to this controller and is valid for the first time
+// GameState isn't always valid at this point
 void ASPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// This works for all clients and not listen server
+	// This works for client and not listen server
 	AddPlayerToHUDScoreboard(PlayerState);	
+
+	//// Loop through all playerstates and add them to scoreboard
+	//ASGameState* GS = GetWorld()->GetGameState<ASGameState>();
+	//if (GS)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("FOUND GameState"));
+	//	TArray<APlayerState*> PlayerList = GS->PlayerArray;
+	//	for (auto i : PlayerList)
+	//	{
+	//		ASPlayerState* PS = Cast<ASPlayerState>(i);
+	//		if (PS)
+	//		{
+	//			UE_LOG(LogTemp, Warning, TEXT("FOUND PLAYER: %s"), *PS->GetPlayerName());
+	//		}
+	//	}
+	//}
 }
 
 /** spawns and initializes the PlayerState for this Controller */
@@ -69,6 +86,7 @@ void ASPlayerController::AllPostLogin()
 }
 
 // PlayerState isn't valid at this point for clients
+// GameState is also not valid
 void ASPlayerController::ClientPostLogin_Implementation()
 {
 	// Create and setup initial HUD state
@@ -127,6 +145,7 @@ void ASPlayerController::SetupInitialHUDState()
 	AddPlayerToHUDScoreboard(PlayerState);
 }
 
+// Helper function, takes PlayerState reference and adds that PlayerState to scoreboard on HUD of owning client
 void ASPlayerController::AddPlayerToHUDScoreboard(APlayerState* NewPlayerState)
 {
 	if (!NewPlayerState) { return; }
@@ -157,9 +176,8 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 		{
 			if (MySPlayerChar)
 			{
-				// Equip whatever weapon is in the current slot if we are a SCharacter
+				// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
 				MySPlayerChar->ChangeWeapons(WeaponInventory[CurrentSlot], CurrentSlot);
-
 			}
 		}
 	}
@@ -290,7 +308,7 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 				bIsInventoryFull = true;
 			}
 
-			// Update HUD image for client/listen server
+			// Update HUD image for client
 			SlotToUpdate = i;
 			// If we are listen server, call function manually
 			if (IsLocalController()) { OnRep_SlotToUpdate(); }
@@ -384,6 +402,6 @@ void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	// Server updates this property and owning client reacts by updating HUD showing newly "selected" inventory slot
 	DOREPLIFETIME_CONDITION(ASPlayerController, CurrentSlot, COND_OwnerOnly);
 
-	// Server updates this property and owning client reacts by updating HUD showing newly "acquired" inventory slot
+	// Server updates this property and owning client reacts by updating HUD showing newly "acquired" inventory item in slot
 	DOREPLIFETIME_CONDITION(ASPlayerController, SlotToUpdate, COND_OwnerOnly);
 }

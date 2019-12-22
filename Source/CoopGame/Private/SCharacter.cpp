@@ -44,10 +44,12 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//UE_LOG(LogTemp, Warning, TEXT("BeginPlay: %s"), *GetName());
 	if (GetLocalRole() == ROLE_Authority)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("BeginPlay: %s"), *GetName());
 		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
-
 	}
 	
 }
@@ -159,6 +161,7 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 	// Spawn a weapon because it exists in the inventory slot, and update HUD image
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Owner = this;
 
 	// Create On_Rep function for client to update HUD when weapon changes and play sound
 	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
@@ -168,22 +171,38 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 
 	if (CurrentWeapon)
 	{
-		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 }
 
-// Only server runs this code
+// Widget Component is always valid here, but WidgetInst is not
+// Listen server doesn't run this code but needs to
+void ASCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
+
+	if (PS && HealthBar)
+	{
+		HealthBar->UpdateWidgetName(PS->GetPlayerName());
+	}
+}
+
+
+// Only server runs this code, this is called after BeginPlay
 void ASCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
 	// Wrong playername on first call
+	
+	// For listen server, this allows name to be set on clients since it doesn't run OnRep_PlayerState
+	// The issue is, on VERY FIRST possession of first pawn, Listen Server has "DESKTOP" PlayerName() not the correct one
+	// This works on every subsequent possession of pawns
 	ASPlayerState* PS = NewController->GetPlayerState<ASPlayerState>();
 	if (PS && HealthBar)
 	{
 		// Update names manually for listen server here 
-		//cannot multicast for initial possessed as no clients are connected yet when server is
 		HealthBar->UpdateWidgetName(PS->GetPlayerName());
 	}
 }

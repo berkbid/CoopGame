@@ -38,7 +38,6 @@ ASTrackerBot::ASTrackerBot()
 	MeshComp->SetSimulatePhysics(true);
 	RootComponent = MeshComp;
 
-
 	HealthComp = CreateDefaultSubobject<USHealthComponent>("HealthComp");
 	// This event only subscribes to the server as shown in SHealthComponent.cpp, but gets triggered to all clients!
 	HealthComp->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
@@ -76,13 +75,10 @@ void ASTrackerBot::BeginPlay()
 		// Every 1 second, update powerlevel depending on nearby bots
 		//GetWorldTimerManager().SetTimer(TimerHandle_CheckPowerLevel, this, &ASTrackerBot::OnCheckNearbyBots, 1.f, true);
 	}
-	
 }
 
 void ASTrackerBot::HandleTakeDamage(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("%s Take Damage!! Health = %s"), *GetName(), *FString::SanitizeFloat(Health));
-	
 	if (MatInst == nullptr)
 	{
 		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
@@ -100,7 +96,6 @@ void ASTrackerBot::HandleTakeDamage(USHealthComponent* HealthCompNew, float Heal
 	{
 		SelfDestruct();
 	}
-
 }
 
 FVector ASTrackerBot::GetNextPathPoint()
@@ -160,12 +155,11 @@ void ASTrackerBot::SelfDestruct()
 	// Make sure dont explode more than once
 	bExploded = true;
 
-
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 
 	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
 
-	// Make invisible while it is life span is 2.f
+	// Make invisible while life span is 2.f
 
 	MeshComp->SetVisibility(false, true);
 	MeshComp->SetSimulatePhysics(false);
@@ -184,9 +178,6 @@ void ASTrackerBot::SelfDestruct()
 		{
 			DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f);
 		}
-		
-
-		//Destroy();
 
 		SetLifeSpan(2.f);
 	}
@@ -250,7 +241,6 @@ void ASTrackerBot::OnCheckNearbyBots()
 
 void ASTrackerBot::OnRep_PowerLevelChange()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("ALPHA CHANGE!!"));
 	// Need this to happen on client and server
 	// Update the material color
 	if (MatInst == nullptr)
@@ -348,13 +338,8 @@ void ASTrackerBot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Specify what we want to replicate and how we want to replicate it
-	// In .h file we say we want to replicate CurrentWeapon variable, now we specify where we want to replicate to
-	// This replicates to any client connected to us
-	// Use condition b/c do not want to replicate it to client who owns this weapon
 	// do not want to play visual effects twice
 	DOREPLIFETIME(ASTrackerBot, PowerLevel);
-
 }
 
 
