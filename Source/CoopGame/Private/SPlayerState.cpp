@@ -94,7 +94,6 @@ void ASPlayerState::OnRep_PlayerDeaths()
 void ASPlayerState::OnRep_Score()
 {
 	Super::OnRep_Score();
-	// We want to update everyone's scoreboard HUD
 
 	// Owner of playerstate is of type playercontroller, this is only valid on owning client
 	ASPlayerController* PC = Cast<ASPlayerController>(GetOwner());
@@ -111,6 +110,11 @@ void ASPlayerState::OnRep_Score()
 	}
 }
 
+// GameState not valid yet
+void ASPlayerState::ClientInitialize(class AController* C)
+{
+	Super::ClientInitialize(C);
+}
 
 void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -120,10 +124,4 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ASPlayerState, PlayerNumber);
 	DOREPLIFETIME(ASPlayerState, PlayerKills);
 	DOREPLIFETIME(ASPlayerState, PlayerDeaths);
-}
-
-// GameState not valid yet
-void ASPlayerState::ClientInitialize(class AController* C)
-{
-	Super::ClientInitialize(C);
 }

@@ -108,7 +108,7 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 			CurrentWeapon->Destroy();
 		}
 
-		// While PlayerState is valid before we destroy and detach, update Death count
+		// While PlayerState is valid before we detach and destroy this pawn, update Death count
 		if (ASPlayerState* PS = GetPlayerState<ASPlayerState>())
 		{
 			PS->AddDeath();
