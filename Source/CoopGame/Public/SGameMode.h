@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "SGameMode.generated.h"
 
 enum class EWaveState : uint8;
@@ -14,8 +14,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimAc
 /**
  * 
  */
-UCLASS()
-class COOPGAME_API ASGameMode : public AGameModeBase
+UCLASS(config = Game)
+class COOPGAME_API ASGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
@@ -50,6 +50,12 @@ protected:
 	UFUNCTION()
 	void HandleActorKilled(class AActor* VictimActor, class AActor* KillerActor, class AController* KillerController);
 
+	/** called before startmatch */
+	virtual void HandleMatchIsWaitingToStart() override;
+
+	/** starts new match */
+	virtual void HandleMatchHasStarted() override;
+
 protected:
 
 	FTimerHandle TimerHandle_BotSpawner;
@@ -61,6 +67,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	int32 NrOfBotsToSpawn;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
+	float ScorePerKill;
 
 public:
 	ASGameMode();

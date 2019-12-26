@@ -28,13 +28,23 @@ public:
 	/** spawns and initializes the PlayerState for this Controller */
 	virtual void InitPlayerState() override;
 
-	void AllPostLogin();
+	// Called from GameMode to allow server to run code and call ClientPostLogin()
+	void ServerPostLogin();
 
 	// Needs to be set Reliable, GameMode calls this OnPostLogin
 	UFUNCTION(Client, Reliable)
 	void ClientPostLogin();
 
-	void AddPlayerToHUDScoreboard(class APlayerState* NewPlayerState);
+	UFUNCTION(Client, Reliable)
+	void ClientAddPlayerToHUDScoreboard(FString const &NewPlayerName, uint32 NewPlayerNumber);
+	
+	void AddPlayerToHUDScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
+
+	void UpdatePlayerScore(uint32 PlayerNumber, float NewScore);
+
+	void UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills);
+
+	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 
 	void SetScoreText(float NewScore);
 

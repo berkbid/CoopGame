@@ -50,24 +50,6 @@ void ASPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// This works for client and not listen server
-	AddPlayerToHUDScoreboard(PlayerState);	
-
-	//// Loop through all playerstates and add them to scoreboard
-	//ASGameState* GS = GetWorld()->GetGameState<ASGameState>();
-	//if (GS)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("FOUND GameState"));
-	//	TArray<APlayerState*> PlayerList = GS->PlayerArray;
-	//	for (auto i : PlayerList)
-	//	{
-	//		ASPlayerState* PS = Cast<ASPlayerState>(i);
-	//		if (PS)
-	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("FOUND PLAYER: %s"), *PS->GetPlayerName());
-	//		}
-	//	}
-	//}
 }
 
 /** spawns and initializes the PlayerState for this Controller */
@@ -75,12 +57,11 @@ void ASPlayerController::OnRep_PlayerState()
 void ASPlayerController::InitPlayerState()
 {
 	Super::InitPlayerState();
-
 }
 
-void ASPlayerController::AllPostLogin()
+// Only PlayerState for server is valid in GameState
+void ASPlayerController::ServerPostLogin()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("PostLogin: %s"), *GetName());
 	// Can run server code here if needed for RPC's
 	ClientPostLogin();
 }
@@ -109,6 +90,7 @@ void ASPlayerController::ClientPostLogin_Implementation()
 
 // Self contained function in charge of setting initial values in different HUD objects
 // PlayerState isn't valid here for clients, only for listen server
+// GameState is only valid for server
 void ASPlayerController::SetupInitialHUDState()
 {
 	if (!MyGameInfo) { return; }
@@ -139,22 +121,43 @@ void ASPlayerController::SetupInitialHUDState()
 			}
 		}
 	}
-	
-	// This works for listen server only but not any clients, playerstate is not valid yet for clients
-	// So we run this code OnRep_PlayerState which works for clients but not for listen server
-	AddPlayerToHUDScoreboard(PlayerState);
+}
+
+void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const& NewPlayerName, uint32 NewPlayerNumber)
+{
+	AddPlayerToHUDScoreboard(NewPlayerName, NewPlayerNumber);
 }
 
 // Helper function, takes PlayerState reference and adds that PlayerState to scoreboard on HUD of owning client
-void ASPlayerController::AddPlayerToHUDScoreboard(APlayerState* NewPlayerState)
+void ASPlayerController::AddPlayerToHUDScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
 {
-	if (!NewPlayerState) { return; }
-	// @TODO Listen server isn't running this code, need to fix
-	// Add self stats to scoreboard now that our playerstate is valid to access
-	ASPlayerState* PS = Cast<ASPlayerState>(NewPlayerState);
-	if (PS && MyGameInfo)
+	if (MyGameInfo)
 	{
-		MyGameInfo->AddPlayerToScoreboard(PS->GetPlayerName(), FString::FromInt(PS->PlayerKills), FString::FromInt(PS->PlayerDeaths), FString::SanitizeFloat(PS->Score));
+		MyGameInfo->AddPlayerToScoreboard(NewPlayerName, NewPlayerNumber);
+	}
+}
+
+void ASPlayerController::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->UpdatePlayerScore(PlayerNumber, NewScore);
+	}
+}
+
+void ASPlayerController::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->UpdatePlayerKills(PlayerNumber, NewKills);
+	}
+}
+
+void ASPlayerController::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
 	}
 }
 

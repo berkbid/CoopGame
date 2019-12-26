@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 #include "SGameState.generated.h"
 
 UENUM(BlueprintType)
@@ -27,7 +27,7 @@ enum class EWaveState : uint8
  * 
  */
 UCLASS()
-class COOPGAME_API ASGameState : public AGameStateBase
+class COOPGAME_API ASGameState : public AGameState
 {
 	GENERATED_BODY()
 	
@@ -43,6 +43,7 @@ protected:
 	EWaveState WaveState;
 
 public:
+
 
 	void SetWaveState(EWaveState NewState);
 

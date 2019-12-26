@@ -51,9 +51,7 @@ void USWidgetCompHealthBar::InitWidget()
 
 		if (HealthBarInst)
 		{
-			
 			APawn* OwningPawn = Cast<APawn>(GetOwner());
-			
 			if (OwningPawn)
 			{
 				// Assign the owner, now we have easy access in the widget itself

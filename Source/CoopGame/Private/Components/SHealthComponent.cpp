@@ -17,7 +17,7 @@ USHealthComponent::USHealthComponent()
 	bIsDead = false;
 
 	TeamNum = 255;
-
+	//Here?
 	SetIsReplicated(true);
 }
 
@@ -74,7 +74,6 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 	{
 		bIsDead = true;
 		// This will only be valid on the server
-
 
 		// If owning actor is dead, broadcast event on game mode to handle this
 		ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());

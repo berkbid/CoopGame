@@ -17,6 +17,7 @@ ASGameMode::ASGameMode()
 {
 	TimeBetweenWaves = 2.f;
 	NrOfBotsToSpawn = 2;
+	ScorePerKill = 25.f;
 
 	// Setup default gamestate class
 	GameStateClass = ASGameState::StaticClass();
@@ -40,7 +41,6 @@ void ASGameMode::StartWave()
 	//UE_LOG(LogTemp, Warning, TEXT("StartWave(), nrbots: %d"), NrOfBotsThisWave);
 	GetWorldTimerManager().SetTimer(TimerHandle_BotSpawner, this, &ASGameMode::SpawnBotTimerElapsed, 1.f, true, 0.f);
 
-
 	SetWaveState(EWaveState::WaveInProgress);
 }
 
@@ -61,8 +61,6 @@ void ASGameMode::SpawnBotTimerElapsed()
 void ASGameMode::EndWave()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_BotSpawner);
-
-	//PrepareForNextWave();
 
 	SetWaveState(EWaveState::WaitingToComplete);
 }
@@ -111,7 +109,6 @@ void ASGameMode::CheckWaveState()
 		SetWaveState(EWaveState::WaveComplete);
 		PrepareForNextWave();
 	}
-
 }
 
 void ASGameMode::CheckAnyPlayerAlive()
@@ -136,8 +133,6 @@ void ASGameMode::CheckAnyPlayerAlive()
 	
 	// No player alive
 	GameOver();
-
-
 }
 
 void ASGameMode::GameOver()
@@ -150,7 +145,7 @@ void ASGameMode::GameOver()
 
 void ASGameMode::SetWaveState(EWaveState NewState)
 {
-	ASGameState* GS = GetGameState<ASGameState>();
+	ASGameState* const GS = GetGameState<ASGameState>();
 	// Need to be notified if this check doesnt succeed, "ensureAlways"
 	if (GS)
 	{
@@ -181,10 +176,11 @@ void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, ACo
 	ASPlayerCharacter* KillerPawn = Cast<ASPlayerCharacter>(KillerActor);
 	if (KillerPawn)
 	{
-		ASPlayerState* PS = Cast<ASPlayerState>(KillerPawn->GetPlayerState());
-		if (PS)
+		ASPlayerState* KillerPS = Cast<ASPlayerState>(KillerPawn->GetPlayerState());
+		if (KillerPS)
 		{
-			PS->AddScore(20.f);
+			KillerPS->AddScore(ScorePerKill);
+			KillerPS->AddKill();
 		}
 	}
 
@@ -201,13 +197,26 @@ void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, ACo
 	}
 }
 
-// Overriden from GameStateBase
+// PlayerArray is not populated yet inside of GameState which is valid
+void ASGameMode::HandleMatchIsWaitingToStart()
+{
+	Super::HandleMatchIsWaitingToStart();
+
+}
+
+// Only first player of PlayerArray is valid here
+void ASGameMode::HandleMatchHasStarted()
+{
+	Super::HandleMatchHasStarted();
+
+}	
+
+// Overriden from GameStateBase, PlayerArray in GameState is not set at this point
 void ASGameMode::StartPlay()
 {
 	Super::StartPlay();
 
 	PrepareForNextWave();
-
 }
 
 void ASGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -224,29 +233,56 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	// As server, manipulate replicated properties on the PlayerState connected to the new PlayerController
-	if (GetLocalRole() == ROLE_Authority)
+	uint8 NewPlayerNum;
+	ASGameState* const GS = GetGameState<ASGameState>();
+	if (GS)
 	{
-		ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
-		if (PS)
-		{
-			ASGameState* GS = GetGameState<ASGameState>();
-			if (GS)
-			{
-				// Set new players number to the current size of PlayerArray found in the GameState class
-				uint8 NewPlayerNum = GS->PlayerArray.Num();
-				PS->PlayerNumber = NewPlayerNum;
+		// Set new players number to the current size of PlayerArray found in the GameState class
+		NewPlayerNum = GS->PlayerArray.Num();
+	}
+	else { NewPlayerNum = 99; }
 
-				// Set new players name to include player number
-				FString NewPlayerName = FString("Player") + FString::FromInt(NewPlayerNum);
-				PS->SetPlayerName(NewPlayerName);
+
+	// Manipulate replicated properties on the PlayerState connected to the new PlayerController
+	ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
+	if (PS)
+	{
+		PS->PlayerNumber = NewPlayerNum;
+		// Set new players name to include player number
+		FString NewPlayerName = FString("Player") + FString::FromInt(NewPlayerNum);
+		PS->SetPlayerName(NewPlayerName);
+	}
+		
+	// Call Client function on player controller to setup initial HUD
+	ASPlayerController* PC = Cast<ASPlayerController>(NewPlayer);
+	if (PC)
+	{
+		// Call a server owned postlogin on player controller, so it can call RPC's if necessary
+		PC->ServerPostLogin();
+
+		// Loop through PlayerArray and add entries to scoreboard for current client
+		// Also add self entry for previous players
+		if (GS)
+		{
+			int32 PlayerArrayLen = GS->PlayerArray.Num();
+
+			for (int i = 0; i < PlayerArrayLen; ++i)
+			{
+				APlayerState* TempPlayerState = GS->PlayerArray[i];
+				if (!TempPlayerState) { continue; }
 				
-				// Call Client function on player controller to setup initial HUD
-				ASPlayerController* SPC = Cast<ASPlayerController>(NewPlayer);
-				if (SPC)
+				// Add every client so far to new client's scoreboard (including self)
+				PC->ClientAddPlayerToHUDScoreboard(TempPlayerState->GetPlayerName(), TempPlayerState->PlayerId);
+
+				// Don't want to add ourself to our own scoreboard again
+				if (i < PlayerArrayLen - 1)
 				{
-					// Call a server owned postlogin on player controller, so it can call RPC's if necessary
-					SPC->AllPostLogin();
+					// Add ourself to scoreboard of previous Player
+					ASPlayerController* TempPC = Cast<ASPlayerController>(TempPlayerState->GetOwner());
+					if (TempPC && PS)
+					{
+						TempPC->ClientAddPlayerToHUDScoreboard(PS->GetPlayerName(), PS->PlayerId);
+					}
 				}
 			}
 		}

@@ -30,7 +30,7 @@ ASCharacter::ASCharacter()
 	//GetCharacterMovement()->SetIsReplicated(true);
 	// Needed to make sure we are allowed to crouch
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
-
+	// ??
 	HealthComp = CreateDefaultSubobject<USHealthComponent>("HealthComp");
 
 	HealthBar = CreateDefaultSubobject<USWidgetCompHealthBar>("HealthBar");
@@ -108,6 +108,12 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 			CurrentWeapon->Destroy();
 		}
 
+		// While PlayerState is valid before we destroy and detach, update Death count
+		if (ASPlayerState* PS = GetPlayerState<ASPlayerState>())
+		{
+			PS->AddDeath();
+		}
+
 		bDied = true;
 		// This will manually call this method for the server, meanwhile clients call the method when bDied gets changed & ReplicatedUsing=OnRepDeath()
 		OnRep_Death();
@@ -157,10 +163,10 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 		return;
 	}
 
-
 	// Spawn a weapon because it exists in the inventory slot, and update HUD image
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Must set owner so they are awarded for damage done by the weapon
 	SpawnParams.Owner = this;
 
 	// Create On_Rep function for client to update HUD when weapon changes and play sound

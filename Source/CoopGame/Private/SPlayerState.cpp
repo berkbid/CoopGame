@@ -8,7 +8,14 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "SGameState.h"
 
+
+ASPlayerState::ASPlayerState()
+{
+	PlayerKills = 0;
+	PlayerDeaths = 0;
+}
 
 // Allows blueprint to manipulate "Score" since it is marked BlueprintReadOnly in PlayerState.h
 void ASPlayerState::AddScore(float ScoreDelta)
@@ -27,13 +34,62 @@ void ASPlayerState::AddScore(float ScoreDelta)
 
 }
 
+void ASPlayerState::AddKill()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		PlayerKills++;
+
+		// RepNotify callback won't get called by net code if we are the server
+		ENetMode NetMode = GetNetMode();
+		if (NetMode == NM_Standalone || NetMode == NM_ListenServer)
+		{
+			OnRep_PlayerKills();
+		}
+	}
+}
+
+void ASPlayerState::AddDeath()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		PlayerDeaths++;
+
+		// RepNotify callback won't get called by net code if we are the server
+		ENetMode NetMode = GetNetMode();
+		if (NetMode == NM_Standalone || NetMode == NM_ListenServer)
+		{
+			OnRep_PlayerDeaths();
+		}
+	}
+}
+
 void ASPlayerState::OnRep_PlayerName()
 {
 	Super::OnRep_PlayerName();
 
-	//UE_LOG(LogTemp, Warning, TEXT("FOUND Name: %s"), *GetPlayerName());
 }
 
+
+void ASPlayerState::OnRep_PlayerKills()
+{
+	// This is each client's player controller
+	ASPlayerController* PC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PC)
+	{
+		PC->UpdatePlayerKills(PlayerId, PlayerKills);
+	}
+}
+
+void ASPlayerState::OnRep_PlayerDeaths()
+{
+	// This is each client's player controller
+	ASPlayerController* PC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PC)
+	{
+		PC->UpdatePlayerDeaths(PlayerId, PlayerDeaths);
+	}
+}
 
 // All clients pickup on this function
 // Listen server does not run this code naturally
@@ -42,19 +98,18 @@ void ASPlayerState::OnRep_Score()
 	Super::OnRep_Score();
 	// We want to update everyone's scoreboard HUD
 
-
-
-	//ASPlayerController* PCC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	//if (PCC)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("FOUND Controller: %s"), *PCC->GetName());
-	//}
-
 	// Owner of playerstate is of type playercontroller, this is only valid on owning client
 	ASPlayerController* PC = Cast<ASPlayerController>(GetOwner());
 	if (PC)
 	{
 		PC->SetScoreText(Score);
+	}
+
+	// This is each client's player controller
+	ASPlayerController* PCC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PCC)
+	{
+		PCC->UpdatePlayerScore(PlayerId, Score);
 	}
 }
 
@@ -66,4 +121,11 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ASPlayerState, PlayerNumber);
 	DOREPLIFETIME(ASPlayerState, PlayerKills);
 	DOREPLIFETIME(ASPlayerState, PlayerDeaths);
+}
+
+// GameState not valid yet
+void ASPlayerState::ClientInitialize(class AController* C)
+{
+	Super::ClientInitialize(C);
+
 }

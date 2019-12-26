@@ -39,16 +39,49 @@ void USUserWidgetGameInfo::SetStateText(FString NewState)
 	}
 }
 
-void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewName, FString NewKills, FString NewDeath, FString NewScore)
+void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
 {
 	if (wPlayerStats)
 	{
 		USUserWidgetPlayerStats* NewPlayerStats = CreateWidget<USUserWidgetPlayerStats>(this, wPlayerStats);
 		if (NewPlayerStats && ScoreboardEntryBox)
 		{
-			NewPlayerStats->SetAllText(NewName, NewKills, NewDeath, NewScore);
+			NewPlayerStats->SetAllText(NewPlayerName, FString("0"), FString("0"), FString("0"));
 			ScoreboardEntryBox->AddChild(NewPlayerStats);
+			
+			// Add reference to PlayerStats to ScoreboardDictionary for updating in the future
+			ScoreboardDictionary.Add(NewPlayerNumber, NewPlayerStats);
 		}
+	}
+}
+
+void USUserWidgetGameInfo::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
+{
+	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
+
+	if (PlayerStats)
+	{
+		(*PlayerStats)->SetScoreText(FString::SanitizeFloat(NewScore));
+	}
+}
+
+void USUserWidgetGameInfo::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
+{
+	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
+
+	if (PlayerStats)
+	{
+		(*PlayerStats)->SetKillText(FString::FromInt(NewKills));
+	}
+}
+
+void USUserWidgetGameInfo::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
+{
+	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
+
+	if (PlayerStats)
+	{
+		(*PlayerStats)->SetDeathText(FString::FromInt(NewDeaths));
 	}
 }
 
@@ -58,7 +91,6 @@ void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
 	{
 		FString tempString("SCORE: " + FString::SanitizeFloat(NewScore));
 		ScoreText->SetText(FText::FromString(tempString));
-
 	}
 }
 

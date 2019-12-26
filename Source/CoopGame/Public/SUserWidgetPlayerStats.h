@@ -31,4 +31,14 @@ protected:
 
 public:
 	void SetAllText(FString NewName, FString NewKills, FString NewDeath, FString NewScore);
+
+	void SetNameText(FString NewName);
+
+	void SetScoreText(FString NewScore);
+
+	void SetKillText(FString NewKills);
+
+	void SetDeathText(FString NewDeath);
+
+
 };
