@@ -112,6 +112,7 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 		if (ASPlayerState* PS = GetPlayerState<ASPlayerState>())
 		{
 			PS->AddDeath();
+			PS->AddScore(-10.f);
 		}
 
 		bDied = true;
