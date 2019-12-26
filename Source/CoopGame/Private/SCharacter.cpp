@@ -37,6 +37,7 @@ ASCharacter::ASCharacter()
 	HealthBar->SetupAttachment(RootComponent);
 
 	bDied = false;
+	bIsInventoryFullTemp = false;
 }
 
 // Called once on client and once on server
@@ -80,14 +81,19 @@ void ASCharacter::StopFire()
 void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor)
 {
 	if (!NewWeaponClass) { return; }
-
+	// Quick rejection of weapon overlaps with local variable
+	if (bIsInventoryFullTemp) { return; }
 	// If we could get a boolean from player controller if inventory is full or not we could skip doing more work
 	// This means AI don't pickup weapons because they have different controller class
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
 
 	if (PC)
 	{
-		if (PC->bIsInventoryFull) { return; }
+		if (PC->bIsInventoryFull) 
+		{ 
+			bIsInventoryFullTemp = true;
+			return; 
+		}
 
 		if (PC->PickedUpNewWeapon(NewWeaponClass))
 		{

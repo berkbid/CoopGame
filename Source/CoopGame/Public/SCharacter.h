@@ -52,6 +52,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerSetWidgetName();
 
+	bool bIsInventoryFullTemp;
+
 public:	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

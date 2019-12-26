@@ -37,8 +37,7 @@ void ASPlayerController::BeginPlay()
 		ASGameState* GS = GetWorld()->GetGameState<ASGameState>();
 		if (GS)
 		{
-			FString CurrentWaveStateString = GS->GetWaveStateString();
-			MyGameInfo->SetStateText(CurrentWaveStateString);
+			MyGameInfo->SetStateText(GS->GetWaveStateString());
 		}
 	}
 }
@@ -64,6 +63,19 @@ void ASPlayerController::ServerPostLogin()
 {
 	// Can run server code here if needed for RPC's
 	ClientPostLogin();
+
+	// Count current inventory size
+	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
+	{
+		if (WeaponInventory[i])
+		{
+			CurrentInventorySize++;
+			if (CurrentInventorySize >= InventoryMaxSize)
+			{
+				bIsInventoryFull = true;
+			}
+		}
+	}
 }
 
 // PlayerState isn't valid at this point for clients
@@ -111,14 +123,6 @@ void ASPlayerController::SetupInitialHUDState()
 			}
 
 			MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
-
-			// Update current inventory size, need to do this on server since it is used on server
-			CurrentInventorySize++;
-
-			if (CurrentInventorySize >= InventoryMaxSize)
-			{
-				bIsInventoryFull = true;
-			}
 		}
 	}
 }
@@ -296,19 +300,20 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 		// If we find an empty slot, give new weapon type and update HUD image for slot
 		if (WeaponInventory[i] == NULL)
 		{
-			// Update weaponinventory slot to new weaponclass
+			// Update weapon inventory slot to new weaponclass
 			WeaponInventory[i] = WeaponClass;
-			CurrentInventorySize++;
-
-			if (CurrentInventorySize >= InventoryMaxSize)
-			{
-				bIsInventoryFull = true;
-			}
 
 			// Update HUD image for client
 			SlotToUpdate = i;
 			// If we are listen server, call function manually
 			if (IsLocalController()) { OnRep_SlotToUpdate(); }
+
+			// Update inventory size variable and bIsInventoryFull
+			CurrentInventorySize++;
+			if (CurrentInventorySize >= InventoryMaxSize)
+			{
+				bIsInventoryFull = true;
+			}
 			
 			// If we pick up a weapon into a new inventory slot, AND we are selected on that item slot, then try to equip weapon!!
 			if (CurrentSlot == i)
