@@ -4,11 +4,11 @@
 #include "SUserWidgetGameInfo.h"
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
-#include "Components/Overlay.h"
 #include "Components/VerticalBox.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerState.h"
 #include "SUserWidgetPlayerStats.h"
+#include "SOverlayInventorySlot.h"
 #include "Engine/World.h"
 #include "SGameState.h"
 #include "GameFramework/PlayerState.h"
@@ -108,7 +108,7 @@ void USUserWidgetGameInfo::ResetOldInventorySlot()
 }
 
 // HUD actions to represent selecting a new inventory slot
-void USUserWidgetGameInfo::UpdateNewInventorySlot(UOverlay* NewOverlay)
+void USUserWidgetGameInfo::UpdateNewInventorySlot(USOverlayInventorySlot* NewOverlay)
 {
 	if (!NewOverlay) { return; }
 
@@ -147,6 +147,50 @@ void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)
 			ResetOldInventorySlot();
 			UpdateNewInventorySlot(FifthOverlay);
 			break;
+	default:
+		break;
+	}
+}
+
+void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<class ASWeapon> InventoryItemClass, int WeaponSlot)
+{
+	// Could make an overlay class to handle each slot instead of doing it all manually here
+	SetInventoryImage(InventoryItemClass, WeaponSlot);
+
+	// Make the ammo text visible on the new slot, this text block is a child of the overlay as well
+	switch (WeaponSlot)
+	{
+	case 0:
+		if (FirstAmmo)
+		{
+			FirstAmmo->SetVisibility(ESlateVisibility::Visible);
+		}
+		break;
+
+	case 1:
+		if (SecondAmmo)
+		{
+			SecondAmmo->SetVisibility(ESlateVisibility::Visible);
+		}
+		break;
+	case 2:
+		if (ThirdAmmo)
+		{
+			ThirdAmmo->SetVisibility(ESlateVisibility::Visible);
+		}
+		break;
+	case 3:
+		if (FourthAmmo)
+		{
+			FourthAmmo->SetVisibility(ESlateVisibility::Visible);
+		}
+		break;
+	case 4:
+		if (FifthAmmo)
+		{
+			FifthAmmo->SetVisibility(ESlateVisibility::Visible);
+		}
+		break;
 	default:
 		break;
 	}

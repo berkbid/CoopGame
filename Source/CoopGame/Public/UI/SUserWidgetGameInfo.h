@@ -6,6 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "SUserWidgetGameInfo.generated.h"
 
+class UTextBlock;
+class UBorder;
+class USOverlayInventorySlot;
+
 /**
  * 
  */
@@ -26,46 +30,61 @@ protected:
 	class UVerticalBox* ScoreboardEntryBox;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* ScoreText;
+	UTextBlock* ScoreText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* StateText;
+	UTextBlock* StateText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UBorder* FirstSlot;
+	UBorder* FirstSlot;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UBorder* SecondSlot;
+	UBorder* SecondSlot;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UBorder* ThirdSlot;
+	UBorder* ThirdSlot;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UBorder* FourthSlot;
+	UBorder* FourthSlot;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UBorder* FifthSlot;
+	UBorder* FifthSlot;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UOverlay* FirstOverlay;
+	UTextBlock* FirstAmmo;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UOverlay* SecondOverlay;
+	UTextBlock* SecondAmmo;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UOverlay* ThirdOverlay;
+	UTextBlock* ThirdAmmo;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UOverlay* FourthOverlay;
+	UTextBlock* FourthAmmo;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UOverlay* FifthOverlay;
+	UTextBlock* FifthAmmo;
 
-	class UOverlay* CurrentOverlay;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	USOverlayInventorySlot* FirstOverlay;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	USOverlayInventorySlot* SecondOverlay;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	USOverlayInventorySlot* ThirdOverlay;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	USOverlayInventorySlot* FourthOverlay;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	USOverlayInventorySlot* FifthOverlay;
+
+	USOverlayInventorySlot* CurrentOverlay;
 
 	void ResetOldInventorySlot();
 
-	void UpdateNewInventorySlot(class UOverlay* NewOverlay);
+	void UpdateNewInventorySlot(USOverlayInventorySlot* NewOverlay);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scoreboard")
 	TSubclassOf<class USUserWidgetPlayerStats> wPlayerStats;
@@ -86,6 +105,8 @@ public:
 
 	UFUNCTION()
 	void UpdateInventoryHUD(int WeaponSlot);
+
+	void HandlePickupWeapon(TSubclassOf<class ASWeapon> InventoryItemClass, int WeaponSlot);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetInventoryImage(TSubclassOf<class ASWeapon> InventoryItemClass, int BorderSlot);

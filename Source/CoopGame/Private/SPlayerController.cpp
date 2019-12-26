@@ -122,7 +122,8 @@ void ASPlayerController::SetupInitialHUDState()
 				MyGameInfo->UpdateInventoryHUD(CurrentSlot);
 			}
 
-			MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
+			//MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
+			MyGameInfo->HandlePickupWeapon(WeaponInventory[i], i);
 		}
 	}
 }
@@ -354,7 +355,8 @@ void ASPlayerController::OnRep_SlotToUpdate()
 	{
 		if (WeaponInventory.Num() > SlotToUpdate)
 		{
-			MyGameInfo->SetInventoryImage(WeaponInventory[SlotToUpdate], SlotToUpdate);
+			//MyGameInfo->SetInventoryImage(WeaponInventory[SlotToUpdate], SlotToUpdate);
+			MyGameInfo->HandlePickupWeapon(WeaponInventory[SlotToUpdate], SlotToUpdate);
 		}
 	}
 
