@@ -21,9 +21,6 @@ USWidgetCompHealthBar::USWidgetCompHealthBar()
 void USWidgetCompHealthBar::BeginPlay()
 {
 	Super::BeginPlay();
-	//UE_LOG(LogTemp, Warning, TEXT("Hello"));
-	// Just call update name on health bar widget here
-	//player state is not always valid at this point
 
 }
 
@@ -60,12 +57,6 @@ void USWidgetCompHealthBar::InitWidget()
 			}
 		}
 	}
-}
-
-
-void USWidgetCompHealthBar::Multicast_UpdateName_Implementation(const FString& PlayerName)
-{
-	UpdateWidgetName(PlayerName);
 }
 
 void USWidgetCompHealthBar::UpdateWidgetName(FString PlayerName)

@@ -125,12 +125,6 @@ void ASPlayerController::SetupInitialHUDState()
 
 void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const& NewPlayerName, uint32 NewPlayerNumber)
 {
-	AddPlayerToHUDScoreboard(NewPlayerName, NewPlayerNumber);
-}
-
-// Helper function, takes PlayerState reference and adds that PlayerState to scoreboard on HUD of owning client
-void ASPlayerController::AddPlayerToHUDScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
-{
 	if (MyGameInfo)
 	{
 		MyGameInfo->AddPlayerToScoreboard(NewPlayerName, NewPlayerNumber);

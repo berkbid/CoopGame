@@ -24,11 +24,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	
 	virtual void InitWidget() override;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_UpdateName(const FString& PlayerName);
 
 	void UpdateWidgetName(FString PlayerName);
 

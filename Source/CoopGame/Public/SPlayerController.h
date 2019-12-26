@@ -37,8 +37,6 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void ClientAddPlayerToHUDScoreboard(FString const &NewPlayerName, uint32 NewPlayerNumber);
-	
-	void AddPlayerToHUDScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 
 	void UpdatePlayerScore(uint32 PlayerNumber, float NewScore);
 
@@ -115,4 +113,5 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	int CurrentInventorySize;
+
 };

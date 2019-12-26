@@ -49,6 +49,9 @@ protected:
 	UFUNCTION()
 	void OnRep_Death();
 
+	UFUNCTION(Server, Reliable)
+	void ServerSetWidgetName();
+
 public:	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

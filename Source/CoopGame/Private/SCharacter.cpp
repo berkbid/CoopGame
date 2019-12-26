@@ -138,6 +138,22 @@ void ASCharacter::OnRep_Death()
 }
 
 
+// This is so we can run listen server functionality for OnRep_PlayerState
+void ASCharacter::ServerSetWidgetName_Implementation()
+{
+	// Only listen server needs to update widget name
+	ENetMode NetMode = GetNetMode();
+	if (NetMode == NM_ListenServer)
+	{
+		ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
+
+		if (PS && HealthBar)
+		{
+			HealthBar->UpdateWidgetName(PS->GetPlayerName());
+		}
+	}
+}
+
 // This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
 // AI could call this directly to change weapons
 void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
@@ -183,7 +199,6 @@ void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWea
 }
 
 // Widget Component is always valid here, but WidgetInst is not
-// Listen server doesn't run this code but needs to
 void ASCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
@@ -194,6 +209,12 @@ void ASCharacter::OnRep_PlayerState()
 	{
 		HealthBar->UpdateWidgetName(PS->GetPlayerName());
 	}
+
+	// If we are the client who owns this pawn, call server function for listen server to update name as well
+	if (IsLocallyControlled())
+	{
+		ServerSetWidgetName();
+	}
 }
 
 
@@ -201,16 +222,7 @@ void ASCharacter::OnRep_PlayerState()
 void ASCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	// Wrong playername on first call
-	
-	// For listen server, this allows name to be set on clients since it doesn't run OnRep_PlayerState
-	// The issue is, on VERY FIRST possession of first pawn, Listen Server has "DESKTOP" PlayerName() not the correct one
-	// This works on every subsequent possession of pawns
-	ASPlayerState* PS = NewController->GetPlayerState<ASPlayerState>();
-	if (PS && HealthBar)
-	{
-		HealthBar->UpdateWidgetName(PS->GetPlayerName());
-	}
+
 }
 
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

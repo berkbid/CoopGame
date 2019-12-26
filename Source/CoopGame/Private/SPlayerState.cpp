@@ -10,7 +10,6 @@
 #include "Engine/World.h"
 #include "SGameState.h"
 
-
 ASPlayerState::ASPlayerState()
 {
 	PlayerKills = 0;
@@ -67,7 +66,6 @@ void ASPlayerState::AddDeath()
 void ASPlayerState::OnRep_PlayerName()
 {
 	Super::OnRep_PlayerName();
-
 }
 
 
@@ -113,6 +111,7 @@ void ASPlayerState::OnRep_Score()
 	}
 }
 
+
 void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -127,5 +126,4 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 void ASPlayerState::ClientInitialize(class AController* C)
 {
 	Super::ClientInitialize(C);
-
 }

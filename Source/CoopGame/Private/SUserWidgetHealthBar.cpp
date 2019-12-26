@@ -57,7 +57,7 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 		}	
 	}
 
-	// Update Name Text
+	// Update Name Text, need to do it here as well as OnRep_PlayerState to handle both cases
 	ASPlayerCharacter* OwningChar = Cast<ASPlayerCharacter>(OwningActor);
 	// If our owner is a player, not a bot, set name properly
 	if (OwningChar)
