@@ -14,6 +14,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Engine/Texture2D.h"
 #include "SWeapon.h"
+#include "SHorizontalBoxInventory.h"
 
 
 bool USUserWidgetGameInfo::Initialize()
@@ -97,52 +98,12 @@ void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
 	}
 }
 
-// HUD actions to represent de-selecting an old inventory slot
-void USUserWidgetGameInfo::ResetOldInventorySlot()
-{
-	if (!CurrentOverlay) { return; }
-
-	CurrentOverlay->ResetSlot();
-}
-
-// HUD actions to represent selecting a new inventory slot
-void USUserWidgetGameInfo::UpdateNewInventorySlot(USOverlayInventorySlot* NewOverlay)
-{
-	if (!NewOverlay) { return; }
-
-	NewOverlay->ActivateSlot();
-
-	CurrentOverlay = NewOverlay;
-}
-
 // Called on PlayerController when server updates variable of CurrentSlot, triggers OnRep to owning client to call this code
 void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)
 {
-	switch (WeaponSlot)
+	if (InventoryContainer)
 	{
-		case 0:
-			ResetOldInventorySlot();
-			UpdateNewInventorySlot(FirstOverlay);
-			break;
-
-		case 1:
-			ResetOldInventorySlot();
-			UpdateNewInventorySlot(SecondOverlay);
-			break;
-		case 2:
-			ResetOldInventorySlot();
-			UpdateNewInventorySlot(ThirdOverlay);
-			break;
-		case 3:
-			ResetOldInventorySlot();
-			UpdateNewInventorySlot(FourthOverlay);
-			break;
-		case 4:
-			ResetOldInventorySlot();
-			UpdateNewInventorySlot(FifthOverlay);
-			break;
-	default:
-		break;
+		InventoryContainer->HandleSlotChange(WeaponSlot);
 	}
 }
 
@@ -151,42 +112,9 @@ void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryIte
 	// Find texture associated with weapon class we picked up
 	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
 
-	// Update the new slot for weapon we picked up
-	switch (WeaponSlot)
+	if (InventoryContainer)
 	{
-	case 0:
-		if (FirstOverlay)
-		{
-			FirstOverlay->InitSlot(*TempWeaponTexture);
-		}
-		break;
-
-	case 1:
-		if (SecondOverlay)
-		{
-			SecondOverlay->InitSlot(*TempWeaponTexture);
-		}
-		break;
-	case 2:
-		if (ThirdOverlay)
-		{
-			ThirdOverlay->InitSlot(*TempWeaponTexture);
-		}
-		break;
-	case 3:
-		if (FourthOverlay)
-		{
-			FourthOverlay->InitSlot(*TempWeaponTexture);
-		}
-		break;
-	case 4:
-		if (FifthOverlay)
-		{
-			FifthOverlay->InitSlot(*TempWeaponTexture);
-		}
-		break;
-	default:
-		break;
+		InventoryContainer->HandlePickupWeapon(*TempWeaponTexture, WeaponSlot);
 	}
 }
 

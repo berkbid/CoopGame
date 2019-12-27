@@ -36,25 +36,7 @@ protected:
 	UTextBlock* StateText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	USOverlayInventorySlot* FirstOverlay;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	USOverlayInventorySlot* SecondOverlay;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	USOverlayInventorySlot* ThirdOverlay;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	USOverlayInventorySlot* FourthOverlay;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	USOverlayInventorySlot* FifthOverlay;
-
-	USOverlayInventorySlot* CurrentOverlay;
-
-	void ResetOldInventorySlot();
-
-	void UpdateNewInventorySlot(USOverlayInventorySlot* NewOverlay);
+	class USHorizontalBoxInventory* InventoryContainer;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scoreboard")
 	TSubclassOf<class USUserWidgetPlayerStats> wPlayerStats;

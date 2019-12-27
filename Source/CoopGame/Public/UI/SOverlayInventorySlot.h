@@ -42,10 +42,10 @@ public:
 
 protected:
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Children")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UTextBlock* AmmoText;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Children")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* SlotBorder;
 
 	// UWidget interface

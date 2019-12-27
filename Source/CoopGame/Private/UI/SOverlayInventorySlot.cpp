@@ -18,12 +18,16 @@ void USOverlayInventorySlot::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
 
+	// Get reference to our children here for use during play
+	SlotBorder = Cast<UBorder>(GetChildAt(0));
+	AmmoText = Cast<UTextBlock>(GetChildAt(1));
 }
 
 
 void USOverlayInventorySlot::PostInitProperties()
 {
 	Super::PostInitProperties();
+
 
 	//SlotBorder = NewObject<UBorder>(this, UBorder::StaticClass());
 	//AddChildToOverlay(SlotBorder);
@@ -57,13 +61,16 @@ void USOverlayInventorySlot::ActivateSlot()
 // Slot just equipped new weapon, set children's data
 void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture)
 {
+	// Set text visible and initial text value
 	if (AmmoText)
 	{
 		AmmoText->SetVisibility(ESlateVisibility::Visible);
 	}
 
+	// Update slot properties
 	if (SlotBorder)
 	{
+		// Set new weapon texture to the slot
 		if (WeaponTexture)
 		{
 			SlotBorder->SetBrushFromTexture(WeaponTexture);
