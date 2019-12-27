@@ -36,36 +36,6 @@ protected:
 	UTextBlock* StateText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UBorder* FirstSlot;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UBorder* SecondSlot;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UBorder* ThirdSlot;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UBorder* FourthSlot;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UBorder* FifthSlot;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* FirstAmmo;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* SecondAmmo;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* ThirdAmmo;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* FourthAmmo;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* FifthAmmo;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	USOverlayInventorySlot* FirstOverlay;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -91,6 +61,9 @@ protected:
 
 	/* Mapping from unique PlayerID to their scoreboard PlayerStats object reference */
 	TMap<uint32, class USUserWidgetPlayerStats*> ScoreboardDictionary;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TMap<TSubclassOf<class ASWeapon>, class UTexture2D* > WeaponToTextureMap;
 
 public:
 

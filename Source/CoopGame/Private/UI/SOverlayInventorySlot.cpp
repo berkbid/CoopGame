@@ -2,4 +2,78 @@
 
 
 #include "SOverlayInventorySlot.h"
+#include "Components/TextBlock.h"
+#include "Components/Border.h"
+#include "Styling/SlateColor.h"
+#include "Math/Color.h"
+#include "Engine/Texture2D.h"
+
+
+USOverlayInventorySlot::USOverlayInventorySlot()
+{
+
+}
+
+void USOverlayInventorySlot::SynchronizeProperties()
+{
+	Super::SynchronizeProperties();
+
+}
+
+
+void USOverlayInventorySlot::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	//SlotBorder = NewObject<UBorder>(this, UBorder::StaticClass());
+	//AddChildToOverlay(SlotBorder);
+	//
+	//AmmoText = NewObject<UTextBlock>(this, UTextBlock::StaticClass());
+	//AmmoText->SetText(FText::FromString(FString("40")));
+	//AmmoText->SetColorAndOpacity(FSlateColor(FLinearColor::Black));
+	//AddChildToOverlay(AmmoText);
+}
+
+// This slot is being un-equipped
+void USOverlayInventorySlot::ResetSlot()
+{
+	if (SlotBorder)
+	{
+		SlotBorder->SetBrushColor(FColor::White);
+	}
+	SetRenderTranslation(FVector2D(0.f, 0.f));
+}
+
+// This slot is being equipped
+void USOverlayInventorySlot::ActivateSlot()
+{
+	if (SlotBorder)
+	{
+		SlotBorder->SetBrushColor(FColor::Blue);
+	}
+	SetRenderTranslation(FVector2D(0.f, -20.f));
+}
+
+// Slot just equipped new weapon, set children's data
+void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture)
+{
+	if (AmmoText)
+	{
+		AmmoText->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (SlotBorder)
+	{
+		if (WeaponTexture)
+		{
+			SlotBorder->SetBrushFromTexture(WeaponTexture);
+		}
+	}
+}
+
+TSharedRef<SWidget> USOverlayInventorySlot::RebuildWidget()
+{
+	return Super::RebuildWidget();
+}
+
 

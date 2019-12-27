@@ -12,6 +12,9 @@
 #include "Engine/World.h"
 #include "SGameState.h"
 #include "GameFramework/PlayerState.h"
+#include "Engine/Texture2D.h"
+#include "SWeapon.h"
+
 
 bool USUserWidgetGameInfo::Initialize()
 {
@@ -98,13 +101,8 @@ void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
 void USUserWidgetGameInfo::ResetOldInventorySlot()
 {
 	if (!CurrentOverlay) { return; }
-	
-	if (UBorder* TempBorder = Cast<UBorder>(CurrentOverlay->GetChildAt(0)))
-	{
-		TempBorder->SetBrushColor(FColor::White);
-	}
 
-	CurrentOverlay->SetRenderTranslation(FVector2D(0.f, 0.f));
+	CurrentOverlay->ResetSlot();
 }
 
 // HUD actions to represent selecting a new inventory slot
@@ -112,12 +110,8 @@ void USUserWidgetGameInfo::UpdateNewInventorySlot(USOverlayInventorySlot* NewOve
 {
 	if (!NewOverlay) { return; }
 
-	if (UBorder* TempBorder = Cast<UBorder>(NewOverlay->GetChildAt(0)))
-	{
-		TempBorder->SetBrushColor(FColor::Blue);
-	}
+	NewOverlay->ActivateSlot();
 
-	NewOverlay->SetRenderTranslation(FVector2D(0.f, -20.f));
 	CurrentOverlay = NewOverlay;
 }
 
@@ -152,43 +146,43 @@ void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)
 	}
 }
 
-void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<class ASWeapon> InventoryItemClass, int WeaponSlot)
+void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int WeaponSlot)
 {
-	// Could make an overlay class to handle each slot instead of doing it all manually here
-	SetInventoryImage(InventoryItemClass, WeaponSlot);
+	// Find texture associated with weapon class we picked up
+	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
 
-	// Make the ammo text visible on the new slot, this text block is a child of the overlay as well
+	// Update the new slot for weapon we picked up
 	switch (WeaponSlot)
 	{
 	case 0:
-		if (FirstAmmo)
+		if (FirstOverlay)
 		{
-			FirstAmmo->SetVisibility(ESlateVisibility::Visible);
+			FirstOverlay->InitSlot(*TempWeaponTexture);
 		}
 		break;
 
 	case 1:
-		if (SecondAmmo)
+		if (SecondOverlay)
 		{
-			SecondAmmo->SetVisibility(ESlateVisibility::Visible);
+			SecondOverlay->InitSlot(*TempWeaponTexture);
 		}
 		break;
 	case 2:
-		if (ThirdAmmo)
+		if (ThirdOverlay)
 		{
-			ThirdAmmo->SetVisibility(ESlateVisibility::Visible);
+			ThirdOverlay->InitSlot(*TempWeaponTexture);
 		}
 		break;
 	case 3:
-		if (FourthAmmo)
+		if (FourthOverlay)
 		{
-			FourthAmmo->SetVisibility(ESlateVisibility::Visible);
+			FourthOverlay->InitSlot(*TempWeaponTexture);
 		}
 		break;
 	case 4:
-		if (FifthAmmo)
+		if (FifthOverlay)
 		{
-			FifthAmmo->SetVisibility(ESlateVisibility::Visible);
+			FifthOverlay->InitSlot(*TempWeaponTexture);
 		}
 		break;
 	default:
