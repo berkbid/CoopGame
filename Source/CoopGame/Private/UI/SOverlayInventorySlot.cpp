@@ -14,6 +14,14 @@ USOverlayInventorySlot::USOverlayInventorySlot()
 
 }
 
+void USOverlayInventorySlot::ReleaseSlateResources(bool bReleaseChildren)
+{
+	Super::ReleaseSlateResources(bReleaseChildren);
+
+	SlotBorder = nullptr;
+	AmmoText = nullptr;
+}
+
 void USOverlayInventorySlot::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();

@@ -107,9 +107,6 @@ void ASPlayerController::SetupInitialHUDState()
 {
 	if (!MyGameInfo) { return; }
 
-	// Set starting score value to 0
-	MyGameInfo->HandleScoreChanged(0.f);
-
 	// Can't initialize game state here, do this at begin play
 	// Loop through WeaponInventory array and update HUD images if weapons are present
 	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
@@ -122,7 +119,6 @@ void ASPlayerController::SetupInitialHUDState()
 				MyGameInfo->UpdateInventoryHUD(CurrentSlot);
 			}
 
-			//MyGameInfo->SetInventoryImage(WeaponInventory[i], i);
 			MyGameInfo->HandlePickupWeapon(WeaponInventory[i], i);
 		}
 	}
@@ -351,11 +347,11 @@ void ASPlayerController::OnRep_SlotChange()
 // This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
 void ASPlayerController::OnRep_SlotToUpdate()
 {
+	// Handle HUD for picking up new weapon
 	if (MyGameInfo)
 	{
 		if (WeaponInventory.Num() > SlotToUpdate)
 		{
-			//MyGameInfo->SetInventoryImage(WeaponInventory[SlotToUpdate], SlotToUpdate);
 			MyGameInfo->HandlePickupWeapon(WeaponInventory[SlotToUpdate], SlotToUpdate);
 		}
 	}
@@ -374,14 +370,6 @@ void ASPlayerController::OnRep_SlotToUpdate()
 				UGameplayStatics::PlaySoundAtLocation(this, PickedupSound, ControlledPawn->GetActorLocation());
 			}
 		}
-	}
-}
-
-void ASPlayerController::SetScoreText(float NewScore)
-{
-	if (MyGameInfo)
-	{
-		MyGameInfo->HandleScoreChanged(NewScore);
 	}
 }
 

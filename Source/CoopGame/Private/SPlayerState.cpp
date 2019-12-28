@@ -95,13 +95,6 @@ void ASPlayerState::OnRep_Score()
 {
 	Super::OnRep_Score();
 
-	// Owner of playerstate is of type playercontroller, this is only valid on owning client
-	ASPlayerController* PC = Cast<ASPlayerController>(GetOwner());
-	if (PC)
-	{
-		PC->SetScoreText(Score);
-	}
-
 	// This is each client's player controller
 	ASPlayerController* PCC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (PCC)

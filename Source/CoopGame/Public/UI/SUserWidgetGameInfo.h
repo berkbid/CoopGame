@@ -9,6 +9,8 @@
 class UTextBlock;
 class UBorder;
 class USOverlayInventorySlot;
+class USUserWidgetPlayerStats;
+class ASWeapon;
 
 /**
  * 
@@ -30,22 +32,19 @@ protected:
 	class UVerticalBox* ScoreboardEntryBox;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* ScoreText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* StateText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class USHorizontalBoxInventory* InventoryContainer;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scoreboard")
-	TSubclassOf<class USUserWidgetPlayerStats> wPlayerStats;
+	TSubclassOf<USUserWidgetPlayerStats> wPlayerStats;
 
 	/* Mapping from unique PlayerID to their scoreboard PlayerStats object reference */
-	TMap<uint32, class USUserWidgetPlayerStats*> ScoreboardDictionary;
+	TMap<uint32, USUserWidgetPlayerStats*> ScoreboardDictionary;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TMap<TSubclassOf<class ASWeapon>, class UTexture2D* > WeaponToTextureMap;
+	TMap<TSubclassOf<ASWeapon>, class UTexture2D* > WeaponToTextureMap;
 
 public:
 
@@ -56,15 +55,9 @@ public:
 	void SetOwningController(class APlayerController* NewController);
 
 	UFUNCTION()
-	void HandleScoreChanged(float NewScore);
-
-	UFUNCTION()
 	void UpdateInventoryHUD(int WeaponSlot);
 
-	void HandlePickupWeapon(TSubclassOf<class ASWeapon> InventoryItemClass, int WeaponSlot);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetInventoryImage(TSubclassOf<class ASWeapon> InventoryItemClass, int BorderSlot);
+	void HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int WeaponSlot);
 
 	void SetStateText(FString NewState);
 

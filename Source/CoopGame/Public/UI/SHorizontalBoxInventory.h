@@ -18,6 +18,8 @@ class COOPGAME_API USHorizontalBoxInventory : public UHorizontalBox
 
 public:
 
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+
 	USHorizontalBoxInventory();
 
 

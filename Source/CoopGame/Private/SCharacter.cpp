@@ -46,10 +46,8 @@ void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//UE_LOG(LogTemp, Warning, TEXT("BeginPlay: %s"), *GetName());
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("BeginPlay: %s"), *GetName());
 		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 	}
 	
@@ -144,6 +142,16 @@ void ASCharacter::OnRep_Death()
 }
 
 
+void ASCharacter::SetWidgetName()
+{
+	ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
+
+	if (PS && HealthBar)
+	{
+		HealthBar->UpdateWidgetName(PS->GetPlayerName());
+	}
+}
+
 // This is so we can run listen server functionality for OnRep_PlayerState
 void ASCharacter::ServerSetWidgetName_Implementation()
 {
@@ -151,12 +159,7 @@ void ASCharacter::ServerSetWidgetName_Implementation()
 	ENetMode NetMode = GetNetMode();
 	if (NetMode == NM_ListenServer)
 	{
-		ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
-
-		if (PS && HealthBar)
-		{
-			HealthBar->UpdateWidgetName(PS->GetPlayerName());
-		}
+		SetWidgetName();
 	}
 }
 
@@ -209,12 +212,7 @@ void ASCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
-
-	if (PS && HealthBar)
-	{
-		HealthBar->UpdateWidgetName(PS->GetPlayerName());
-	}
+	SetWidgetName();
 
 	// If we are the client who owns this pawn, call server function for listen server to update name as well
 	if (IsLocallyControlled())
@@ -229,6 +227,14 @@ void ASCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	if (IsLocallyControlled())
+	{
+		ENetMode NetMode = GetNetMode();
+		if (NetMode == NM_ListenServer)
+		{
+			SetWidgetName();
+		}
+	}
 }
 
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

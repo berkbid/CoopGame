@@ -52,6 +52,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerSetWidgetName();
 
+	// Helper function that handles updating widget component with PlayerName from PlayerState
+	void SetWidgetName();
+
 	bool bIsInventoryFullTemp;
 
 public:	

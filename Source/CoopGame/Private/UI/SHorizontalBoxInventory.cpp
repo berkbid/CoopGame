@@ -6,6 +6,14 @@
 #include "Engine/Texture2D.h"
 
 
+void USHorizontalBoxInventory::ReleaseSlateResources(bool bReleaseChildren)
+{
+	Super::ReleaseSlateResources(bReleaseChildren);
+
+	InventorySlots.Empty();
+
+}
+
 USHorizontalBoxInventory::USHorizontalBoxInventory()
 {
 

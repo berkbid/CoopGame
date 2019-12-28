@@ -89,14 +89,6 @@ void USUserWidgetGameInfo::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDea
 	}
 }
 
-void USUserWidgetGameInfo::HandleScoreChanged(float NewScore)
-{
-	if (ScoreText)
-	{
-		FString tempString("SCORE: " + FString::SanitizeFloat(NewScore));
-		ScoreText->SetText(FText::FromString(tempString));
-	}
-}
 
 // Called on PlayerController when server updates variable of CurrentSlot, triggers OnRep to owning client to call this code
 void USUserWidgetGameInfo::UpdateInventoryHUD(int WeaponSlot)

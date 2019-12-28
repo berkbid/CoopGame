@@ -67,6 +67,10 @@ void USUserWidgetHealthBar::SetOwningActor(AActor* NewOwner)
 		{
 			SetNameText(PS->GetPlayerName());
 		}
+		else
+		{
+			SetNameText(OwningActor->GetName());
+		}
 	}
 	// If owner is a bot, use bots default name
 	else
