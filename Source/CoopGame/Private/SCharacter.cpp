@@ -52,7 +52,7 @@ void ASCharacter::BeginPlay()
 	}
 }
 
-// This only calls when an actual weapon is equipped
+
 void ASCharacter::OnRep_CurrentWeapon()
 {
 }
@@ -151,6 +151,10 @@ void ASCharacter::ServerSetWidgetName_Implementation()
 	}
 }
 
+void ASCharacter::WeaponChange()
+{
+}
+
 void ASCharacter::SetWidgetName()
 {
 	ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
@@ -181,7 +185,6 @@ void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass)
 	if (!NewWeaponClass)
 	{
 		CurrentWeapon = nullptr;
-		//Call this for listen server
 		OnRep_CurrentWeapon();
 
 		return;
@@ -196,8 +199,8 @@ void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass)
 	// Create On_Rep function for client to update HUD when weapon changes and play sound
 	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
 	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-	//Call this for listen server
 	OnRep_CurrentWeapon();
+
 
 	if (CurrentWeapon)
 	{

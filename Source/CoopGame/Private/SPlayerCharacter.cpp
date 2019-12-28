@@ -38,17 +38,10 @@ void ASPlayerCharacter::BeginPlay()
 
 }
 
-// This triggers every time the CurrentWeapon variable changes, not for listen server
+
 void ASPlayerCharacter::OnRep_CurrentWeapon()
 {
 	Super::OnRep_CurrentWeapon();
-
-	// This makes it so the code isn't run on the initial weapon swap (On spawn of each player)
-	if (!bHasEquippedFirstWeapon)
-	{
-		bHasEquippedFirstWeapon = true;
-		return;
-	}
 
 	// This checks if we changed to an actual weapon
 	if (CurrentWeapon)
@@ -58,6 +51,15 @@ void ASPlayerCharacter::OnRep_CurrentWeapon()
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, SB, GetActorLocation());
 		}
+
+		// Doesn't work here because CurrentSlot is old slot while weapon type has updated properly
+		////Update HUD ammo information for current weapon
+		//ASPlayerController* PC = Cast<ASPlayerController>(GetController());
+		//if (PC)
+		//{
+		//	PC->SetSlotAmmo(CurrentWeapon->MaxClipSize);
+		//}
+
 	}
 }
 

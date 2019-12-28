@@ -67,3 +67,18 @@ void USHorizontalBoxInventory::HandleSlotChange(int WeaponSlot)
 		}
 	}
 }
+
+void USHorizontalBoxInventory::HandleAmmoChange(int WeaponSlot, uint32 AmmoAmount)
+{
+	// If we have a valid child at WeaponSlot index
+	if (InventorySlots.Num() > WeaponSlot)
+	{
+		USOverlayInventorySlot* NewSlot = InventorySlots[WeaponSlot];
+		if (NewSlot)
+		{
+			// Activate new slot and set current slot to new slot
+			NewSlot->UpdateAmmoText(AmmoAmount);
+
+		}
+	}
+}

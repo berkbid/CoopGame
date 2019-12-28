@@ -44,6 +44,8 @@ public:
 
 	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 
+	void SetSlotAmmo(uint32 NewAmmoAmount);
+
 	void SetStateText(FString NewState);
 
 	void EquipSlotOne();

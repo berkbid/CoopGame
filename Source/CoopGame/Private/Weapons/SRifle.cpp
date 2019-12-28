@@ -19,6 +19,12 @@ ASRifle::ASRifle()
 	TracerEffect = nullptr;
 	BulletSpread = 2.f;
 
+	// Setup weapon stats
+	BaseDamage = 25.f;
+	HeadShotMultiplier = 4.f;
+	MaxClipSize = 40;
+	CurrentClipSize = MaxClipSize;
+
 	// This is defined in P_SmokeTrail under Target > Distribution > Parameter Name
 	TracerTargetName = "BeamEnd";
 }
@@ -29,89 +35,91 @@ void ASRifle::Fire()
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerFire();
-		// If we return here, the owning client will not run this code for itself
-		//return;
 	}
 
+	// If we don't have an owner, don't try to process Fire request
 	AActor* MyOwner = GetOwner();
-	if (MyOwner)
+	if (!MyOwner) { return; }
+
+	// If we are out of ammo, return
+	if (CurrentClipSize <= 0) { return; }
+
+	FVector EyeLocation;
+	FRotator EyeRotation;
+	// We override the location return in SCharacter.cpp to return camera location instead
+	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+
+	FVector ShotDirection = EyeRotation.Vector();
+
+	// Bullet Spread
+	float HalfRad = FMath::DegreesToRadians(BulletSpread);
+	ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
+
+	FVector TraceEnd = EyeLocation + (ShotDirection * 10000);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(MyOwner);
+	QueryParams.AddIgnoredActor(this);
+	// Trace against each individual triangle of mesh we are hitting, more expensive trace query
+	QueryParams.bTraceComplex = true;
+	// Need to set this to true in order to get the type of physical material we hit in order to act appropriately w/ effects, etc
+	QueryParams.bReturnPhysicalMaterial = true;
+
+	// Particle "Target" paramter
+	FVector TracerEndPoint = TraceEnd;
+
+	EPhysicalSurface SurfaceType = SurfaceType_Default;
+
+	FHitResult Hit;
+	// If blocking hit, process damage
+	// This line trace starts from camera location and goes in direction of eyerotation, ends up being middle of screen, collision_weapon defined in CoopGame.h
+	if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 	{
-		FVector EyeLocation;
-		FRotator EyeRotation;
-		// We override the location return in SCharacter.cpp to return camera location instead
-		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+		AActor* HitActor = Hit.GetActor();
+		SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 
-		FVector ShotDirection = EyeRotation.Vector();
-
-		// Bullet Spread
-		float HalfRad = FMath::DegreesToRadians(BulletSpread);
-		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
-
-		FVector TraceEnd = EyeLocation + (ShotDirection * 10000);
-
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(MyOwner);
-		QueryParams.AddIgnoredActor(this);
-		// Trace against each individual triangle of mesh we are hitting, more expensive trace query
-		QueryParams.bTraceComplex = true;
-		// Need to set this to true in order to get the type of physical material we hit in order to act appropriately w/ effects, etc
-		QueryParams.bReturnPhysicalMaterial = true;
-
-		// Particle "Target" paramter
-		FVector TracerEndPoint = TraceEnd;
-
-		EPhysicalSurface SurfaceType = SurfaceType_Default;
-
-		FHitResult Hit;
-		// If blocking hit, process damage
-		// This line trace starts from camera location and goes in direction of eyerotation, ends up being middle of screen, collision_weapon defined in CoopGame.h
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
+		float ActualDamage = BaseDamage;
+		if (SurfaceType == SURFACE_FLESHVULNERABLE)
 		{
-			AActor* HitActor = Hit.GetActor();
-			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
-			// Use Get() for weak object pointer??
-			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
-
-			float ActualDamage = BaseDamage;
-			if (SurfaceType == SURFACE_FLESHVULNERABLE)
-			{
-				ActualDamage *= HeadShotMultiplier;
-			}
-
-			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), MyOwner, DamageType);
-
-			PlayImpactEffects(SurfaceType, Hit.ImpactPoint);
-
-			TracerEndPoint = Hit.ImpactPoint;
-
+			ActualDamage *= HeadShotMultiplier;
 		}
 
-		APawn* MyPawnOwner = Cast<APawn>(MyOwner);
-		if (MyPawnOwner)
-		{
-			APlayerController* PC = Cast<APlayerController>(MyPawnOwner->GetController());
-			if (PC)
-			{
-				PC->ClientPlayCameraShake(FireCamShake);
-			}
-		}
+		UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), MyOwner, DamageType);
 
-		PlayFireEffect(TracerEndPoint);
+		PlayImpactEffects(SurfaceType, Hit.ImpactPoint);
 
-		// This will replicate the struct HitScanTrace to all clients triggering OnRep function
-		if (GetLocalRole() == ROLE_Authority)
-		{
-			HitScanTrace.TraceTo = TracerEndPoint;
-			// Only overriden from default if we hit something
-			HitScanTrace.SurfaceType = SurfaceType;
-			HitScanTrace.ReplicationCount++;
+		TracerEndPoint = Hit.ImpactPoint;
 
-
-		}
-
-		// This variable is set for both clients and server, thus even if a server is a player, he will have the appropiate LastFireTime
-		LastFireTime = GetWorld()->TimeSeconds;
 	}
+
+	APawn* MyPawnOwner = Cast<APawn>(MyOwner);
+	if (MyPawnOwner)
+	{
+		APlayerController* PC = Cast<APlayerController>(MyPawnOwner->GetController());
+		if (PC)
+		{
+			PC->ClientPlayCameraShake(FireCamShake);
+		}
+	}
+
+	PlayFireEffect(TracerEndPoint);
+
+	// This will replicate the struct HitScanTrace to all clients triggering OnRep function
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		HitScanTrace.TraceTo = TracerEndPoint;
+		// Only overriden from default if we hit something
+		HitScanTrace.SurfaceType = SurfaceType;
+		HitScanTrace.ReplicationCount++;
+
+		// Update CurrentClipSize for Server, it is replicated
+		CurrentClipSize--;
+	}
+
+	// This variable is set for both clients and server, thus even if a server is a player, he will have the appropiate LastFireTime
+	LastFireTime = GetWorld()->TimeSeconds;
+
+
 }
 
 void ASRifle::PlayFireEffect(FVector TracerEndPoint)
@@ -131,7 +139,6 @@ void ASRifle::PlayFireEffect(FVector TracerEndPoint)
 		}
 
 	}
-
 }
 
 void ASRifle::PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint)
@@ -182,5 +189,4 @@ void ASRifle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	// Use condition b/c do not want to replicate it to client who owns this weapon
 	// do not want to play visual effects twice
 	DOREPLIFETIME_CONDITION(ASRifle, HitScanTrace, COND_SkipOwner);
-	//DOREPLIFETIME_CONDITION(ASWeapon, LastFireTime, COND_OwnerOnly);
 }

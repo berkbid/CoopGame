@@ -27,7 +27,7 @@ protected:
 	virtual void OnRep_CurrentWeapon();
 
 	// Replicate this variable for owning client to have access as well
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Player")
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Player")
 	class ASWeapon* CurrentWeapon;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
@@ -51,6 +51,8 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetWidgetName();
+
+	virtual void WeaponChange();
 
 	// Helper function that handles updating widget component with PlayerName from PlayerState
 	void SetWidgetName();

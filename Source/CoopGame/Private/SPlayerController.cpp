@@ -109,17 +109,19 @@ void ASPlayerController::SetupInitialHUDState()
 
 	// Can't initialize game state here, do this at begin play
 	// Loop through WeaponInventory array and update HUD images if weapons are present
-	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
+	int32 WeaponInventoryLen = WeaponInventory.Num();
+
+	for (int32 i = 0; i != WeaponInventoryLen; ++i)
 	{
 		if (WeaponInventory[i])
 		{
-			// Must set color for selected inventory slot here because first OnPossess happens before BeginPlay
-			if (i == CurrentSlot)
-			{
-				MyGameInfo->UpdateInventoryHUD(CurrentSlot);
-			}
-
 			MyGameInfo->HandlePickupWeapon(WeaponInventory[i], i);
+		}
+
+		// Set inventory slot as active
+		if (i == CurrentSlot)
+		{
+			MyGameInfo->InventoryChangeToSlot(CurrentSlot);
 		}
 	}
 }
@@ -156,6 +158,14 @@ void ASPlayerController::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeath
 	}
 }
 
+void ASPlayerController::SetSlotAmmo(uint32 NewAmmoAmount)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->InventoryUpdateAmmo(CurrentSlot, NewAmmoAmount);
+	}
+}
+
 void ASPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
@@ -167,17 +177,19 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 		//CurrentSlot = 0;
 		//OnRep_SlotChange();
 
+		// If we possess a SPlayerCharacter, equip weapon at CurrentSlot index
 		ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
-
-		// If our current slot is a valid inventory index
-		if (WeaponInventory.Num() > CurrentSlot)
+		if (MySPlayerChar)
 		{
-			if (MySPlayerChar)
+			// If our current slot is a valid inventory index
+			int32 WeaponInventoryLen = WeaponInventory.Num();
+			if (WeaponInventoryLen > CurrentSlot)
 			{
 				// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
 				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot]);
 			}
 		}
+
 	}
 }
 
@@ -314,6 +326,8 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 				bIsInventoryFull = true;
 			}
 			
+
+
 			// If we pick up a weapon into our current selected slot, equip the weapon!
 			if (CurrentSlot == i)
 			{
@@ -321,6 +335,8 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 				if (MyPawn)
 				{
 					MyPawn->EquipWeaponClass(WeaponClass);
+					// call function to setup weapon
+					
 				}
 			}
 			else
@@ -341,7 +357,7 @@ void ASPlayerController::OnRep_SlotChange()
 {
 	if (MyGameInfo) 
 	{ 
-		MyGameInfo->UpdateInventoryHUD(CurrentSlot);
+		MyGameInfo->InventoryChangeToSlot(CurrentSlot);
 	}
 }
 
@@ -355,6 +371,7 @@ void ASPlayerController::OnRep_SlotToUpdate()
 		if (WeaponInventory.Num() > SlotToUpdate)
 		{
 			MyGameInfo->HandlePickupWeapon(WeaponInventory[SlotToUpdate], SlotToUpdate);
+			// Need information of max ammo for weapon type for HUD here
 		}
 	}
 

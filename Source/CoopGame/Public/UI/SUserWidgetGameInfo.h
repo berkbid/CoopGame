@@ -55,7 +55,10 @@ public:
 	void SetOwningController(class APlayerController* NewController);
 
 	UFUNCTION()
-	void UpdateInventoryHUD(int WeaponSlot);
+	void InventoryChangeToSlot(int WeaponSlot);
+
+	UFUNCTION()
+	void InventoryUpdateAmmo(int WeaponSlot, uint32 AmmoAmount);
 
 	void HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int WeaponSlot);
 

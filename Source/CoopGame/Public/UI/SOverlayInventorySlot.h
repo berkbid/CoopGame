@@ -41,6 +41,8 @@ public:
 
 	void InitSlot(class UTexture2D* WeaponTexture);
 
+	void UpdateAmmoText(uint32 AmmoAmount);
+
 
 protected:
 

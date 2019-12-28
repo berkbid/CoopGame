@@ -5,6 +5,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
+#include "SPlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -15,11 +17,16 @@ ASWeapon::ASWeapon()
 
 	MuzzleSocketName = "MuzzleSocket";
 
+	// Setup weapon stats
 	BaseDamage = 20.f;
 	HeadShotMultiplier = 4.f;
+	MaxClipSize = 30;
+	CurrentClipSize = MaxClipSize;
 
 	// bullets per minute
 	RateOfFire = 600.f;
+
+	TimeBetweenShots = 60.f / RateOfFire;
 
 	// Allows for "Server-Owned" weapons
 	// Will now spawn on clients if spawned on server
@@ -32,8 +39,6 @@ ASWeapon::ASWeapon()
 void ASWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-	TimeBetweenShots = 60.f / RateOfFire;
 
 }
 
@@ -51,18 +56,29 @@ bool ASWeapon::ServerFire_Validate()
 
 void ASWeapon::Fire()
 {
-
 }
 
+// Client can update HUD here when clip size changes
+void ASWeapon::OnRep_ClipSize()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("New Clip Size: %d"), CurrentClipSize);
+	ASPlayerController* PC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PC)
+	{
+		PC->SetSlotAmmo(CurrentClipSize);
+	}
+}
+
+// Call this on server instead of client
 void ASWeapon::StartFire()
 {
+	// This doesn't fix weapon swapping to shoot faster because LastFireTime gets reset when weapon is reconstructed
 	// This makes it so you cannot single fire faster than you can automatic fire
 	// Use greatest of first or 2nd value, clamps between 0 and other value
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
 
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, FirstDelay);
 }
-
 
 void ASWeapon::StopFire()
 {
@@ -72,7 +88,6 @@ void ASWeapon::StopFire()
 void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASWeapon, CurrentClipSize, COND_OwnerOnly);
 }
-
-
-

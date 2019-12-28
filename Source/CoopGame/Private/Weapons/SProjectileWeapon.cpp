@@ -7,7 +7,12 @@
 
 ASProjectileWeapon::ASProjectileWeapon()
 {
-	RateOfFire = 50.f;
+	// Setup weapon state
+	RateOfFire = 240.f;
+	TimeBetweenShots = 60.f / RateOfFire;
+
+	MaxClipSize = 12;
+	CurrentClipSize = MaxClipSize;
 }
 
 void ASProjectileWeapon::Fire()
@@ -16,16 +21,17 @@ void ASProjectileWeapon::Fire()
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerFire();
-		// Set this on client side since it is checked on client side in StartFire() in SWeapon.cpp
+		// Set this on client side in case he needs this information
 		LastFireTime = GetWorld()->TimeSeconds;
 
-		// If we return here, the owning client will not run this code for itself
 		return;
 	}
 
 	// This code only gets run on server
 	// Owner is player pawn
 	AActor* MyOwner = GetOwner();
+
+	if (CurrentClipSize <= 0) { return; }
 
 	if (MyOwner && ProjectileClass)
 	{
@@ -47,9 +53,9 @@ void ASProjectileWeapon::Fire()
 
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, EyeRotation, SpawnParams);
 
-
 		// Sets variable for server to know lastfiretime in case server calls StartFire() incase there is no dedicated server
 		LastFireTime = GetWorld()->TimeSeconds;
-	}
 
+		CurrentClipSize--;
+	}
 }

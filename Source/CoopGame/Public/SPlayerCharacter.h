@@ -34,9 +34,6 @@ protected:
 
 	virtual void OnRep_CurrentWeapon() override;
 
-	// bool so OnRep_CurrentWeapon doesn't run code first time when player spawns and equips weapon slot 1
-	bool bHasEquippedFirstWeapon = false;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UCameraComponent* CameraComp;
 

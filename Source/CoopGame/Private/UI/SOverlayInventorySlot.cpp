@@ -49,20 +49,20 @@ void USOverlayInventorySlot::PostInitProperties()
 // This slot is being un-equipped
 void USOverlayInventorySlot::ResetSlot()
 {
-	if (SlotBorder)
-	{
-		SlotBorder->SetBrushColor(FColor::White);
-	}
+	//if (SlotBorder)
+	//{
+	//	SlotBorder->SetBrushColor(FColor::White);
+	//}
 	SetRenderTranslation(FVector2D(0.f, 0.f));
 }
 
 // This slot is being equipped
 void USOverlayInventorySlot::ActivateSlot()
 {
-	if (SlotBorder)
-	{
-		SlotBorder->SetBrushColor(FColor::Blue);
-	}
+	//if (SlotBorder)
+	//{
+	//	SlotBorder->SetBrushColor(FColor::Blue);
+	//}
 	SetRenderTranslation(FVector2D(0.f, -20.f));
 }
 
@@ -83,6 +83,14 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture)
 		{
 			SlotBorder->SetBrushFromTexture(WeaponTexture);
 		}
+	}
+}
+
+void USOverlayInventorySlot::UpdateAmmoText(uint32 AmmoAmount)
+{
+	if (AmmoText)
+	{
+		AmmoText->SetText(FText::FromString(FString::FromInt(AmmoAmount)));
 	}
 }
 

@@ -7,7 +7,6 @@
 #include "SWeapon.generated.h"
 
 
-
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
 {
@@ -36,14 +35,11 @@ protected:
 	virtual void Fire();
 
 	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
-	// WithValidation is required for something
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
-	// Replicate this so clients have the wait time as well
-	//UPROPERTY(Replicated)
 	float LastFireTime;
 
 	/* RPM - Bullets per minute fired by weapon */
@@ -61,6 +57,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	class USoundBase* WeaponSwapSound;
 
+	uint32 MaxClipSize;
+
+	UFUNCTION()
+	void OnRep_ClipSize();
+
+	UPROPERTY(ReplicatedUsing=OnRep_ClipSize)
+	uint32 CurrentClipSize;
 
 	void StartFire();
 
