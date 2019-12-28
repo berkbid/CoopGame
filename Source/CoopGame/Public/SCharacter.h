@@ -76,7 +76,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor);
 
-	void ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot);
+	/* Destroys current equipped weapon and tries to spawn and equip weapon from NewWeaponClass */
+	void EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass);
 
 	/** PlayerState Replication Notification Callback */
 	virtual void OnRep_PlayerState() override;

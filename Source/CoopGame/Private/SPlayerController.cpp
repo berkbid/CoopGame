@@ -175,7 +175,7 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 			if (MySPlayerChar)
 			{
 				// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
-				MySPlayerChar->ChangeWeapons(WeaponInventory[CurrentSlot], CurrentSlot);
+				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot]);
 			}
 		}
 	}
@@ -277,11 +277,11 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 	ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 	if (MyPawn)
 	{
-		MyPawn->ChangeWeapons(NewWeaponClass, NewWeaponSlot);
+		MyPawn->EquipWeaponClass(NewWeaponClass);
 	}
 }
 
-// Only server should be inside this call
+// Try to pick up weapon if inventory has space, return success or failure
 bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 {
 	// Only server should call this function, this is precautionary
@@ -290,9 +290,11 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 		UE_LOG(LogTemp, Warning, TEXT("Should NOT call PickedUpNewWeapon as client! See SPlayerController.cpp"));
 		return false;
 	}
-	// Weaponclass will never be null in here, it is checked in the previous function call
+	
+	// WeaponClass will never be null in here, it is checked in the previous function call
 	// Loop through inventory looking for empty slot
-	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
+	int32 InventorySize = WeaponInventory.Num();
+	for (int32 i = 0; i < InventorySize; ++i)
 	{
 		// If we find an empty slot, give new weapon type and update HUD image for slot
 		if (WeaponInventory[i] == NULL)
@@ -305,20 +307,20 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 			// If we are listen server, call function manually
 			if (IsLocalController()) { OnRep_SlotToUpdate(); }
 
-			// Update inventory size variable and bIsInventoryFull
+			// Update inventory size variable and set bIsInventoryFull
 			CurrentInventorySize++;
 			if (CurrentInventorySize >= InventoryMaxSize)
 			{
 				bIsInventoryFull = true;
 			}
 			
-			// If we pick up a weapon into a new inventory slot, AND we are selected on that item slot, then try to equip weapon!!
+			// If we pick up a weapon into our current selected slot, equip the weapon!
 			if (CurrentSlot == i)
 			{
 				ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 				if (MyPawn)
 				{
-					MyPawn->ChangeWeapons(WeaponClass, i);
+					MyPawn->EquipWeaponClass(WeaponClass);
 				}
 			}
 			else

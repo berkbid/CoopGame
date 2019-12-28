@@ -50,13 +50,11 @@ void ASCharacter::BeginPlay()
 	{
 		HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 	}
-	
 }
 
 // This only calls when an actual weapon is equipped
 void ASCharacter::OnRep_CurrentWeapon()
 {
-
 }
 
 void ASCharacter::StartFire()
@@ -81,10 +79,10 @@ void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* Pic
 	if (!NewWeaponClass) { return; }
 	// Quick rejection of weapon overlaps with local variable
 	if (bIsInventoryFullTemp) { return; }
+
 	// If we could get a boolean from player controller if inventory is full or not we could skip doing more work
 	// This means AI don't pickup weapons because they have different controller class
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
-
 	if (PC)
 	{
 		if (PC->bIsInventoryFull) 
@@ -93,6 +91,7 @@ void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* Pic
 			return; 
 		}
 
+		// If we successfully pick up the weapon in our inventory, then destroy the weapon pickup actor
 		if (PC->PickedUpNewWeapon(NewWeaponClass))
 		{
 			PickupActor->Destroy();
@@ -141,17 +140,6 @@ void ASCharacter::OnRep_Death()
 	SetLifeSpan(10.f);
 }
 
-
-void ASCharacter::SetWidgetName()
-{
-	ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
-
-	if (PS && HealthBar)
-	{
-		HealthBar->UpdateWidgetName(PS->GetPlayerName());
-	}
-}
-
 // This is so we can run listen server functionality for OnRep_PlayerState
 void ASCharacter::ServerSetWidgetName_Implementation()
 {
@@ -163,9 +151,19 @@ void ASCharacter::ServerSetWidgetName_Implementation()
 	}
 }
 
+void ASCharacter::SetWidgetName()
+{
+	ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
+
+	if (PS && HealthBar)
+	{
+		HealthBar->UpdateWidgetName(PS->GetPlayerName());
+	}
+}
+
 // This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
 // AI could call this directly to change weapons
-void ASCharacter::ChangeWeapons(TSubclassOf<ASWeapon> NewWeaponClass, int NewWeaponSlot)
+void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass)
 {
 	// Should never be called on client
 	if (GetLocalRole() < ROLE_Authority)
@@ -221,7 +219,6 @@ void ASCharacter::OnRep_PlayerState()
 	}
 }
 
-
 // Only server runs this code, this is called after BeginPlay
 void ASCharacter::PossessedBy(AController* NewController)
 {
@@ -240,7 +237,6 @@ void ASCharacter::PossessedBy(AController* NewController)
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
 
 	DOREPLIFETIME_CONDITION(ASCharacter, CurrentWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ASCharacter, bDied);
