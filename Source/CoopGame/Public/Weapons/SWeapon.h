@@ -7,6 +7,62 @@
 #include "SWeapon.generated.h"
 
 
+USTRUCT(BlueprintType)
+struct FWeaponInfo
+{
+	GENERATED_BODY()
+
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TSubclassOf<class ASWeapon> WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	int32 CurrentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	int32 MaxAmmo;
+
+	void SetWeaponType(TSubclassOf<class ASWeapon> NewWeaponType)
+	{
+		WeaponType = NewWeaponType;
+	}
+
+	void SetCurrentAmmo(uint32 NewCurrentAmmo)
+	{
+		CurrentAmmo = NewCurrentAmmo;
+	}
+
+	void SetMaxAmmo(uint32 NewMaxAmmo)
+	{
+		MaxAmmo = NewMaxAmmo;
+	}
+
+	// For Garbage Cleanup
+	void Destroy()
+	{
+		WeaponType = nullptr;
+	}
+
+	// Default constructor
+	FWeaponInfo()
+	{
+		WeaponType = nullptr;
+		CurrentAmmo = 0;
+		MaxAmmo = 0;
+	}
+
+	// Constructor with parameters for properties
+	FWeaponInfo(TSubclassOf<class ASWeapon> NewWeaponClass, int32 NewCurrentAmmo, int32 NewMaxAmmo)
+	{
+		WeaponType = NewWeaponClass;
+		CurrentAmmo = NewCurrentAmmo;
+		MaxAmmo = NewMaxAmmo;
+	}
+};
+
+
+
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
 {
@@ -49,6 +105,9 @@ protected:
 	// Derived from RateOfFire
 	float TimeBetweenShots;
 
+	UPROPERTY(Replicated)
+	int32 CurrentWeaponSlot;
+
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -57,13 +116,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	class USoundBase* WeaponSwapSound;
 
-	uint32 MaxClipSize;
+	int32 MaxClipSize;
 
 	UFUNCTION()
 	void OnRep_ClipSize();
 
 	UPROPERTY(ReplicatedUsing=OnRep_ClipSize)
-	uint32 CurrentClipSize;
+	int32 CurrentClipSize;
+
+	void SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlot);
+
+	int32 GetCurrentAmmo();
 
 	void StartFire();
 

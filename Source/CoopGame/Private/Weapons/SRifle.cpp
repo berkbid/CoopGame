@@ -23,7 +23,12 @@ ASRifle::ASRifle()
 	BaseDamage = 25.f;
 	HeadShotMultiplier = 4.f;
 	MaxClipSize = 40;
-	CurrentClipSize = MaxClipSize;
+	//CurrentClipSize = MaxClipSize;
+	CurrentClipSize = -1;
+
+	//WeaponInfo.SetMaxAmmo(40);
+	//WeaponInfo.SetCurrentAmmo(40);
+	//WeaponInfo.SetWeaponType(ASRifle::StaticClass());
 
 	// This is defined in P_SmokeTrail under Target > Distribution > Parameter Name
 	TracerTargetName = "BeamEnd";
@@ -114,12 +119,12 @@ void ASRifle::Fire()
 
 		// Update CurrentClipSize for Server, it is replicated
 		CurrentClipSize--;
+		OnRep_ClipSize();
+		
 	}
 
 	// This variable is set for both clients and server, thus even if a server is a player, he will have the appropiate LastFireTime
 	LastFireTime = GetWorld()->TimeSeconds;
-
-
 }
 
 void ASRifle::PlayFireEffect(FVector TracerEndPoint)
@@ -137,7 +142,6 @@ void ASRifle::PlayFireEffect(FVector TracerEndPoint)
 		{
 			TracerComp->SetVectorParameter(TracerTargetName, TracerEndPoint);
 		}
-
 	}
 }
 

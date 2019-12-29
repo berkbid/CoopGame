@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SWeapon.h"
 #include "AIController.h"
 #include "SAIController.generated.h"
 
@@ -19,7 +20,7 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
+	TArray<FWeaponInfo> WeaponInventory;
 
 	/* Keep track of which weapon slot is currently equipped */
 	int CurrentSlot;

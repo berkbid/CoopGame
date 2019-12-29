@@ -3,25 +3,27 @@
 
 #include "SItemPickup.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SCharacter.h"
-#include "SWeapon.h"
 
 // Sets default values
 ASItemPickup::ASItemPickup()
 {
-	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
-	CapsuleComp->SetCanEverAffectNavigation(false);
-	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	RootComponent = CapsuleComp;
+	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
+	BoxComp->SetSimulatePhysics(true);
+	BoxComp->SetCanEverAffectNavigation(false);
+	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
+	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	RootComponent = BoxComp;
 
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetupAttachment(CapsuleComp);
+	MeshComp->SetupAttachment(BoxComp);
 
 
 	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +47,7 @@ void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActo
 		ASCharacter* OverlappedCharacter = Cast<ASCharacter>(OtherActor);
 		if (OverlappedCharacter)
 		{
-			OverlappedCharacter->PickupWeapon(ItemType, this);
+			OverlappedCharacter->PickupWeapon(WeaponInfo, this);
 		}
 	}
 }

@@ -67,12 +67,13 @@ void USOverlayInventorySlot::ActivateSlot()
 }
 
 // Slot just equipped new weapon, set children's data
-void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture)
+void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, int32 AmmoAmount)
 {
 	// Set text visible and initial text value
 	if (AmmoText)
 	{
 		AmmoText->SetVisibility(ESlateVisibility::Visible);
+		AmmoText->SetText(FText::FromString(FString::FromInt(AmmoAmount)));
 	}
 
 	// Update slot properties
@@ -86,7 +87,7 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture)
 	}
 }
 
-void USOverlayInventorySlot::UpdateAmmoText(uint32 AmmoAmount)
+void USOverlayInventorySlot::UpdateAmmoText(int32 AmmoAmount)
 {
 	if (AmmoText)
 	{

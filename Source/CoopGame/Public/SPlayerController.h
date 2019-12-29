@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SWeapon.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerController.generated.h"
 
@@ -44,7 +45,7 @@ public:
 
 	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 
-	void SetSlotAmmo(uint32 NewAmmoAmount);
+	void SetSlotAmmo(uint32 NewAmmoAmount, int32 WeaponSlot);
 
 	void SetStateText(FString NewState);
 
@@ -60,7 +61,7 @@ public:
 	class USUserWidgetGameInfo* MyGameInfo;
 
 	// Return success or failure for picking up weapon, based on inventory space
-	bool PickedUpNewWeapon(TSubclassOf<class ASWeapon> WeaponClass);
+	bool PickedUpNewWeapon(FWeaponInfo WeaponInfo);
 
 	bool bIsInventoryFull;
 
@@ -89,7 +90,7 @@ protected:
 	void ServerEquipWeaponFive();
 
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
-	TArray<TSubclassOf<class ASWeapon>> WeaponInventory;
+	TArray<FWeaponInfo> WeaponInventory;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	class USoundBase* PickedupSound;

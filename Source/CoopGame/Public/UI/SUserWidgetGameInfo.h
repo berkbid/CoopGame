@@ -60,7 +60,7 @@ public:
 	UFUNCTION()
 	void InventoryUpdateAmmo(int WeaponSlot, uint32 AmmoAmount);
 
-	void HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int WeaponSlot);
+	void HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int WeaponSlot);
 
 	void SetStateText(FString NewState);
 

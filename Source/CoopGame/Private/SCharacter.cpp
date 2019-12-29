@@ -8,7 +8,6 @@
 #include "Components/CapsuleComponent.h"
 #include "CoopGame.h"
 #include "SHealthComponent.h"
-#include "SWeapon.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/DamageType.h"
@@ -74,9 +73,9 @@ void ASCharacter::StopFire()
 }
 
 // Being called by server only
-void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor)
+void ASCharacter::PickupWeapon(FWeaponInfo WeaponInfo, AActor* PickupActor)
 {
-	if (!NewWeaponClass) { return; }
+	if (!WeaponInfo.WeaponType) { return; }
 	// Quick rejection of weapon overlaps with local variable
 	if (bIsInventoryFullTemp) { return; }
 
@@ -92,7 +91,7 @@ void ASCharacter::PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* Pic
 		}
 
 		// If we successfully pick up the weapon in our inventory, then destroy the weapon pickup actor
-		if (PC->PickedUpNewWeapon(NewWeaponClass))
+		if (PC->PickedUpNewWeapon(WeaponInfo))
 		{
 			PickupActor->Destroy();
 		}
@@ -167,19 +166,26 @@ void ASCharacter::SetWidgetName()
 
 // This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
 // AI could call this directly to change weapons
-void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass)
+int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot)
 {
+	int32 OldAmmoCount = -1;
+
 	// Should never be called on client
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		return;
+		return OldAmmoCount;
 	}
+	// Keep track of what slot we have equipped
+	CurrentWeaponSlot = NewWeaponSlot;
 
 	if (CurrentWeapon)
 	{
+		OldAmmoCount = CurrentWeapon->GetCurrentAmmo();
+
 		CurrentWeapon->Destroy();
 	}
 
+	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponType;
 	// If invalid new weapon class, destroy current weapon and don't try to equip new one
 	// This is completely valid, we allow for this, this is swapping to empty inventory slot
 	if (!NewWeaponClass)
@@ -187,7 +193,7 @@ void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass)
 		CurrentWeapon = nullptr;
 		OnRep_CurrentWeapon();
 
-		return;
+		return OldAmmoCount;
 	}
 
 	// Spawn a weapon because it exists in the inventory slot, and update HUD image
@@ -201,11 +207,14 @@ void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass)
 	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
 	OnRep_CurrentWeapon();
 
-
 	if (CurrentWeapon)
 	{
+		// Tell weapon important info for its functionality and so it can upate HUD properly
+		CurrentWeapon->SetInitialState(NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo, NewWeaponSlot);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
+
+	return OldAmmoCount;
 }
 
 // Widget Component is always valid here, but WidgetInst is not

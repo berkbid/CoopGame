@@ -3,7 +3,6 @@
 
 #include "SPlayerController.h"
 #include "SUserWidgetGameInfo.h"
-#include "SWeapon.h"
 #include "SPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "SGameState.h"
@@ -24,7 +23,7 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 	SlotToUpdate = -1;
 
 	// Setup initial WeaponInventory with appropriate size and NULL values
-	WeaponInventory.Init(NULL, InventoryMaxSize);
+	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
 }
 
 void ASPlayerController::BeginPlay()
@@ -67,7 +66,7 @@ void ASPlayerController::ServerPostLogin()
 	// Count current inventory size
 	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
 	{
-		if (WeaponInventory[i])
+		if (WeaponInventory[i].WeaponType)
 		{
 			CurrentInventorySize++;
 			if (CurrentInventorySize >= InventoryMaxSize)
@@ -113,9 +112,10 @@ void ASPlayerController::SetupInitialHUDState()
 
 	for (int32 i = 0; i != WeaponInventoryLen; ++i)
 	{
-		if (WeaponInventory[i])
+		if (WeaponInventory[i].WeaponType)
 		{
-			MyGameInfo->HandlePickupWeapon(WeaponInventory[i], i);
+			// Set initial HUD state for weapon slot
+			MyGameInfo->HandlePickupWeapon(WeaponInventory[i].WeaponType, WeaponInventory[i].CurrentAmmo, i);
 		}
 
 		// Set inventory slot as active
@@ -128,7 +128,7 @@ void ASPlayerController::SetupInitialHUDState()
 
 void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const& NewPlayerName, uint32 NewPlayerNumber)
 {
-	if (MyGameInfo)
+	if (IsLocalController() && MyGameInfo)
 	{
 		MyGameInfo->AddPlayerToScoreboard(NewPlayerName, NewPlayerNumber);
 	}
@@ -136,7 +136,7 @@ void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString c
 
 void ASPlayerController::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
 {
-	if (MyGameInfo)
+	if (IsLocalController() && MyGameInfo)
 	{
 		MyGameInfo->UpdatePlayerScore(PlayerNumber, NewScore);
 	}
@@ -144,7 +144,7 @@ void ASPlayerController::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
 
 void ASPlayerController::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
 {
-	if (MyGameInfo)
+	if (IsLocalController() && MyGameInfo)
 	{
 		MyGameInfo->UpdatePlayerKills(PlayerNumber, NewKills);
 	}
@@ -152,17 +152,17 @@ void ASPlayerController::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
 
 void ASPlayerController::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
 {
-	if (MyGameInfo)
+	if (IsLocalController() && MyGameInfo)
 	{
 		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
 	}
 }
 
-void ASPlayerController::SetSlotAmmo(uint32 NewAmmoAmount)
+void ASPlayerController::SetSlotAmmo(uint32 NewAmmoAmount, int32 WeaponSlot)
 {
-	if (MyGameInfo)
+	if (IsLocalController() && MyGameInfo)
 	{
-		MyGameInfo->InventoryUpdateAmmo(CurrentSlot, NewAmmoAmount);
+		MyGameInfo->InventoryUpdateAmmo(WeaponSlot, NewAmmoAmount);
 	}
 }
 
@@ -186,7 +186,7 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 			if (WeaponInventoryLen > CurrentSlot)
 			{
 				// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
-				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot]);
+				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot], CurrentSlot);
 			}
 		}
 
@@ -270,31 +270,37 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 		UE_LOG(LogTemp, Warning, TEXT("Should NOT call EquipWeapon as client! See SPlayerController.cpp"));
 		return;
 	}
-
+	int OldSlot = CurrentSlot;
 	// Replicated, Update current slot even if we have no weapon in that slot
 	CurrentSlot = NewWeaponSlot;
+
 	// If we are listen server, call function manually
 	if (IsLocalController()) { OnRep_SlotChange(); }
-
 	TSubclassOf<ASWeapon> NewWeaponClass;
 
-	// If array is long enough, try to set NewWeaponClass to the value at its index
+	// If array is long enough, equip whatever value is at that weapon index
 	if (WeaponInventory.Num() > NewWeaponSlot) {
 
-		NewWeaponClass = WeaponInventory[NewWeaponSlot];
-	}
+		NewWeaponClass = WeaponInventory[NewWeaponSlot].WeaponType;
 
-	// Call ChangeWeapons, allowing for NewWeaponClass to be null going in, this will destroy current weapon
-	// It is the same as changing to a new inventory slot that doesn't have a weapon in it
-	ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-	if (MyPawn)
-	{
-		MyPawn->EquipWeaponClass(NewWeaponClass);
+		// Call ChangeWeapons, allowing for NewWeaponClass to be null going in, this will destroy current weapon
+		// It is the same as changing to a new inventory slot that doesn't have a weapon in it
+		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
+		if (MyPawn)
+		{
+			// Update Current Ammo of old weapon and equip new weapon
+			int32 OldAmmoCount = MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot], NewWeaponSlot);
+
+			if (OldAmmoCount >= 0)
+			{
+				WeaponInventory[OldSlot].CurrentAmmo = OldAmmoCount;
+			}	
+		}
 	}
 }
 
 // Try to pick up weapon if inventory has space, return success or failure
-bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
+bool ASPlayerController::PickedUpNewWeapon(FWeaponInfo WeaponInfo)
 {
 	// Only server should call this function, this is precautionary
 	if (GetLocalRole() < ROLE_Authority)
@@ -309,10 +315,10 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 	for (int32 i = 0; i < InventorySize; ++i)
 	{
 		// If we find an empty slot, give new weapon type and update HUD image for slot
-		if (WeaponInventory[i] == NULL)
+		if (!WeaponInventory[i].WeaponType)
 		{
 			// Update weapon inventory slot to new weaponclass
-			WeaponInventory[i] = WeaponClass;
+			WeaponInventory[i] = WeaponInfo;
 
 			// Update HUD image for client
 			SlotToUpdate = i;
@@ -327,16 +333,13 @@ bool ASPlayerController::PickedUpNewWeapon(TSubclassOf<ASWeapon> WeaponClass)
 			}
 			
 
-
-			// If we pick up a weapon into our current selected slot, equip the weapon!
+			// If we pick up a weapon into our current selected EMPTY slot, equip the weapon!
 			if (CurrentSlot == i)
 			{
 				ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 				if (MyPawn)
 				{
-					MyPawn->EquipWeaponClass(WeaponClass);
-					// call function to setup weapon
-					
+					MyPawn->EquipWeaponClass(WeaponInfo, i);			
 				}
 			}
 			else
@@ -370,8 +373,8 @@ void ASPlayerController::OnRep_SlotToUpdate()
 	{
 		if (WeaponInventory.Num() > SlotToUpdate)
 		{
-			MyGameInfo->HandlePickupWeapon(WeaponInventory[SlotToUpdate], SlotToUpdate);
-			// Need information of max ammo for weapon type for HUD here
+			// Set initial HUD state for weapon s lot, including picture and ammo amount
+			MyGameInfo->HandlePickupWeapon(WeaponInventory[SlotToUpdate].WeaponType, WeaponInventory[SlotToUpdate].CurrentAmmo, SlotToUpdate);
 		}
 	}
 

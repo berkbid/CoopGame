@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SWeapon.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
@@ -59,6 +60,8 @@ protected:
 
 	bool bIsInventoryFullTemp;
 
+	int32 CurrentWeaponSlot;
+
 public:	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -76,10 +79,10 @@ public:
 	void StopFire();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void PickupWeapon(TSubclassOf<ASWeapon> NewWeaponClass, AActor* PickupActor);
+	void PickupWeapon(FWeaponInfo WeaponInfo, AActor* PickupActor);
 
 	/* Destroys current equipped weapon and tries to spawn and equip weapon from NewWeaponClass */
-	void EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass);
+	int32 EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot);
 
 	/** PlayerState Replication Notification Callback */
 	virtual void OnRep_PlayerState() override;

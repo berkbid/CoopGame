@@ -34,7 +34,7 @@ void USHorizontalBoxInventory::SynchronizeProperties()
 	}
 }
 
-void USHorizontalBoxInventory::HandlePickupWeapon(UTexture2D* WeaponTexture, int WeaponSlot)
+void USHorizontalBoxInventory::HandlePickupWeapon(UTexture2D* WeaponTexture, int32 AmmoAmount, int WeaponSlot)
 {
 	// If we have a valid child at WeaponSlot, call InitSlot on that SOverlayInventorySlot class
 	if (InventorySlots.Num() > WeaponSlot)
@@ -42,7 +42,7 @@ void USHorizontalBoxInventory::HandlePickupWeapon(UTexture2D* WeaponTexture, int
 		USOverlayInventorySlot* NewSlot = InventorySlots[WeaponSlot];
 		if (NewSlot)
 		{
-			NewSlot->InitSlot(WeaponTexture);
+			NewSlot->InitSlot(WeaponTexture, AmmoAmount);
 		}
 	}
 }
@@ -70,6 +70,7 @@ void USHorizontalBoxInventory::HandleSlotChange(int WeaponSlot)
 
 void USHorizontalBoxInventory::HandleAmmoChange(int WeaponSlot, uint32 AmmoAmount)
 {
+	if (WeaponSlot < 0) { return; }
 	// If we have a valid child at WeaponSlot index
 	if (InventorySlots.Num() > WeaponSlot)
 	{

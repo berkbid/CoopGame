@@ -107,14 +107,14 @@ void USUserWidgetGameInfo::InventoryUpdateAmmo(int WeaponSlot, uint32 AmmoAmount
 	}
 }
 
-void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int WeaponSlot)
+void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int WeaponSlot)
 {
 	// Find texture associated with weapon class we picked up
 	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
 
 	if (InventoryContainer)
 	{
-		InventoryContainer->HandlePickupWeapon(*TempWeaponTexture, WeaponSlot);
+		InventoryContainer->HandlePickupWeapon(*TempWeaponTexture, AmmoAmount, WeaponSlot);
 	}
 }
 

@@ -18,10 +18,12 @@ ASWeapon::ASWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 
 	// Setup weapon stats
+	CurrentWeaponSlot = -1;
 	BaseDamage = 20.f;
 	HeadShotMultiplier = 4.f;
 	MaxClipSize = 30;
-	CurrentClipSize = MaxClipSize;
+	//CurrentClipSize = MaxClipSize;
+	CurrentClipSize = -1;
 
 	// bullets per minute
 	RateOfFire = 600.f;
@@ -39,7 +41,6 @@ ASWeapon::ASWeapon()
 void ASWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // MUST prefix with Server and require _Implementation
@@ -58,15 +59,39 @@ void ASWeapon::Fire()
 {
 }
 
-// Client can update HUD here when clip size changes
+// Client can update HUD here when clip size changes, server runs this code also
+// Server only needs to execute this code if it is the owner of this weapon
 void ASWeapon::OnRep_ClipSize()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("New Clip Size: %d"), CurrentClipSize);
-	ASPlayerController* PC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (PC)
+	if (CurrentWeaponSlot >= 0)
 	{
-		PC->SetSlotAmmo(CurrentClipSize);
+		APawn* OwnerPawn = Cast<APawn>(GetOwner());
+		if (OwnerPawn)
+		{
+			ASPlayerController* PC = Cast<ASPlayerController>(OwnerPawn->GetController());
+			if (PC)
+			{
+				PC->SetSlotAmmo(CurrentClipSize, CurrentWeaponSlot);
+			}
+		}
 	}
+}
+
+// Server is setting these variables
+void ASWeapon::SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlot)
+{
+	// These are replicated to owner for use when firing
+	CurrentWeaponSlot = WeaponSlot;
+	CurrentClipSize = CurrentAmmo;
+	OnRep_ClipSize();
+
+	MaxClipSize = MaxAmmo;
+}
+
+
+int32 ASWeapon::GetCurrentAmmo()
+{
+	return CurrentClipSize;
 }
 
 // Call this on server instead of client
@@ -90,4 +115,5 @@ void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASWeapon, CurrentClipSize, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ASWeapon, CurrentWeaponSlot, COND_OwnerOnly);
 }

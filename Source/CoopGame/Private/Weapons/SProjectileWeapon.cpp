@@ -11,8 +11,9 @@ ASProjectileWeapon::ASProjectileWeapon()
 	RateOfFire = 240.f;
 	TimeBetweenShots = 60.f / RateOfFire;
 
-	MaxClipSize = 12;
-	CurrentClipSize = MaxClipSize;
+	MaxClipSize = -1;
+
+	CurrentClipSize = -1;
 }
 
 void ASProjectileWeapon::Fire()
@@ -57,5 +58,7 @@ void ASProjectileWeapon::Fire()
 		LastFireTime = GetWorld()->TimeSeconds;
 
 		CurrentClipSize--;
+		OnRep_ClipSize();
+		
 	}
 }

@@ -11,7 +11,7 @@ ASAIController::ASAIController(const FObjectInitializer& ObjectInitializer)
 	InventoryMaxSize = 5;
 
 	CurrentSlot = -1;
-	WeaponInventory.Init(NULL, InventoryMaxSize);
+	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
 }
 
 void ASAIController::OnPossess(APawn* aPawn)
@@ -27,7 +27,7 @@ void ASAIController::OnPossess(APawn* aPawn)
 	// Don't try to access invalid index
 	if (WeaponInventory.Num() > CurrentSlot)
 	{
-		MyPawn->EquipWeaponClass(WeaponInventory[CurrentSlot]);
+		MyPawn->EquipWeaponClass(WeaponInventory[CurrentSlot], CurrentSlot);
 	}
 }
 

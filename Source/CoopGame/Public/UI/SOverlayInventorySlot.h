@@ -39,9 +39,9 @@ public:
 
 	void ActivateSlot();
 
-	void InitSlot(class UTexture2D* WeaponTexture);
+	void InitSlot(class UTexture2D* WeaponTexture, int32 AmmoAmount);
 
-	void UpdateAmmoText(uint32 AmmoAmount);
+	void UpdateAmmoText(int32 AmmoAmount);
 
 
 protected:
