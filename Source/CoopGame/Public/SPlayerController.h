@@ -74,6 +74,9 @@ protected:
 
 	void EquipWeapon(int NewWeaponSlot);
 
+	UFUNCTION(Client, Reliable)
+	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 SlotToUpdate);
+
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();
 
@@ -101,13 +104,6 @@ protected:
 	/* Keep track of which weapon slot is currently equipped */
 	UPROPERTY(ReplicatedUsing=OnRep_SlotChange)
 	int CurrentSlot;
-
-	UFUNCTION()
-	void OnRep_SlotToUpdate();
-
-	/* This is so client can update HUD slot image when it needs to be changed */
-	UPROPERTY(ReplicatedUsing = OnRep_SlotToUpdate)
-	int SlotToUpdate;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	int InventoryMaxSize;

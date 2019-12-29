@@ -20,7 +20,6 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 
 	// These are replicated variables that the server updates and owning client updates HUD OnRep
 	CurrentSlot = 0;
-	SlotToUpdate = -1;
 
 	// Setup initial WeaponInventory with appropriate size and NULL values
 	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
@@ -131,6 +130,14 @@ void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString c
 	if (MyGameInfo)
 	{
 		MyGameInfo->AddPlayerToScoreboard(NewPlayerName, NewPlayerNumber);
+	}
+}
+
+void ASPlayerController::SetStateText(FString NewState)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->SetStateText(NewState);
 	}
 }
 
@@ -298,13 +305,44 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 	}
 }
 
+// When server PICKS UP NEW WEAPON, updates SlotToUpdate so owning client updates HUD for that slot
+// This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
+void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo WeaponInfo, int32 SlotToUpdate)
+{
+	// Handle HUD for picking up new weapon
+	if (MyGameInfo)
+	{
+		if (WeaponInventory.Num() > SlotToUpdate)
+		{
+			// Set initial HUD state for weapon s lot, including picture and ammo amount
+			MyGameInfo->HandlePickupWeapon(WeaponInfo.WeaponType, WeaponInfo.CurrentAmmo, SlotToUpdate);
+			
+		}
+	}
+
+	// Only play weapon pickup sound if we aren't already selecting on new weapon slot, this is because weapon swap sound will play
+	// We don't want double sound. This works fine as long as weapon pickup sound is same as weapon swap sound.
+	// Instead of calling this code here, call a function on the pawn that gets the sound pointer from the actual weapon to play sound on pickups.
+	if (CurrentSlot != SlotToUpdate)
+	{
+		// Play pickup sound also
+		if (PickedupSound)
+		{
+			APawn* ControlledPawn = GetPawn();
+			if (ControlledPawn)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, PickedupSound, ControlledPawn->GetActorLocation());
+			}
+		}
+	}
+}
+
 // Try to pick up weapon if inventory has space, return success or failure
 bool ASPlayerController::PickedUpNewWeapon(FWeaponInfo WeaponInfo)
 {
 	// Only server should call this function, this is precautionary
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Should NOT call PickedUpNewWeapon as client! See SPlayerController.cpp"));
 		return false;
 	}
 	
@@ -320,9 +358,7 @@ bool ASPlayerController::PickedUpNewWeapon(FWeaponInfo WeaponInfo)
 			WeaponInventory[i] = WeaponInfo;
 
 			// Update HUD image for client
-			SlotToUpdate = i;
-			// If we are listen server, call function manually
-			if (IsLocalController()) { OnRep_SlotToUpdate(); }
+			ClientPickupWeaponHUD(WeaponInfo, i);
 
 			// Update inventory size variable and set bIsInventoryFull
 			CurrentInventorySize++;
@@ -363,48 +399,6 @@ void ASPlayerController::OnRep_SlotChange()
 	}
 }
 
-// When server PICKS UP NEW WEAPON, updates SlotToUpdate so owning client updates HUD for that slot
-// This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
-void ASPlayerController::OnRep_SlotToUpdate()
-{
-	// Handle HUD for picking up new weapon
-	if (MyGameInfo)
-	{
-		if (WeaponInventory.Num() > SlotToUpdate)
-		{
-			// Set initial HUD state for weapon s lot, including picture and ammo amount
-			MyGameInfo->HandlePickupWeapon(WeaponInventory[SlotToUpdate].WeaponType, WeaponInventory[SlotToUpdate].CurrentAmmo, SlotToUpdate);
-		}
-	}
-
-	// Only play weapon pickup sound if we aren't already selecting on new weapon slot, this is because weapon swap sound will play
-	// We don't want double sound. This works fine as long as weapon pickup sound is same as weapon swap sound.
-	// Instead of calling this code here, call a function on the pawn that gets the sound pointer from the actual weapon to play sound on pickups.
-	if (CurrentSlot != SlotToUpdate)
-	{
-		// Play pickup sound also
-		if (PickedupSound)
-		{
-			APawn* ControlledPawn = GetPawn();
-			if (ControlledPawn)
-			{
-				UGameplayStatics::PlaySoundAtLocation(this, PickedupSound, ControlledPawn->GetActorLocation());
-			}
-		}
-	}
-}
-
-void ASPlayerController::SetStateText(FString NewState)
-{
-	if (IsLocalController())
-	{
-		if (MyGameInfo)
-		{
-			MyGameInfo->SetStateText(NewState);
-		}
-	}
-}
-
 void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -415,6 +409,4 @@ void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	// Server updates this property and owning client reacts by updating HUD showing newly "selected" inventory slot
 	DOREPLIFETIME_CONDITION(ASPlayerController, CurrentSlot, COND_OwnerOnly);
 
-	// Server updates this property and owning client reacts by updating HUD showing newly "acquired" inventory item in slot
-	DOREPLIFETIME_CONDITION(ASPlayerController, SlotToUpdate, COND_OwnerOnly);
 }

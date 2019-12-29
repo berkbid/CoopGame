@@ -44,6 +44,14 @@ void USHorizontalBoxInventory::HandlePickupWeapon(UTexture2D* WeaponTexture, int
 		{
 			NewSlot->InitSlot(WeaponTexture, AmmoAmount);
 		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("55555"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("66666"));
 	}
 }
 

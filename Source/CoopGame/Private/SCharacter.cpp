@@ -26,10 +26,9 @@ ASCharacter::ASCharacter()
 	// We do not want capsule to block the weapon trace, only the mesh of character
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
-	//GetCharacterMovement()->SetIsReplicated(true);
 	// Needed to make sure we are allowed to crouch
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
-	// ??
+
 	HealthComp = CreateDefaultSubobject<USHealthComponent>("HealthComp");
 
 	HealthBar = CreateDefaultSubobject<USWidgetCompHealthBar>("HealthBar");
@@ -97,6 +96,7 @@ void ASCharacter::PickupWeapon(FWeaponInfo WeaponInfo, AActor* PickupActor)
 		}
 	}
 }
+
 
 // Only called on server because we only hooked this on the server
 void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)

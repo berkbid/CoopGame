@@ -114,7 +114,11 @@ void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryIte
 
 	if (InventoryContainer)
 	{
-		InventoryContainer->HandlePickupWeapon(*TempWeaponTexture, AmmoAmount, WeaponSlot);
+		if (TempWeaponTexture)
+		{
+			InventoryContainer->HandlePickupWeapon(*TempWeaponTexture, AmmoAmount, WeaponSlot);
+		}
+		
 	}
 }
 
