@@ -3,7 +3,7 @@ Multiplayer Game in Unreal Engine using C++, originally started from a course on
 
 [Link to Udemy course GitHub repository](https://github.com/tomlooman/CoopHordeShooter)
 
-![CoopGame Image](https://berkbid.github.io/Images/CoopGame.png)
+![CoopGame Image](https://berkbid.github.io/Images/CoopGame4.png)
 
 ## Personal Additions
 - Inventory HUD Display
