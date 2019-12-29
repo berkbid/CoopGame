@@ -10,5 +10,7 @@ Multiplayer Game in Unreal Engine using C++, originally started from a course on
 - Weapon pickups, working with inventory HUD
 - Weapon swapping, inventory HUD visualization for this as well
 - Health bar widget components with event driven updating
-- Scoreboard on screen, being worked on at the moment
+- Scoreboard on screen, dynamically adds new players
+- Scoreboard updates replicated PlayerState data from all players
 - Name display text above the health bar widget components
+- Ammo functionality for weapons with HUD updates
