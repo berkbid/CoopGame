@@ -34,7 +34,7 @@ public:
 
 	void HandleSlotChange(int WeaponSlot);
 
-	void HandleAmmoChange(int WeaponSlot, uint32 AmmoAmount);
+	void HandleAmmoChange(int WeaponSlot, int32 AmmoAmount);
 
 protected:
 

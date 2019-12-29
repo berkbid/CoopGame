@@ -58,7 +58,7 @@ public:
 	void InventoryChangeToSlot(int WeaponSlot);
 
 	UFUNCTION()
-	void InventoryUpdateAmmo(int WeaponSlot, uint32 AmmoAmount);
+	void InventoryUpdateAmmo(int WeaponSlot, int32 AmmoAmount);
 
 	void HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int WeaponSlot);
 

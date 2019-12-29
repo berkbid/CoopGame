@@ -12,8 +12,11 @@
 ASItemPickup::ASItemPickup()
 {
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
+	BoxComp->SetMassOverrideInKg(NAME_None, 425.f, true);
 	BoxComp->SetSimulatePhysics(true);
 	BoxComp->SetCanEverAffectNavigation(false);
+	BoxComp->SetCollisionObjectType(ECC_WorldStatic);
+	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
 	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	RootComponent = BoxComp;
@@ -21,9 +24,7 @@ ASItemPickup::ASItemPickup()
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetupAttachment(BoxComp);
 
-
 	SetReplicates(true);
-	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned

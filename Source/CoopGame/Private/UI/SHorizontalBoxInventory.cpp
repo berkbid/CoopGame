@@ -68,7 +68,7 @@ void USHorizontalBoxInventory::HandleSlotChange(int WeaponSlot)
 	}
 }
 
-void USHorizontalBoxInventory::HandleAmmoChange(int WeaponSlot, uint32 AmmoAmount)
+void USHorizontalBoxInventory::HandleAmmoChange(int WeaponSlot, int32 AmmoAmount)
 {
 	if (WeaponSlot < 0) { return; }
 	// If we have a valid child at WeaponSlot index
@@ -79,7 +79,6 @@ void USHorizontalBoxInventory::HandleAmmoChange(int WeaponSlot, uint32 AmmoAmoun
 		{
 			// Activate new slot and set current slot to new slot
 			NewSlot->UpdateAmmoText(AmmoAmount);
-
 		}
 	}
 }

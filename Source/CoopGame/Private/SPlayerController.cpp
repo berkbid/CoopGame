@@ -128,7 +128,7 @@ void ASPlayerController::SetupInitialHUDState()
 
 void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const& NewPlayerName, uint32 NewPlayerNumber)
 {
-	if (IsLocalController() && MyGameInfo)
+	if (MyGameInfo)
 	{
 		MyGameInfo->AddPlayerToScoreboard(NewPlayerName, NewPlayerNumber);
 	}
@@ -136,7 +136,7 @@ void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString c
 
 void ASPlayerController::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
 {
-	if (IsLocalController() && MyGameInfo)
+	if (MyGameInfo)
 	{
 		MyGameInfo->UpdatePlayerScore(PlayerNumber, NewScore);
 	}
@@ -144,7 +144,7 @@ void ASPlayerController::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
 
 void ASPlayerController::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
 {
-	if (IsLocalController() && MyGameInfo)
+	if (MyGameInfo)
 	{
 		MyGameInfo->UpdatePlayerKills(PlayerNumber, NewKills);
 	}
@@ -152,7 +152,7 @@ void ASPlayerController::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
 
 void ASPlayerController::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
 {
-	if (IsLocalController() && MyGameInfo)
+	if (MyGameInfo)
 	{
 		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
 	}
@@ -160,7 +160,7 @@ void ASPlayerController::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeath
 
 void ASPlayerController::SetSlotAmmo(uint32 NewAmmoAmount, int32 WeaponSlot)
 {
-	if (IsLocalController() && MyGameInfo)
+	if (MyGameInfo)
 	{
 		MyGameInfo->InventoryUpdateAmmo(WeaponSlot, NewAmmoAmount);
 	}
@@ -189,7 +189,6 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot], CurrentSlot);
 			}
 		}
-
 	}
 }
 

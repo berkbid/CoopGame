@@ -99,7 +99,7 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int WeaponSlot)
 	}
 }
 
-void USUserWidgetGameInfo::InventoryUpdateAmmo(int WeaponSlot, uint32 AmmoAmount)
+void USUserWidgetGameInfo::InventoryUpdateAmmo(int WeaponSlot, int32 AmmoAmount)
 {
 	if (InventoryContainer)
 	{
