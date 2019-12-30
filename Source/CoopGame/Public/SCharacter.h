@@ -55,8 +55,6 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
 
-	virtual void WeaponChange();
-
 	// Helper function that handles updating widget component with PlayerName from PlayerState
 	void SetWidgetName();
 
@@ -84,7 +82,7 @@ public:
 	void Reload();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void PickupWeapon(FWeaponInfo WeaponInfo, AActor* PickupActor);
+	void PickupWeapon(const FWeaponInfo& WeaponInfo, AActor* PickupActor);
 
 	/* Equips the new weapon and returns ammo count of last weapon */
 	int32 EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot);

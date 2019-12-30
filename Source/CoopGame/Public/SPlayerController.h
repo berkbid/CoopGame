@@ -178,11 +178,6 @@ public:
 
 	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 
-	//void SetSlotAmmo(int32 WeaponSlot, EAmmoType NewAmmoType, int32 NewAmmoAmount);
-
-	/* Decrement AmmoType in our AmmoInventory an update HUD for clients */
-	void DecrementAmmoType(EAmmoType AmmoType, int32 CurrentAmmo);
-
 	void SetStateText(FString NewState);
 
 	void EquipSlotOne();
@@ -197,9 +192,13 @@ public:
 	class USUserWidgetGameInfo* MyGameInfo;
 
 	// Return success or failure for picking up weapon, based on inventory space
-	bool PickedUpNewWeapon(FWeaponInfo WeaponInfo);
+	bool PickedUpNewWeapon(const FWeaponInfo& WeaponInfo);
 
-	int32 GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo);
+	int32 GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSize, int32 MaxClipSize);
+
+	/* Decrement AmmoType in our AmmoInventory an update HUD for clients */
+	UFUNCTION(Client, Unreliable)
+	void ClientDecrementAmmoType(EAmmoType AmmoType, int32 CurrentAmmo);
 
 	bool bIsInventoryFull;
 
@@ -212,16 +211,18 @@ protected:
 
 	void EquipWeapon(int NewWeaponSlot);
 
-	void ChangeSlot(int32 NewSlot);
+	void ChangeToSlotHUD(int32 NewSlot);
+
+	UFUNCTION(Client, Reliable)
+	void ClientChangeToSlotHUD(int32 NewSlot);
 
 	UFUNCTION(Client, Reliable)
 	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 SlotToUpdate);
 
-	UFUNCTION(Client, Reliable)
-	void ClientEquipWeaponHUD(int32 NewSlot);
+	void UpdateAllHUDAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
 
 	UFUNCTION(Client, Reliable)
-	void ClientUpdateHudAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo);
+	void ClientUpdateAllHudAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();

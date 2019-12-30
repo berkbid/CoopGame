@@ -94,16 +94,6 @@ void ASRifle::Fire()
 
 	}
 
-	APawn* MyPawnOwner = Cast<APawn>(MyOwner);
-	if (MyPawnOwner)
-	{
-		APlayerController* PC = Cast<APlayerController>(MyPawnOwner->GetController());
-		if (PC)
-		{
-			PC->ClientPlayCameraShake(FireCamShake);
-		}
-	}
-
 	PlayFireEffect(TracerEndPoint);
 
 	// This will replicate the struct HitScanTrace to all clients triggering OnRep function
@@ -116,18 +106,19 @@ void ASRifle::Fire()
 
 		// Update CurrentClipSize for Server, it is replicated
 		CurrentClipSize--;
-		OnRep_ClipSize();
-
 		// Update ammo count in player controller as server
+
+		APawn* MyPawnOwner = Cast<APawn>(MyOwner);
 		if (MyPawnOwner)
 		{
 			ASPlayerController* PC = Cast<ASPlayerController>(MyPawnOwner->GetController());
 			if (PC)
 			{
-				PC->DecrementAmmoType(AmmoType, CurrentClipSize);
+				PC->ClientPlayCameraShake(FireCamShake);
+				// Update ammo HUD for client, no need to alter ammo inventory, only do that on reload
+				PC->ClientDecrementAmmoType(AmmoType, CurrentClipSize);
 			}
 		}
-		
 	}
 
 	// This variable is set for both clients and server, thus even if a server is a player, he will have the appropiate LastFireTime

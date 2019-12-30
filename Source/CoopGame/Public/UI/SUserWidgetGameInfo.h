@@ -73,12 +73,22 @@ public:
 	void SetOwningController(class APlayerController* NewController);
 
 	UFUNCTION()
-	void InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 MaxAmmo);
+	void InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo);
 
 	UFUNCTION()
-	void InventoryUpdateAmmo(int32 WeaponSlot, int32 CurrentAmount, int32 MaxAmmo);
+	void SetSlotAndWeaponAmmo(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo);
 
-	void HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int32 MaxAmount);
+	void SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo);
+
+	void HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 SlotTotal);
+
+	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
+
+	void UpdatePlayerScore(uint32 PlayerNumber, float NewScore);
+
+	void UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills);
+
+	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 
 	void SetStateText(FString NewState);
 
@@ -91,15 +101,5 @@ public:
 	void SetShellAmmoText(FString NewText);
 
 	void SetRocketAmmoText(FString NewText);
-
-	void SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo);
-
-	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
-
-	void UpdatePlayerScore(uint32 PlayerNumber, float NewScore);
-
-	void UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills);
-
-	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 	
 };

@@ -30,11 +30,11 @@ public:
 	 */
 	virtual void SynchronizeProperties() override;
 
-	void HandlePickupWeapon(int32 WeaponSlot, class UTexture2D* WeaponTexture, int32 AmmoAmount, int32 MaxAmount);
+	void HandlePickupWeapon(int32 WeaponSlot, class UTexture2D* WeaponTexture, int32 SlotTotal);
 
 	void HandleSlotChange(int32 WeaponSlot);
 
-	void HandleAmmoChange(int32 WeaponSlot, int32 AmmoAmount);
+	void SetSlotAmmo(int32 WeaponSlot, int32 SlotTotal);
 
 protected:
 

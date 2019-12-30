@@ -87,8 +87,60 @@ void ASCharacter::Reload()
 	}
 }
 
+// This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
+// AI could call this directly to change weapons
+int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot)
+{
+	int32 OldAmmoCount = -1;
+
+	// Should never be called on client
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		return OldAmmoCount;
+	}
+	// Keep track of what slot we have equipped
+	CurrentWeaponSlot = NewWeaponSlot;
+
+	if (CurrentWeapon)
+	{
+		OldAmmoCount = CurrentWeapon->GetCurrentAmmo();
+
+		CurrentWeapon->Destroy();
+	}
+
+	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponType;
+	// If invalid new weapon class, destroy current weapon and don't try to equip new one
+	// This is completely valid, we allow for this, this is swapping to empty inventory slot
+	if (!NewWeaponClass)
+	{
+		CurrentWeapon = nullptr;
+		OnRep_CurrentWeapon();
+
+		return OldAmmoCount;
+	}
+
+	// Spawn a weapon because it exists in the inventory slot, and update HUD image
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Must set owner so they are awarded for damage done by the weapon
+	SpawnParams.Owner = this;
+
+	// Create On_Rep function for client to update HUD when weapon changes and play sound
+	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
+	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+	OnRep_CurrentWeapon();
+
+	if (CurrentWeapon)
+	{
+		// Tell weapon important info for its functionality and so it can upate HUD properly
+		CurrentWeapon->SetInitialState(NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo, NewWeaponSlot);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+	}
+
+	return OldAmmoCount;
+}
 // Being called by server only
-void ASCharacter::PickupWeapon(FWeaponInfo WeaponInfo, AActor* PickupActor)
+void ASCharacter::PickupWeapon(const FWeaponInfo& WeaponInfo, AActor* PickupActor)
 {
 	if (!WeaponInfo.WeaponType) { return; }
 	// Quick rejection of weapon overlaps with local variable
@@ -112,7 +164,6 @@ void ASCharacter::PickupWeapon(FWeaponInfo WeaponInfo, AActor* PickupActor)
 		}
 	}
 }
-
 
 // Only called on server because we only hooked this on the server
 void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
@@ -171,10 +222,6 @@ void ASCharacter::ServerReload_Implementation()
 	Reload();
 }
 
-void ASCharacter::WeaponChange()
-{
-}
-
 void ASCharacter::SetWidgetName()
 {
 	ASPlayerState* PS = Cast<ASPlayerState>(GetPlayerState());
@@ -183,59 +230,6 @@ void ASCharacter::SetWidgetName()
 	{
 		HealthBar->UpdateWidgetName(PS->GetPlayerName());
 	}
-}
-
-// This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
-// AI could call this directly to change weapons
-int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot)
-{
-	int32 OldAmmoCount = -1;
-
-	// Should never be called on client
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		return OldAmmoCount;
-	}
-	// Keep track of what slot we have equipped
-	CurrentWeaponSlot = NewWeaponSlot;
-
-	if (CurrentWeapon)
-	{
-		OldAmmoCount = CurrentWeapon->GetCurrentAmmo();
-
-		CurrentWeapon->Destroy();
-	}
-
-	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponType;
-	// If invalid new weapon class, destroy current weapon and don't try to equip new one
-	// This is completely valid, we allow for this, this is swapping to empty inventory slot
-	if (!NewWeaponClass)
-	{
-		CurrentWeapon = nullptr;
-		OnRep_CurrentWeapon();
-
-		return OldAmmoCount;
-	}
-
-	// Spawn a weapon because it exists in the inventory slot, and update HUD image
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	// Must set owner so they are awarded for damage done by the weapon
-	SpawnParams.Owner = this;
-
-	// Create On_Rep function for client to update HUD when weapon changes and play sound
-	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
-	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-	OnRep_CurrentWeapon();
-
-	if (CurrentWeapon)
-	{
-		// Tell weapon important info for its functionality and so it can upate HUD properly
-		CurrentWeapon->SetInitialState(NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo, NewWeaponSlot);
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-	}
-
-	return OldAmmoCount;
 }
 
 // Widget Component is always valid here, but WidgetInst is not

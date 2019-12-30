@@ -58,8 +58,6 @@ void ASProjectileWeapon::Fire()
 		LastFireTime = GetWorld()->TimeSeconds;
 
 		CurrentClipSize--;
-		OnRep_ClipSize();
-
 		// Update ammo count in player controller as server
 		APawn* MyPawnOwner = Cast<APawn>(MyOwner);
 		if (MyPawnOwner)
@@ -67,7 +65,7 @@ void ASProjectileWeapon::Fire()
 			ASPlayerController* PC = Cast<ASPlayerController>(MyPawnOwner->GetController());
 			if (PC)
 			{
-				PC->DecrementAmmoType(AmmoType, CurrentClipSize);
+				PC->ClientDecrementAmmoType(AmmoType, CurrentClipSize);
 			}
 		}
 	}

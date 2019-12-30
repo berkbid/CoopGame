@@ -36,6 +36,102 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 	OwningController = NewController;
 }
 
+// When player changes inventory slots, handle container visual and current weapon info
+void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo)
+{
+	// Handle inventory visual for changing slot 
+	if (InventoryContainer)
+	{
+		InventoryContainer->HandleSlotChange(WeaponSlot);
+	}
+	// Handle current weapon info showing new slot info
+	SetWeaponAmmo(CurrentAmmo, ExtraAmmo);
+}
+
+// Whenever we set slot ammo, we ant to set weapon ammo also
+// When player reloads or shoots, this is only time SlotAmmo changes, not from swapping weapons
+void USUserWidgetGameInfo::SetSlotAndWeaponAmmo(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo)
+{
+	if (InventoryContainer)
+	{
+		InventoryContainer->SetSlotAmmo(WeaponSlot, CurrentAmmo + ExtraAmmo);
+	}
+	SetWeaponAmmo(CurrentAmmo, ExtraAmmo);
+}
+
+// When player reloads or shoots, weapon ammo changes, also reload calls this
+void USUserWidgetGameInfo::SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo)
+{
+	if (CurrentWeaponInfo)
+	{
+		CurrentWeaponInfo->SetWeaponAmmo(CurrentAmmo, TotalAmmo);
+	}
+}
+
+// When player picks up a weapon, update inventory with weapon picture and Slot Ammo amount
+void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 SlotTotal)
+{
+	// Find texture associated with weapon class we picked up
+	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
+
+	if (InventoryContainer)
+	{
+		// Check pointer before dereferencing it
+		if (TempWeaponTexture)
+		{
+			// initializes WeaponSlot with weapon image and slot total ammo text
+			InventoryContainer->HandlePickupWeapon(WeaponSlot, *TempWeaponTexture, SlotTotal);
+		}
+
+	}
+}
+
+void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
+{
+	if (wPlayerStats)
+	{
+		USUserWidgetPlayerStats* NewPlayerStats = CreateWidget<USUserWidgetPlayerStats>(this, wPlayerStats);
+		if (NewPlayerStats && ScoreboardEntryBox)
+		{
+			NewPlayerStats->SetAllText(NewPlayerName, FString("0"), FString("0"), FString("0"));
+			ScoreboardEntryBox->AddChild(NewPlayerStats);
+
+			// Add reference to PlayerStats to ScoreboardDictionary for updating in the future
+			ScoreboardDictionary.Add(NewPlayerNumber, NewPlayerStats);
+		}
+	}
+}
+
+void USUserWidgetGameInfo::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
+{
+	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
+
+	if (PlayerStats)
+	{
+		(*PlayerStats)->SetScoreText(FString::SanitizeFloat(NewScore));
+	}
+}
+
+void USUserWidgetGameInfo::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
+{
+	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
+
+	if (PlayerStats)
+	{
+		(*PlayerStats)->SetKillText(FString::FromInt(NewKills));
+	}
+}
+
+void USUserWidgetGameInfo::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
+{
+	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
+
+	if (PlayerStats)
+	{
+		(*PlayerStats)->SetDeathText(FString::FromInt(NewDeaths));
+	}
+}
+
 void USUserWidgetGameInfo::SetStateText(FString NewState)
 {
 	if (StateText)
@@ -84,105 +180,3 @@ void USUserWidgetGameInfo::SetRocketAmmoText(FString NewText)
 		RocketAmmoText->SetText(FText::FromString("Rocket: " + NewText));
 	}
 }
-
-void USUserWidgetGameInfo::SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo)
-{
-	if (CurrentWeaponInfo)
-	{
-		CurrentWeaponInfo->SetWeaponAmmo(CurrentAmmo, TotalAmmo);
-	}
-	// Update inventory container also for all weapons using this weapon type
-}
-
-void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
-{
-	if (wPlayerStats)
-	{
-		USUserWidgetPlayerStats* NewPlayerStats = CreateWidget<USUserWidgetPlayerStats>(this, wPlayerStats);
-		if (NewPlayerStats && ScoreboardEntryBox)
-		{
-			NewPlayerStats->SetAllText(NewPlayerName, FString("0"), FString("0"), FString("0"));
-			ScoreboardEntryBox->AddChild(NewPlayerStats);
-			
-			// Add reference to PlayerStats to ScoreboardDictionary for updating in the future
-			ScoreboardDictionary.Add(NewPlayerNumber, NewPlayerStats);
-		}
-	}
-}
-
-void USUserWidgetGameInfo::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
-{
-	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
-
-	if (PlayerStats)
-	{
-		(*PlayerStats)->SetScoreText(FString::SanitizeFloat(NewScore));
-	}
-}
-
-void USUserWidgetGameInfo::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
-{
-	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
-
-	if (PlayerStats)
-	{
-		(*PlayerStats)->SetKillText(FString::FromInt(NewKills));
-	}
-}
-
-void USUserWidgetGameInfo::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
-{
-	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
-
-	if (PlayerStats)
-	{
-		(*PlayerStats)->SetDeathText(FString::FromInt(NewDeaths));
-	}
-}
-
-// Called on PlayerController when server updates variable of CurrentSlot, triggers OnRep to owning client to call this code
-void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 MaxAmmo)
-{
-	if (InventoryContainer)
-	{
-		InventoryContainer->HandleSlotChange(WeaponSlot);
-	}
-
-	if (CurrentWeaponInfo)
-	{
-		CurrentWeaponInfo->SetWeaponAmmo(CurrentAmmo, MaxAmmo);
-	}
-}
-
-// Called every time a shot is fired to update the current clip ammo
-void USUserWidgetGameInfo::InventoryUpdateAmmo(int32 WeaponSlot, int32 CurrentAmount, int32 MaxAmmo)
-{
-	// update overall ammo text also depending on ammo type
-	if (InventoryContainer)
-	{
-		InventoryContainer->HandleAmmoChange(WeaponSlot, CurrentAmount + MaxAmmo);
-	}
-
-	// set current ammo only in currentweaponinfo
-	//if (CurrentWeaponInfo)
-	//{
-	//	CurrentWeaponInfo->SetWeaponAmmo(CurrentAmount, TotalAmount);
-	//}
-}
-
-void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int32 MaxAmount)
-{
-	// Find texture associated with weapon class we picked up
-	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
-
-	if (InventoryContainer)
-	{
-		// Check pointer before dereferencing it
-		if (TempWeaponTexture)
-		{
-			InventoryContainer->HandlePickupWeapon(WeaponSlot, *TempWeaponTexture, AmmoAmount, MaxAmount);
-		}
-		
-	}
-}
-

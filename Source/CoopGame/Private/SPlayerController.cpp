@@ -43,7 +43,6 @@ void ASPlayerController::PostInitProperties()
 			}
 		}
 	}
-	
 }
 
 void ASPlayerController::BeginPlay()
@@ -61,7 +60,6 @@ void ASPlayerController::BeginPlay()
 	}
 }
 
-// Listen server doesn't run this code
 // This gets replicated when PlayerState is assigned to this controller and is valid for the first time
 // GameState isn't always valid at this point
 void ASPlayerController::OnRep_PlayerState()
@@ -85,8 +83,7 @@ void ASPlayerController::ServerPostLogin()
 
 }
 
-// PlayerState isn't valid at this point for clients
-// GameState is also not valid
+// Playerstate and gamestate not valid for clients here
 void ASPlayerController::ClientPostLogin_Implementation()
 {
 	// Create and setup initial HUD state
@@ -107,10 +104,7 @@ void ASPlayerController::ClientPostLogin_Implementation()
 	}
 }
 
-// client doing stuff with weaponinventory in here
-// Self contained function in charge of setting initial values in different HUD objects
-// PlayerState isn't valid here for clients, only for listen server
-// GameState is only valid for server
+// Client setup initial HUD state here, gamestate and playerstate only valid for server
 void ASPlayerController::SetupInitialHUDState()
 {
 	if (!MyGameInfo) { return; }
@@ -121,9 +115,9 @@ void ASPlayerController::SetupInitialHUDState()
 
 	for (int32 i = 0; i != WeaponInventoryLen; ++i)
 	{
+		int32 NewMaxAmmo = 0;
 		if (WeaponInventory[i].WeaponType)
 		{
-			int32 NewMaxAmmo = 0;
 			switch (WeaponInventory[i].AmmoType)
 			{
 			case EAmmoType::MiniAmmo:
@@ -144,19 +138,19 @@ void ASPlayerController::SetupInitialHUDState()
 			default:
 				break;
 			}
-			// Set initial HUD state for weapon slot
-			MyGameInfo->HandlePickupWeapon(i, WeaponInventory[i].WeaponType, WeaponInventory[i].CurrentAmmo, NewMaxAmmo);
+
+			// Set initial HUD state for weapon slot, showing weapon image and slot ammo amount
+			MyGameInfo->HandlePickupWeapon(i, WeaponInventory[i].WeaponType, WeaponInventory[i].CurrentAmmo + NewMaxAmmo);
 		}
 
 		// Set inventory slot as active
 		if (i == CurrentSlot)
 		{
-			//MyGameInfo->InventoryChangeToSlot(CurrentSlot, WeaponInventory[i].CurrentAmmo, );
-			ChangeSlot(i);
+			// Sets current slot as selected and updates current weapon ammo info
+			ChangeToSlotHUD(i);
 		}
 	}
 
-	// Shouldn't have client reading from ammoinventory
 	MyGameInfo->SetMiniAmmoText(FString::FromInt(AmmoInventory.MiniCount));
 	MyGameInfo->SetMediumAmmoText(FString::FromInt(AmmoInventory.MediumCount));
 	MyGameInfo->SetHeavyAmmoText(FString::FromInt(AmmoInventory.HeavyCount));
@@ -204,59 +198,6 @@ void ASPlayerController::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeath
 	}
 }
 
-//void ASPlayerController::SetSlotAmmo(int32 WeaponSlot, EAmmoType NewAmmoType, int32 NewAmmoAmount)
-//{
-//	if (!MyGameInfo) { return; }
-//	
-//	MyGameInfo->InventoryUpdateAmmo(WeaponSlot,  NewAmmoAmount);
-//}
-
-// Server should call this function
-// Decrement AmmoType in our AmmoInventory an update HUD for clients
-void ASPlayerController::DecrementAmmoType(EAmmoType AmmoType, int32 CurrentAmmo)
-{
-	switch (AmmoType)
-	{
-	case EAmmoType::MiniAmmo:
-		if (AmmoInventory.MiniCount > 0)
-		{
-			AmmoInventory.MiniCount--;
-		}
-		ClientUpdateHudAmmo(AmmoType, CurrentAmmo, AmmoInventory.MiniCount);
-		break;
-	case EAmmoType::MediumAmmo:
-		if (AmmoInventory.MediumCount > 0)
-		{
-			AmmoInventory.MediumCount--;
-		}
-		ClientUpdateHudAmmo(AmmoType, CurrentAmmo, AmmoInventory.MediumCount);
-		break;
-	case EAmmoType::HeavyAmmo:
-		if (AmmoInventory.HeavyCount > 0)
-		{
-			AmmoInventory.HeavyCount--;
-		}
-		ClientUpdateHudAmmo(AmmoType, CurrentAmmo, AmmoInventory.HeavyCount);
-		break;
-	case EAmmoType::ShellAmmo:
-		if (AmmoInventory.ShellCount > 0)
-		{
-			AmmoInventory.ShellCount--;
-		}
-		ClientUpdateHudAmmo(AmmoType, CurrentAmmo, AmmoInventory.ShellCount);
-		break;
-	case EAmmoType::RocketAmmo:
-		if (AmmoInventory.RocketCount > 0)
-		{
-			AmmoInventory.RocketCount--;
-		}
-		ClientUpdateHudAmmo(AmmoType, CurrentAmmo, AmmoInventory.RocketCount);
-		break;
-	default:
-		break;
-	}
-}
-
 void ASPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
@@ -272,7 +213,7 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 		ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
 		if (MySPlayerChar)
 		{
-			// If our current slot is a valid inventory index
+			// If our current slot is a valid inventory index, have player equip contents of inventory index
 			int32 WeaponInventoryLen = WeaponInventory.Num();
 			if (WeaponInventoryLen > CurrentSlot)
 			{
@@ -355,108 +296,104 @@ void ASPlayerController::ServerEquipWeaponFive_Implementation()
 void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 {
 	// Only server should call this function, this is precautionary
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Should NOT call EquipWeapon as client! See SPlayerController.cpp"));
-		return;
-	}
+	if (GetLocalRole() < ROLE_Authority) { return; }
+
+	// Store old slot to update weapon inventory on ammo count of old weapon when we receive this data
 	int OldSlot = CurrentSlot;
-	// Replicated, Update current slot even if we have no weapon in that slot
 	CurrentSlot = NewWeaponSlot;
-	// If we are listen server, call function manually
-	//if (IsLocalController()) { OnRep_SlotChange(); }
-	
 
-	TSubclassOf<ASWeapon> NewWeaponClass;
-	// If array is long enough, equip whatever value is at that weapon index
-	if (WeaponInventory.Num() > NewWeaponSlot) {
-
-		NewWeaponClass = WeaponInventory[NewWeaponSlot].WeaponType;
-
+	// Equip new weapon slot even if it is empty and update HUD
+	if (WeaponInventory.Num() > NewWeaponSlot) 
+	{
 		// Call ChangeWeapons, allowing for NewWeaponClass to be null going in, this will destroy current weapon
 		// It is the same as changing to a new inventory slot that doesn't have a weapon in it
 		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 		if (MyPawn)
 		{
-			// Update Current Ammo of old weapon and equip new weapon
+			// When we weapon swap, need to keep track of clip size of old weapon in our weapon inventory
 			int32 OldAmmoCount = MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot], NewWeaponSlot);
 
 			// Store ammo count of weapon that was un-equipped in its FWeaponInfo struct in our WeaponInventory array
-			if (OldAmmoCount >= 0)
+			if (OldAmmoCount >= 0 && WeaponInventory.Num() > OldSlot)
 			{
 				WeaponInventory[OldSlot].CurrentAmmo = OldAmmoCount;
 			}	
 		}
-
 		// Call client RPC to update HUD for newly equipped weapon
-		ClientEquipWeaponHUD(CurrentSlot);
+		ClientChangeToSlotHUD(CurrentSlot);
 	}
 }
 
 // Server or client can run this as all data inside is replicated and being read only
-void ASPlayerController::ChangeSlot(int32 NewSlot)
+void ASPlayerController::ChangeToSlotHUD(int32 NewSlot)
 {
 	if (MyGameInfo)
 	{
+		int32 NewExtraAmmo = 0;
 		switch (WeaponInventory[NewSlot].AmmoType)
 		{
 		case EAmmoType::MiniAmmo:
-			MyGameInfo->InventoryChangeToSlot(NewSlot, WeaponInventory[NewSlot].CurrentAmmo, AmmoInventory.MiniCount);
+			NewExtraAmmo = AmmoInventory.MiniCount;
 			break;
 		case EAmmoType::MediumAmmo:
-			MyGameInfo->InventoryChangeToSlot(NewSlot, WeaponInventory[NewSlot].CurrentAmmo, AmmoInventory.MediumCount);
+			NewExtraAmmo = AmmoInventory.MediumCount;
 			break;
 		case EAmmoType::HeavyAmmo:
-			MyGameInfo->InventoryChangeToSlot(NewSlot, WeaponInventory[NewSlot].CurrentAmmo, AmmoInventory.HeavyCount);
+			NewExtraAmmo = AmmoInventory.HeavyCount;
 			break;
 		case EAmmoType::ShellAmmo:
-			MyGameInfo->InventoryChangeToSlot(NewSlot, WeaponInventory[NewSlot].CurrentAmmo, AmmoInventory.ShellCount);
+			NewExtraAmmo = AmmoInventory.ShellCount;
 			break;
 		case EAmmoType::RocketAmmo:
-			MyGameInfo->InventoryChangeToSlot(NewSlot, WeaponInventory[NewSlot].CurrentAmmo, AmmoInventory.RocketCount);
+			NewExtraAmmo = AmmoInventory.RocketCount;
 			break;
 		default:
 			break;
 		}
+		// Call HUD method to change slot with ammo info
+		MyGameInfo->InventoryChangeToSlot(NewSlot, WeaponInventory[NewSlot].CurrentAmmo, NewExtraAmmo);
 	}
 }
 
-void ASPlayerController::ClientEquipWeaponHUD_Implementation(int32 NewSlot)
+void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 {
-	ChangeSlot(NewSlot);
+	ChangeToSlotHUD(NewSlot);
 }
 
-// Server gives client necessary info to update HUD every time player shoots
-void ASPlayerController::ClientUpdateHudAmmo_Implementation(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo)
+void ASPlayerController::UpdateAllHUDAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
 {
 	if (!MyGameInfo) { return; }
 
-	// Set general ammo text
-	MyGameInfo->SetWeaponAmmo(CurrentAmmo, MaxAmmo);
+	// Update slot and weapon ammo
+	MyGameInfo->SetSlotAndWeaponAmmo(CurrentSlot, CurrentAmmo, ExtraAmmo);
 
-	// Set slot ammo text, need to add one to current ammo
-	MyGameInfo->InventoryUpdateAmmo(CurrentSlot, CurrentAmmo, MaxAmmo);
-
+	// Update extra ammo text only on reload not on fire
 	switch (AmmoType)
 	{
 	case EAmmoType::MiniAmmo:
-		MyGameInfo->SetMiniAmmoText(FString::FromInt(MaxAmmo));
+		MyGameInfo->SetMiniAmmoText(FString::FromInt(ExtraAmmo));
 		break;
 	case EAmmoType::MediumAmmo:
-		MyGameInfo->SetMediumAmmoText(FString::FromInt(MaxAmmo));
+		MyGameInfo->SetMediumAmmoText(FString::FromInt(ExtraAmmo));
 		break;
 	case EAmmoType::HeavyAmmo:
-		MyGameInfo->SetHeavyAmmoText(FString::FromInt(MaxAmmo));
+		MyGameInfo->SetHeavyAmmoText(FString::FromInt(ExtraAmmo));
 		break;
 	case EAmmoType::ShellAmmo:
-		MyGameInfo->SetShellAmmoText(FString::FromInt(MaxAmmo));
+		MyGameInfo->SetShellAmmoText(FString::FromInt(ExtraAmmo));
 		break;
 	case EAmmoType::RocketAmmo:
-		MyGameInfo->SetRocketAmmoText(FString::FromInt(MaxAmmo));
+		MyGameInfo->SetRocketAmmoText(FString::FromInt(ExtraAmmo));
 		break;
 	default:
 		break;
 	}
+}
+
+// Server gives client necessary info to update HUD every time player shoots
+void ASPlayerController::ClientUpdateAllHudAmmo_Implementation(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
+{
+	UpdateAllHUDAmmo(AmmoType, CurrentAmmo, ExtraAmmo);
 }
 
 // When server PICKS UP NEW WEAPON, updates SlotToUpdate so owning client updates HUD for that slot
@@ -488,7 +425,7 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo Weapon
 			break;
 		}
 		// Set initial HUD state for weapon s lot, including picture and ammo amount
-		MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo.WeaponType, WeaponInfo.CurrentAmmo, NewMaxAmmo);
+		MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo.WeaponType, WeaponInfo.CurrentAmmo + NewMaxAmmo);
 		
 	}
 
@@ -515,7 +452,7 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo Weapon
 }
 
 // Try to pick up weapon if inventory has space, return success or failure
-bool ASPlayerController::PickedUpNewWeapon(FWeaponInfo WeaponInfo)
+bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo)
 {
 	// Only server should call this function
 	if (GetLocalRole() < ROLE_Authority) { return false; }
@@ -548,6 +485,7 @@ bool ASPlayerController::PickedUpNewWeapon(FWeaponInfo WeaponInfo)
 				ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 				if (MyPawn)
 				{
+					// This returns ammo amount of old weapon but we don't need it in this case
 					MyPawn->EquipWeaponClass(WeaponInfo, i);			
 				}
 			}
@@ -565,9 +503,9 @@ bool ASPlayerController::PickedUpNewWeapon(FWeaponInfo WeaponInfo)
 }
 
 // We are server in here
-int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo)
+int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSize, int32 MaxClipSize)
 {
-	int32 AmmmoNeeded = MaxAmmo - CurrentAmmo;
+	int32 AmmmoNeeded = MaxClipSize - CurrentClipSize;
 	if (AmmmoNeeded <= 0) { return 0; }
 
 	int32 AmmoReturnAmount = 0;
@@ -580,8 +518,11 @@ int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentAmmo, 
 
 		if (TempMaxAmmo > 0)
 		{
+			// Find out how much ammo we can give to weapon and save value for return
 			AmmoReturnAmount = FMath::Min(AmmmoNeeded, TempMaxAmmo);
+			// Remove that ammo from our ammo inventory
 			AmmoInventory.MiniCount -= AmmoReturnAmount;
+			// Store resulting amount of ammo in inventory of that type
 			TempMaxAmmo = AmmoInventory.MiniCount;
 		}
 		break;
@@ -630,8 +571,35 @@ int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentAmmo, 
 	}
 
 	//need to update ammo slot HUD for all slots using same ammo type
-	ClientUpdateHudAmmo(AmmoType, CurrentAmmo + AmmoReturnAmount, TempMaxAmmo);
+	ClientUpdateAllHudAmmo(AmmoType, CurrentClipSize + AmmoReturnAmount, TempMaxAmmo);
 	return AmmoReturnAmount;
+}
+
+// Decrement AmmoType in our AmmoInventory an update HUD for clients
+void ASPlayerController::ClientDecrementAmmoType_Implementation(EAmmoType AmmoType, int32 CurrentAmmo)
+{
+	int32 ExtraAmmoTemp = 0;
+	switch (AmmoType)
+	{
+	case EAmmoType::MiniAmmo:
+		ExtraAmmoTemp = AmmoInventory.MiniCount;
+		break;
+	case EAmmoType::MediumAmmo:
+		ExtraAmmoTemp = AmmoInventory.MediumCount;
+		break;
+	case EAmmoType::HeavyAmmo:
+		ExtraAmmoTemp = AmmoInventory.HeavyCount;
+		break;
+	case EAmmoType::ShellAmmo:
+		ExtraAmmoTemp = AmmoInventory.ShellCount;
+		break;
+	case EAmmoType::RocketAmmo:
+		ExtraAmmoTemp = AmmoInventory.RocketCount;
+		break;
+	default:
+		break;
+	}
+	UpdateAllHUDAmmo(AmmoType, CurrentAmmo, ExtraAmmoTemp);
 }
 
 void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -641,6 +609,7 @@ void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	// WeaponInventory is an array of the weapons the controller has, server updates this array and owning client needs the data
 	DOREPLIFETIME_CONDITION(ASPlayerController, WeaponInventory, COND_OwnerOnly);
 
+	// Share ammo inventory data with client
 	DOREPLIFETIME_CONDITION(ASPlayerController, AmmoInventory, COND_OwnerOnly);
 
 	// Server updates this property and owning client reacts by updating HUD showing newly "selected" inventory slot

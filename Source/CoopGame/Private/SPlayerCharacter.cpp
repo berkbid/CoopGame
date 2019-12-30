@@ -39,6 +39,7 @@ void ASPlayerCharacter::BeginPlay()
 }
 
 
+// Handle when ASWeapon* CurrentWeapon changes value
 void ASPlayerCharacter::OnRep_CurrentWeapon()
 {
 	Super::OnRep_CurrentWeapon();
@@ -51,15 +52,6 @@ void ASPlayerCharacter::OnRep_CurrentWeapon()
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, SB, GetActorLocation());
 		}
-
-		// Doesn't work here because CurrentSlot is old slot while weapon type has updated properly
-		////Update HUD ammo information for current weapon
-		//ASPlayerController* PC = Cast<ASPlayerController>(GetController());
-		//if (PC)
-		//{
-		//	PC->SetSlotAmmo(CurrentWeapon->MaxClipSize);
-		//}
-
 	}
 }
 

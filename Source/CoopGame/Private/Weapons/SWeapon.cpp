@@ -54,28 +54,7 @@ bool ASWeapon::ServerFire_Validate()
 	return true;
 }
 
-void ASWeapon::Fire()
-{
-}
-
-// Client can update HUD here when clip size changes, server runs this code also
-// Server only needs to execute this code if it is the owner of this weapon
-void ASWeapon::OnRep_ClipSize()
-{
-	//if (CurrentWeaponSlot >= 0)
-	//{
-	//	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	//	if (OwnerPawn)
-	//	{
-	//		ASPlayerController* PC = Cast<ASPlayerController>(OwnerPawn->GetController());
-	//		if (PC)
-	//		{
-	//			// Updates HUD(client function)
-	//			PC->SetSlotAmmo(CurrentWeaponSlot, AmmoType, CurrentClipSize);
-	//		}
-	//	}
-	//}
-}
+void ASWeapon::Fire() {}
 
 // Server is setting these variables
 void ASWeapon::SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlot)
@@ -85,9 +64,7 @@ void ASWeapon::SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlo
 	// Only server knows about MaxClipSize, it isn't replicated
 	MaxClipSize = MaxAmmo;
 	CurrentClipSize = CurrentAmmo;
-	OnRep_ClipSize();
 }
-
 
 int32 ASWeapon::GetCurrentAmmo()
 {

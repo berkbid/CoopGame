@@ -68,10 +68,7 @@ public:
 
 	int32 MaxClipSize;
 
-	UFUNCTION()
-	void OnRep_ClipSize();
-
-	UPROPERTY(ReplicatedUsing=OnRep_ClipSize)
+	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
 	void SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlot);
