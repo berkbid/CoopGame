@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SWeapon.h"
+#include "SPlayerController.h"
 #include "AIController.h"
 #include "SAIController.generated.h"
 
@@ -21,6 +21,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TArray<FWeaponInfo> WeaponInventory;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	FAmmoInfo AmmoInventory;
 
 	/* Keep track of which weapon slot is currently equipped */
 	int CurrentSlot;

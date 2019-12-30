@@ -12,8 +12,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/DamageType.h"
 #include "SWidgetCompHealthBar.h"
-#include "SPlayerController.h"
 #include "SPlayerState.h"
+#include "SWeapon.h"
 
 
 // Sets default values
@@ -50,7 +50,6 @@ void ASCharacter::BeginPlay()
 	}
 }
 
-
 void ASCharacter::OnRep_CurrentWeapon()
 {
 }
@@ -68,6 +67,23 @@ void ASCharacter::StopFire()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StopFire();
+	}
+}
+
+void ASCharacter::Reload()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		ServerReload();
+		return;
+	}
+
+	if (!CurrentWeapon) { return; }
+
+	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
+	if (PC)
+	{
+		CurrentWeapon->CurrentClipSize += PC->GrabAmmoOfType(CurrentWeapon->AmmoType, CurrentWeapon->CurrentClipSize, CurrentWeapon->MaxClipSize);
 	}
 }
 
@@ -148,6 +164,11 @@ void ASCharacter::ServerSetWidgetName_Implementation()
 	{
 		SetWidgetName();
 	}
+}
+
+void ASCharacter::ServerReload_Implementation()
+{
+	Reload();
 }
 
 void ASCharacter::WeaponChange()

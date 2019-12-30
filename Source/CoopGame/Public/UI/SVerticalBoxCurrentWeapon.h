@@ -3,25 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/HorizontalBox.h"
-#include "SHorizontalBoxInventory.generated.h"
+#include "Components/VerticalBox.h"
+#include "SVerticalBoxCurrentWeapon.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class COOPGAME_API USHorizontalBoxInventory : public UHorizontalBox
+class COOPGAME_API USVerticalBoxCurrentWeapon : public UVerticalBox
 {
 	GENERATED_BODY()
 	
 
 
 public:
+	USVerticalBoxCurrentWeapon();
 
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
-
-	USHorizontalBoxInventory();
-
 
 	/**
 	 * Applies all properties to the native widget if possible.  This is called after a widget is constructed.
@@ -30,17 +28,16 @@ public:
 	 */
 	virtual void SynchronizeProperties() override;
 
-	void HandlePickupWeapon(int32 WeaponSlot, class UTexture2D* WeaponTexture, int32 AmmoAmount, int32 MaxAmount);
 
-	void HandleSlotChange(int32 WeaponSlot);
+	void SetWeaponName(FString NewWeaponName);
 
-	void HandleAmmoChange(int32 WeaponSlot, int32 AmmoAmount);
+	void SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo);
 
 protected:
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Children")
-	TArray<class USOverlayInventorySlot*> InventorySlots;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
+	class UOverlay* CurrentWeaponAmmo;
 
-
-	class USOverlayInventorySlot* CurrentSlot;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
+	class UBorder* CurrentWeaponType;
 };

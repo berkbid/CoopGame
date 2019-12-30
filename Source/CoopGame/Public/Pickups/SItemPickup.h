@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SWeapon.h"
+#include "SPlayerController.h"
 #include "GameFramework/Actor.h"
 #include "SItemPickup.generated.h"
 
@@ -26,17 +26,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	//class UCapsuleComponent* CapsuleComp;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* BoxComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* MeshComp;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Item")
-	TSubclassOf<class ASWeapon> ItemType;
 
 	UFUNCTION()
 	void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);

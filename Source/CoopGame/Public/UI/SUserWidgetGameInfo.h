@@ -35,7 +35,25 @@ protected:
 	UTextBlock* StateText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* MiniAmmoText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* MediumAmmoText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* HeavyAmmoText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* ShellAmmoText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* RocketAmmoText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class USHorizontalBoxInventory* InventoryContainer;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class USVerticalBoxCurrentWeapon* CurrentWeaponInfo;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scoreboard")
 	TSubclassOf<USUserWidgetPlayerStats> wPlayerStats;
@@ -55,14 +73,26 @@ public:
 	void SetOwningController(class APlayerController* NewController);
 
 	UFUNCTION()
-	void InventoryChangeToSlot(int WeaponSlot);
+	void InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 MaxAmmo);
 
 	UFUNCTION()
-	void InventoryUpdateAmmo(int WeaponSlot, int32 AmmoAmount);
+	void InventoryUpdateAmmo(int32 WeaponSlot, int32 CurrentAmount, int32 MaxAmmo);
 
-	void HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int WeaponSlot);
+	void HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int32 MaxAmount);
 
 	void SetStateText(FString NewState);
+
+	void SetMiniAmmoText(FString NewText);
+
+	void SetMediumAmmoText(FString NewText);
+
+	void SetHeavyAmmoText(FString NewText);
+
+	void SetShellAmmoText(FString NewText);
+
+	void SetRocketAmmoText(FString NewText);
+
+	void SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo);
 
 	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 

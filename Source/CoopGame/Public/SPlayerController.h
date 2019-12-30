@@ -3,9 +3,140 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SWeapon.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerController.generated.h"
+
+
+class ASWeapon;
+
+UENUM(BlueprintType)		
+enum class EAmmoType : uint8
+{
+	MiniAmmo,
+
+	MediumAmmo,
+
+	HeavyAmmo,
+
+	ShellAmmo,
+
+	RocketAmmo
+};
+
+
+UENUM(BlueprintType)
+enum class EWeaponRarity : uint8
+{
+	Common,
+
+	Uncommon,
+
+	Rare,
+
+	Epic,
+
+	Legendary
+
+};
+
+USTRUCT(BlueprintType)
+struct FAmmoInfo
+{
+	GENERATED_BODY()
+
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int32 MiniCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int32 MediumCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int32 HeavyCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int32 ShellCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int32 RocketCount;
+
+	// For Garbage Cleanup
+	void Destroy()
+	{
+
+	}
+
+	// Default constructor
+	FAmmoInfo()
+	{
+		MiniCount = 0;
+		MediumCount = 0;
+		HeavyCount = 0;
+		ShellCount = 0;
+		RocketCount = 0;
+	}
+
+	
+	FAmmoInfo(int32 NewMiniAmmo, int32 NewMediumAmmo, int32 NewHeavyAmmo, int32 NewShellAmmo, int32 NewRocketAmmo)
+	{
+		MiniCount = NewMiniAmmo;
+		MediumCount = NewMediumAmmo;
+		HeavyCount = NewHeavyAmmo;
+		ShellCount = NewShellAmmo;
+		RocketCount = NewRocketAmmo;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponInfo
+{
+	GENERATED_BODY()
+
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UClass* WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EWeaponRarity WeaponRarity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EAmmoType AmmoType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	int32 CurrentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	int32 MaxAmmo;
+
+	// For Garbage Cleanup
+	void Destroy()
+	{
+		WeaponType = NULL;
+	}
+
+	// Default constructor
+	FWeaponInfo()
+	{
+		WeaponType = NULL;
+		WeaponRarity = EWeaponRarity::Common;
+		AmmoType = EAmmoType::MiniAmmo;
+		CurrentAmmo = 0;
+		MaxAmmo = 0;
+	}
+
+	// Constructor with parameters for properties
+	FWeaponInfo(UClass* NewWeaponClass, EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 NewCurrentAmmo, int32 NewMaxAmmo)
+	{
+		WeaponType = NewWeaponClass;
+		WeaponRarity = NewWeaponRarity;
+		AmmoType = NewAmmoType;
+		CurrentAmmo = NewCurrentAmmo;
+		MaxAmmo = NewMaxAmmo;
+	}
+};
+
 
 /**
  * 
@@ -19,6 +150,8 @@ class COOPGAME_API ASPlayerController : public APlayerController
 public:
 	
 	ASPlayerController(const FObjectInitializer& ObjectInitializer);
+
+	virtual void PostInitProperties() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -45,7 +178,10 @@ public:
 
 	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 
-	void SetSlotAmmo(uint32 NewAmmoAmount, int32 WeaponSlot);
+	//void SetSlotAmmo(int32 WeaponSlot, EAmmoType NewAmmoType, int32 NewAmmoAmount);
+
+	/* Decrement AmmoType in our AmmoInventory an update HUD for clients */
+	void DecrementAmmoType(EAmmoType AmmoType, int32 CurrentAmmo);
 
 	void SetStateText(FString NewState);
 
@@ -63,6 +199,8 @@ public:
 	// Return success or failure for picking up weapon, based on inventory space
 	bool PickedUpNewWeapon(FWeaponInfo WeaponInfo);
 
+	int32 GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo);
+
 	bool bIsInventoryFull;
 
 protected:
@@ -74,8 +212,16 @@ protected:
 
 	void EquipWeapon(int NewWeaponSlot);
 
+	void ChangeSlot(int32 NewSlot);
+
 	UFUNCTION(Client, Reliable)
 	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 SlotToUpdate);
+
+	UFUNCTION(Client, Reliable)
+	void ClientEquipWeaponHUD(int32 NewSlot);
+
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateHudAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();
@@ -95,14 +241,14 @@ protected:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
 	TArray<FWeaponInfo> WeaponInventory;
 
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
+	FAmmoInfo AmmoInventory;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	class USoundBase* PickedupSound;
 
-	UFUNCTION()
-	void OnRep_SlotChange();
-
 	/* Keep track of which weapon slot is currently equipped */
-	UPROPERTY(ReplicatedUsing=OnRep_SlotChange)
+	UPROPERTY(Replicated)
 	int CurrentSlot;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")

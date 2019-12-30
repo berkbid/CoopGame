@@ -7,61 +7,7 @@
 #include "SWeapon.generated.h"
 
 
-USTRUCT(BlueprintType)
-struct FWeaponInfo
-{
-	GENERATED_BODY()
-
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TSubclassOf<class ASWeapon> WeaponType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 CurrentAmmo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 MaxAmmo;
-
-	void SetWeaponType(TSubclassOf<class ASWeapon> NewWeaponType)
-	{
-		WeaponType = NewWeaponType;
-	}
-
-	void SetCurrentAmmo(uint32 NewCurrentAmmo)
-	{
-		CurrentAmmo = NewCurrentAmmo;
-	}
-
-	void SetMaxAmmo(uint32 NewMaxAmmo)
-	{
-		MaxAmmo = NewMaxAmmo;
-	}
-
-	// For Garbage Cleanup
-	void Destroy()
-	{
-		WeaponType = nullptr;
-	}
-
-	// Default constructor
-	FWeaponInfo()
-	{
-		WeaponType = nullptr;
-		CurrentAmmo = 0;
-		MaxAmmo = 0;
-	}
-
-	// Constructor with parameters for properties
-	FWeaponInfo(TSubclassOf<class ASWeapon> NewWeaponClass, int32 NewCurrentAmmo, int32 NewMaxAmmo)
-	{
-		WeaponType = NewWeaponClass;
-		CurrentAmmo = NewCurrentAmmo;
-		MaxAmmo = NewMaxAmmo;
-	}
-};
-
-
+enum class EAmmoType : uint8;
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -109,12 +55,16 @@ protected:
 	int32 CurrentWeaponSlot;
 
 
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* MeshComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	class USoundBase* WeaponSwapSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	EAmmoType AmmoType;
 
 	int32 MaxClipSize;
 

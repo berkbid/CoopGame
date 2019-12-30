@@ -12,6 +12,7 @@ ASAIController::ASAIController(const FObjectInitializer& ObjectInitializer)
 
 	CurrentSlot = -1;
 	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
+	AmmoInventory = FAmmoInfo(100, 100, 100, 100, 100);
 }
 
 void ASAIController::OnPossess(APawn* aPawn)

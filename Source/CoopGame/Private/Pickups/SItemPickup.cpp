@@ -43,7 +43,7 @@ void ASItemPickup::BeginPlay()
 // Only server hooks onto this event
 void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (ItemType)
+	if (WeaponInfo.WeaponType)
 	{
 		ASCharacter* OverlappedCharacter = Cast<ASCharacter>(OtherActor);
 		if (OverlappedCharacter)
@@ -52,5 +52,3 @@ void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActo
 		}
 	}
 }
-
-

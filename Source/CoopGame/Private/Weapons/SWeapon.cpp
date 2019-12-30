@@ -5,9 +5,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
-#include "SPlayerController.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "SPlayerController.h"
 
 // Sets default values
 ASWeapon::ASWeapon()
@@ -21,9 +20,9 @@ ASWeapon::ASWeapon()
 	CurrentWeaponSlot = -1;
 	BaseDamage = 20.f;
 	HeadShotMultiplier = 4.f;
-	MaxClipSize = 30;
-	//CurrentClipSize = MaxClipSize;
 	CurrentClipSize = -1;
+	MaxClipSize = -1;
+	AmmoType = EAmmoType::MiniAmmo;
 
 	// bullets per minute
 	RateOfFire = 600.f;
@@ -63,18 +62,19 @@ void ASWeapon::Fire()
 // Server only needs to execute this code if it is the owner of this weapon
 void ASWeapon::OnRep_ClipSize()
 {
-	if (CurrentWeaponSlot >= 0)
-	{
-		APawn* OwnerPawn = Cast<APawn>(GetOwner());
-		if (OwnerPawn)
-		{
-			ASPlayerController* PC = Cast<ASPlayerController>(OwnerPawn->GetController());
-			if (PC)
-			{
-				PC->SetSlotAmmo(CurrentClipSize, CurrentWeaponSlot);
-			}
-		}
-	}
+	//if (CurrentWeaponSlot >= 0)
+	//{
+	//	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	//	if (OwnerPawn)
+	//	{
+	//		ASPlayerController* PC = Cast<ASPlayerController>(OwnerPawn->GetController());
+	//		if (PC)
+	//		{
+	//			// Updates HUD(client function)
+	//			PC->SetSlotAmmo(CurrentWeaponSlot, AmmoType, CurrentClipSize);
+	//		}
+	//	}
+	//}
 }
 
 // Server is setting these variables
@@ -82,10 +82,10 @@ void ASWeapon::SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlo
 {
 	// These are replicated to owner for use when firing
 	CurrentWeaponSlot = WeaponSlot;
+	// Only server knows about MaxClipSize, it isn't replicated
+	MaxClipSize = MaxAmmo;
 	CurrentClipSize = CurrentAmmo;
 	OnRep_ClipSize();
-
-	MaxClipSize = MaxAmmo;
 }
 
 

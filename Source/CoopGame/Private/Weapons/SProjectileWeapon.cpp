@@ -3,7 +3,7 @@
 #include "SProjectileWeapon.h"
 #include "Engine/World.h"
 #include "Components/SkeletalMeshComponent.h"
-
+#include "SPlayerController.h"
 
 ASProjectileWeapon::ASProjectileWeapon()
 {
@@ -11,9 +11,9 @@ ASProjectileWeapon::ASProjectileWeapon()
 	RateOfFire = 240.f;
 	TimeBetweenShots = 60.f / RateOfFire;
 
-	MaxClipSize = -1;
-
 	CurrentClipSize = -1;
+	MaxClipSize = -1;
+	AmmoType = EAmmoType::RocketAmmo;
 }
 
 void ASProjectileWeapon::Fire()
@@ -59,6 +59,16 @@ void ASProjectileWeapon::Fire()
 
 		CurrentClipSize--;
 		OnRep_ClipSize();
-		
+
+		// Update ammo count in player controller as server
+		APawn* MyPawnOwner = Cast<APawn>(MyOwner);
+		if (MyPawnOwner)
+		{
+			ASPlayerController* PC = Cast<ASPlayerController>(MyPawnOwner->GetController());
+			if (PC)
+			{
+				PC->DecrementAmmoType(AmmoType, CurrentClipSize);
+			}
+		}
 	}
 }

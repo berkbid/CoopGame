@@ -10,6 +10,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "SPlayerController.h"
 
 
 ASRifle::ASRifle()
@@ -22,13 +23,9 @@ ASRifle::ASRifle()
 	// Setup weapon stats
 	BaseDamage = 25.f;
 	HeadShotMultiplier = 4.f;
-	MaxClipSize = 40;
-	//CurrentClipSize = MaxClipSize;
 	CurrentClipSize = -1;
-
-	//WeaponInfo.SetMaxAmmo(40);
-	//WeaponInfo.SetCurrentAmmo(40);
-	//WeaponInfo.SetWeaponType(ASRifle::StaticClass());
+	MaxClipSize = -1;
+	AmmoType = EAmmoType::MediumAmmo;
 
 	// This is defined in P_SmokeTrail under Target > Distribution > Parameter Name
 	TracerTargetName = "BeamEnd";
@@ -120,6 +117,16 @@ void ASRifle::Fire()
 		// Update CurrentClipSize for Server, it is replicated
 		CurrentClipSize--;
 		OnRep_ClipSize();
+
+		// Update ammo count in player controller as server
+		if (MyPawnOwner)
+		{
+			ASPlayerController* PC = Cast<ASPlayerController>(MyPawnOwner->GetController());
+			if (PC)
+			{
+				PC->DecrementAmmoType(AmmoType, CurrentClipSize);
+			}
+		}
 		
 	}
 

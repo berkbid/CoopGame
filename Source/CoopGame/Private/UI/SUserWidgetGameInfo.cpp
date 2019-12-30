@@ -15,7 +15,8 @@
 #include "Engine/Texture2D.h"
 #include "SWeapon.h"
 #include "SHorizontalBoxInventory.h"
-
+#include "SPlayerController.h"
+#include "SVerticalBoxCurrentWeapon.h"
 
 bool USUserWidgetGameInfo::Initialize()
 {
@@ -41,6 +42,56 @@ void USUserWidgetGameInfo::SetStateText(FString NewState)
 	{
 		StateText->SetText(FText::FromString(NewState));
 	}
+}
+
+void USUserWidgetGameInfo::SetMiniAmmoText(FString NewText)
+{
+	if (MiniAmmoText)
+	{
+
+		MiniAmmoText->SetText(FText::FromString("Mini: " + NewText));
+	}
+}
+
+void USUserWidgetGameInfo::SetMediumAmmoText(FString NewText)
+{
+	if (MediumAmmoText)
+	{
+		MediumAmmoText->SetText(FText::FromString("Medium: " + NewText));
+	}
+}
+
+void USUserWidgetGameInfo::SetHeavyAmmoText(FString NewText)
+{
+	if (HeavyAmmoText)
+	{
+		HeavyAmmoText->SetText(FText::FromString("Heavy: " + NewText));
+	}
+}
+
+void USUserWidgetGameInfo::SetShellAmmoText(FString NewText)
+{
+	if (ShellAmmoText)
+	{
+		ShellAmmoText->SetText(FText::FromString("Shell: " + NewText));
+	}
+}
+
+void USUserWidgetGameInfo::SetRocketAmmoText(FString NewText)
+{
+	if (RocketAmmoText)
+	{
+		RocketAmmoText->SetText(FText::FromString("Rocket: " + NewText));
+	}
+}
+
+void USUserWidgetGameInfo::SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo)
+{
+	if (CurrentWeaponInfo)
+	{
+		CurrentWeaponInfo->SetWeaponAmmo(CurrentAmmo, TotalAmmo);
+	}
+	// Update inventory container also for all weapons using this weapon type
 }
 
 void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
@@ -89,34 +140,47 @@ void USUserWidgetGameInfo::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDea
 	}
 }
 
-
 // Called on PlayerController when server updates variable of CurrentSlot, triggers OnRep to owning client to call this code
-void USUserWidgetGameInfo::InventoryChangeToSlot(int WeaponSlot)
+void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 MaxAmmo)
 {
 	if (InventoryContainer)
 	{
 		InventoryContainer->HandleSlotChange(WeaponSlot);
 	}
-}
 
-void USUserWidgetGameInfo::InventoryUpdateAmmo(int WeaponSlot, int32 AmmoAmount)
-{
-	if (InventoryContainer)
+	if (CurrentWeaponInfo)
 	{
-		InventoryContainer->HandleAmmoChange(WeaponSlot, AmmoAmount);
+		CurrentWeaponInfo->SetWeaponAmmo(CurrentAmmo, MaxAmmo);
 	}
 }
 
-void USUserWidgetGameInfo::HandlePickupWeapon(TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int WeaponSlot)
+// Called every time a shot is fired to update the current clip ammo
+void USUserWidgetGameInfo::InventoryUpdateAmmo(int32 WeaponSlot, int32 CurrentAmount, int32 MaxAmmo)
+{
+	// update overall ammo text also depending on ammo type
+	if (InventoryContainer)
+	{
+		InventoryContainer->HandleAmmoChange(WeaponSlot, CurrentAmount + MaxAmmo);
+	}
+
+	// set current ammo only in currentweaponinfo
+	//if (CurrentWeaponInfo)
+	//{
+	//	CurrentWeaponInfo->SetWeaponAmmo(CurrentAmount, TotalAmount);
+	//}
+}
+
+void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 AmmoAmount, int32 MaxAmount)
 {
 	// Find texture associated with weapon class we picked up
 	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
 
 	if (InventoryContainer)
 	{
+		// Check pointer before dereferencing it
 		if (TempWeaponTexture)
 		{
-			InventoryContainer->HandlePickupWeapon(*TempWeaponTexture, AmmoAmount, WeaponSlot);
+			InventoryContainer->HandlePickupWeapon(WeaponSlot, *TempWeaponTexture, AmmoAmount, MaxAmount);
 		}
 		
 	}

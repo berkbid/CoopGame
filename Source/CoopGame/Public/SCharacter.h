@@ -3,11 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SWeapon.h"
+#include "SPlayerController.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
-class ASWeapon;
 
 
 UCLASS()
@@ -41,7 +40,7 @@ protected:
 	class USWidgetCompHealthBar* HealthBar;
 
 	UFUNCTION()
-	void OnHealthChanged(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	void OnHealthChanged(class USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	
 	// We replicate this boolean so when player dies on server, all clients get updated thus playing replicated death animation
 	UPROPERTY(ReplicatedUsing=OnRep_Death, BlueprintReadOnly, Category = "Player")
@@ -52,6 +51,9 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetWidgetName();
+
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
 
 	virtual void WeaponChange();
 
@@ -78,10 +80,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFire();
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void Reload();
+
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void PickupWeapon(FWeaponInfo WeaponInfo, AActor* PickupActor);
 
-	/* Destroys current equipped weapon and tries to spawn and equip weapon from NewWeaponClass */
+	/* Equips the new weapon and returns ammo count of last weapon */
 	int32 EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot);
 
 	/** PlayerState Replication Notification Callback */
