@@ -46,22 +46,22 @@ protected:
 
 	void PlayFireEffect(FVector TracerEndPoint);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	class UParticleSystem* MuzzleEffect;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	class UParticleSystem* DefaultImpactEffect;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	class UParticleSystem* FleshImpactEffect;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	class UParticleSystem* TracerEffect;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<class UCameraShake> FireCamShake;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	FName TracerTargetName;
 
 	/* Bullet Spread in Degrees */

@@ -17,20 +17,14 @@ ASWeapon::ASWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 
 	// Setup weapon stats
-	CurrentWeaponSlot = -1;
+	RateOfFire = 600.f;
 	BaseDamage = 20.f;
 	HeadShotMultiplier = 4.f;
+	AmmoType = EAmmoType::MiniAmmo;
+	WeaponRarity = EWeaponRarity::Common;
 	CurrentClipSize = -1;
 	MaxClipSize = -1;
-	AmmoType = EAmmoType::MiniAmmo;
 
-	// bullets per minute
-	RateOfFire = 600.f;
-
-	TimeBetweenShots = 60.f / RateOfFire;
-
-	// Allows for "Server-Owned" weapons
-	// Will now spawn on clients if spawned on server
 	SetReplicates(true);
 
 	NetUpdateFrequency = 66.f;
@@ -40,6 +34,9 @@ ASWeapon::ASWeapon()
 void ASWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TimeBetweenShots = 60.f / RateOfFire;
+
 }
 
 // MUST prefix with Server and require _Implementation
@@ -57,13 +54,14 @@ bool ASWeapon::ServerFire_Validate()
 void ASWeapon::Fire() {}
 
 // Server is setting these variables
-void ASWeapon::SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlot)
+void ASWeapon::SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo, int32 MaxAmmo)
 {
 	// These are replicated to owner for use when firing
-	CurrentWeaponSlot = WeaponSlot;
-	// Only server knows about MaxClipSize, it isn't replicated
+	CurrentClipSize = FMath::Clamp(CurrentAmmo, 0, MaxAmmo);
+
+	// These are not replicated
 	MaxClipSize = MaxAmmo;
-	CurrentClipSize = CurrentAmmo;
+	WeaponRarity = NewWeaponRarity;
 }
 
 int32 ASWeapon::GetCurrentAmmo()
@@ -92,5 +90,4 @@ void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASWeapon, CurrentClipSize, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ASWeapon, CurrentWeaponSlot, COND_OwnerOnly);
 }

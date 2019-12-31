@@ -8,9 +8,11 @@
 ASProjectileWeapon::ASProjectileWeapon()
 {
 	// Setup weapon state
-	RateOfFire = 240.f;
-	TimeBetweenShots = 60.f / RateOfFire;
+	RateOfFire = 200.f;
+	BaseDamage = 30.f;
+	HeadShotMultiplier = 4.f;
 
+	// Update weapon variables
 	CurrentClipSize = -1;
 	MaxClipSize = -1;
 	AmmoType = EAmmoType::RocketAmmo;

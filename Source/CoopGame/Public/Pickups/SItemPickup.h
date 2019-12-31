@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SPlayerController.h"
 #include "GameFramework/Actor.h"
 #include "SItemPickup.generated.h"
 
@@ -18,10 +17,6 @@ public:
 	// Sets default values for this actor's properties
 	ASItemPickup();
 
-	/* Set these values in the child classes for specific weapon pickups */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FWeaponInfo WeaponInfo;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,6 +28,6 @@ protected:
 	class USkeletalMeshComponent* MeshComp;
 
 	UFUNCTION()
-	void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
 };

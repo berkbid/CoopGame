@@ -8,6 +8,7 @@
 
 
 enum class EAmmoType : uint8;
+enum class EWeaponRarity : uint8;
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -51,27 +52,25 @@ protected:
 	// Derived from RateOfFire
 	float TimeBetweenShots;
 
-	UPROPERTY(Replicated)
-	int32 CurrentWeaponSlot;
-
-
-
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* MeshComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	class USoundBase* WeaponSwapSound;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	EAmmoType AmmoType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EWeaponRarity WeaponRarity;
 
 	int32 MaxClipSize;
 
 	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
-	void SetInitialState(int32 CurrentAmmo, int32 MaxAmmo, int32 WeaponSlot);
+	void SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo, int32 MaxAmmo);
 
 	int32 GetCurrentAmmo();
 

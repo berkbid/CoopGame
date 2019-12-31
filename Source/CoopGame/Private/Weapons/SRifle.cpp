@@ -21,6 +21,7 @@ ASRifle::ASRifle()
 	BulletSpread = 2.f;
 
 	// Setup weapon stats
+	RateOfFire = 600.f;
 	BaseDamage = 25.f;
 	HeadShotMultiplier = 4.f;
 	CurrentClipSize = -1;

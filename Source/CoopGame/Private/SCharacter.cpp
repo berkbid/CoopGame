@@ -132,13 +132,15 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 
 	if (CurrentWeapon)
 	{
+		
 		// Tell weapon important info for its functionality and so it can upate HUD properly
-		CurrentWeapon->SetInitialState(NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo, NewWeaponSlot);
+		CurrentWeapon->SetInitialState(NewWeaponInfo.WeaponRarity, NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 
 	return OldAmmoCount;
 }
+
 // Being called by server only
 void ASCharacter::PickupWeapon(const FWeaponInfo& WeaponInfo, AActor* PickupActor)
 {
