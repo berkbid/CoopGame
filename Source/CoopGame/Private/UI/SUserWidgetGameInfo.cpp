@@ -51,8 +51,7 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot, int32 Current
 	}
 }
 
-
-// When player reloads
+// When player reloads, update all ammo text and other weapon slots sharing same ammo type needs updating
 void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
 {
 	if (InventoryContainer)
@@ -63,29 +62,6 @@ void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 Cur
 	if (CurrentWeaponInfo)
 	{
 		CurrentWeaponInfo->SetBothAmmo(CurrentAmmo, ExtraAmmo);
-	}
-}
-
-void USUserWidgetGameInfo::SetCurrentSlotAmmo(int32 NewCurrentAmmo)
-{
-	if (InventoryContainer)
-	{
-		InventoryContainer->UpdateCurrentSlotAmmo(NewCurrentAmmo);
-	}
-
-	if (CurrentWeaponInfo)
-	{
-		CurrentWeaponInfo->SetWeaponCurrentAmmo(NewCurrentAmmo);
-	}
-}
-
-
-void USUserWidgetGameInfo::SetAmmoTypeAmount(EAmmoType NewAmmoType, int32 ExtraAmmo)
-{
-	if (InventoryContainer)
-	{
-		// Inventory loops through slots and sees if ammo type matches, if so, updates HUD
-		InventoryContainer->UpdateAmmoTypeAmount(NewAmmoType, ExtraAmmo);
 	}
 
 	// Update extra ammo text only on reload not on fire
@@ -108,6 +84,19 @@ void USUserWidgetGameInfo::SetAmmoTypeAmount(EAmmoType NewAmmoType, int32 ExtraA
 		break;
 	default:
 		break;
+	}
+}
+
+void USUserWidgetGameInfo::UpdateCurrentClipAmmo(int32 NewCurrentAmmo)
+{
+	if (InventoryContainer)
+	{
+		InventoryContainer->UpdateCurrentSlotAmmo(NewCurrentAmmo);
+	}
+
+	if (CurrentWeaponInfo)
+	{
+		CurrentWeaponInfo->SetWeaponCurrentAmmo(NewCurrentAmmo);
 	}
 }
 

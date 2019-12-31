@@ -47,18 +47,19 @@ void USOverlayInventorySlot::PostInitProperties()
 	//AddChildToOverlay(AmmoText);
 }
 
-// Updates text automatically after extra ammo is set
+// Update local data then update text
 void USOverlayInventorySlot::UpdateExtraAmmo(int32 NewExtraAmmo)
 {
-	// Update local slot data
 	CurrentExtraAmmo = NewExtraAmmo;
 	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
 
 	UpdateAmmoText();
 }
 
+// Update local data then update text
 void USOverlayInventorySlot::UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
 {
+	// Update local data
 	CurrentClipAmmo = NewCurrentAmmo;
 	CurrentExtraAmmo = NewExtraAmmo;
 	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
@@ -66,6 +67,7 @@ void USOverlayInventorySlot::UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtra
 	UpdateAmmoText();
 }
 
+// Update local data then update text
 void USOverlayInventorySlot::UpdateCurrentAmmo(int32 NewCurrentAmmo)
 {
 	CurrentClipAmmo = NewCurrentAmmo;
@@ -95,7 +97,6 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, int32 CurrentAm
 	CurrentExtraAmmo = ExtraAmmo;
 	CurrentSlotAmmo = CurrentAmmo + ExtraAmmo;
 	
-
 	// Set text visible and initial text value
 	if (AmmoText)
 	{
@@ -114,6 +115,7 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, int32 CurrentAm
 	}
 }
 
+// Use local data to update text
 void USOverlayInventorySlot::UpdateAmmoText()
 {
 	if (AmmoText)

@@ -544,7 +544,7 @@ void ASPlayerController::ClientUpdateClipHUD_Implementation(EAmmoType AmmoType, 
 {
 	if (MyGameInfo)
 	{
-		MyGameInfo->SetCurrentSlotAmmo(CurrentAmmo);
+		MyGameInfo->UpdateCurrentClipAmmo(CurrentAmmo);
 	}
 }
 

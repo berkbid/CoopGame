@@ -56,16 +56,19 @@ void USVerticalBoxCurrentWeapon::SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtr
 {
 	CurrentClipSize = NewCurrentAmmo;
 	ExtraClipSize = NewExtraAmmo;
+	SetAmmoText();
 }
 
 void USVerticalBoxCurrentWeapon::SetWeaponCurrentAmmo(int32 NewCurrentAmmo)
 {
 	CurrentClipSize = NewCurrentAmmo;
+	SetAmmoText();
 }
 
 void USVerticalBoxCurrentWeapon::SetWeaponExtraAmmo(int32 NewExtraAmmo)
 {
 	ExtraClipSize = NewExtraAmmo;
+	SetAmmoText();
 }
 
 

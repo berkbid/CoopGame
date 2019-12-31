@@ -76,13 +76,12 @@ public:
 	UFUNCTION()
 	void InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo);
 
+	/* Handles reload situation involving updating all inventory slots with same ammo type*/
 	UFUNCTION()
 	void HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
 
-	void SetCurrentSlotAmmo(int32 NewCurrentAmmo);
-
-	// To update HUD for a certain ammo type, wherever it exists
-	void SetAmmoTypeAmount(EAmmoType NewAmmoType, int32 ExtraAmmo);
+	/* Handles updating current clip ammo */
+	void UpdateCurrentClipAmmo(int32 NewCurrentAmmo);
 
 	void HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType);
 
