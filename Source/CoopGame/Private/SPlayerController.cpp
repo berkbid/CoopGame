@@ -324,12 +324,18 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 	}
 }
 
-// Server or client can run this as all data inside is replicated and being read only
+// Client only should run this method when they want to update HUD for changing inventory slot
 void ASPlayerController::ChangeToSlotHUD(int32 NewSlot)
 {
+	if (!MyGameInfo) { return; }
+
 	// Call HUD method to change slot with ammo info
 	MyGameInfo->InventoryChangeToSlot(NewSlot);
-	
+}
+
+void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
+{
+	ChangeToSlotHUD(NewSlot);
 }
 
 void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo)
@@ -338,11 +344,6 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 
 	MyGameInfo->HandleReloadAmmoType(NewAmmoType, NewClipAmmo, NewExtraAmmo);
 
-}
-
-void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
-{
-	ChangeToSlotHUD(NewSlot);
 }
 
 // When server PICKS UP NEW WEAPON, updates SlotToUpdate so owning client updates HUD for that slot
@@ -517,7 +518,7 @@ int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSi
 	return AmmoReturnAmount;
 }
 
-void ASPlayerController::ClientUpdateClipHUD_Implementation(EAmmoType AmmoType, int32 CurrentAmmo)
+void ASPlayerController::ClientUpdateClipHUD_Implementation(int32 CurrentAmmo)
 {
 	if (MyGameInfo)
 	{

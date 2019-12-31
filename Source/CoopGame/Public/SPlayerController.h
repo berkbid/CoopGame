@@ -196,9 +196,9 @@ public:
 
 	int32 GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSize, int32 MaxClipSize);
 
-	/* Decrement AmmoType in our AmmoInventory an update HUD for clients */
+	/* Update current clip size for HUD */
 	UFUNCTION(Client, Unreliable)
-	void ClientUpdateClipHUD(EAmmoType AmmoType, int32 CurrentAmmo);
+	void ClientUpdateClipHUD(int32 CurrentAmmo);
 
 	bool bIsInventoryFull;
 
@@ -214,15 +214,13 @@ protected:
 	void ChangeToSlotHUD(int32 NewSlot);
 
 	UFUNCTION(Client, Reliable)
-	void ClientHandleReloadHUD(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo);
-
-	UFUNCTION(Client, Reliable)
 	void ClientChangeToSlotHUD(int32 NewSlot);
 
 	UFUNCTION(Client, Reliable)
-	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 SlotToUpdate);
+	void ClientHandleReloadHUD(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo);
 
-	void UpdateAmmoTypeHUD(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
+	UFUNCTION(Client, Reliable)
+	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 SlotToUpdate);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();
