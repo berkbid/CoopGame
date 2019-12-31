@@ -70,7 +70,7 @@ public:
 	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
-	void SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo, int32 MaxAmmo);
+	void SetInitialState(EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 CurrentAmmo, int32 MaxAmmo);
 
 	int32 GetCurrentAmmo();
 

@@ -36,7 +36,6 @@ void ASWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	TimeBetweenShots = 60.f / RateOfFire;
-
 }
 
 // MUST prefix with Server and require _Implementation
@@ -54,7 +53,7 @@ bool ASWeapon::ServerFire_Validate()
 void ASWeapon::Fire() {}
 
 // Server is setting these variables
-void ASWeapon::SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo, int32 MaxAmmo)
+void ASWeapon::SetInitialState(EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 CurrentAmmo, int32 MaxAmmo)
 {
 	// These are replicated to owner for use when firing
 	CurrentClipSize = FMath::Clamp(CurrentAmmo, 0, MaxAmmo);
@@ -62,6 +61,7 @@ void ASWeapon::SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo,
 	// These are not replicated
 	MaxClipSize = MaxAmmo;
 	WeaponRarity = NewWeaponRarity;
+	AmmoType = NewAmmoType;
 }
 
 int32 ASWeapon::GetCurrentAmmo()
