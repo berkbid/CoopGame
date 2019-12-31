@@ -28,40 +28,16 @@ void USVerticalBoxCurrentWeapon::SynchronizeProperties()
 	CurrentWeaponType = Cast<UBorder>(GetChildAt(1));
 }
 
-void USVerticalBoxCurrentWeapon::SetWeaponName(FString NewWeaponName)
-{
-	if (CurrentWeaponType)
-	{
-		UTextBlock* WeaponText = Cast<UTextBlock>(CurrentWeaponType->GetChildAt(0));
-		if (WeaponText)
-		{
-			WeaponText->SetText(FText::FromString(NewWeaponName));
-		}
-	}
-}
-
-void USVerticalBoxCurrentWeapon::SetAmmoText()
-{
-	if (CurrentWeaponAmmo)
-	{
-		UTextBlock* AmmoText = Cast<UTextBlock>(CurrentWeaponAmmo->GetChildAt(1));
-		if (AmmoText)
-		{
-			AmmoText->SetText(FText::FromString(FString::FromInt(CurrentClipSize) + " / " + FString::FromInt(ExtraClipSize)));
-		}
-	}
-}
-
 void USVerticalBoxCurrentWeapon::SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
 {
-	CurrentClipSize = NewCurrentAmmo;
+	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
 	ExtraClipSize = NewExtraAmmo;
 	SetAmmoText();
 }
 
 void USVerticalBoxCurrentWeapon::SetWeaponCurrentAmmo(int32 NewCurrentAmmo)
 {
-	CurrentClipSize = NewCurrentAmmo;
+	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
 	SetAmmoText();
 }
 
@@ -71,4 +47,35 @@ void USVerticalBoxCurrentWeapon::SetWeaponExtraAmmo(int32 NewExtraAmmo)
 	SetAmmoText();
 }
 
+void USVerticalBoxCurrentWeapon::SetAmmoText()
+{
+	if (CurrentWeaponAmmo)
+	{
+		UTextBlock* AmmoText = Cast<UTextBlock>(CurrentWeaponAmmo->GetChildAt(1));
+		if (AmmoText)
+		{
+			AmmoText->SetText(FText::FromString(FString::FromInt(CurrentWeaponInfo.CurrentAmmo) + " / " + FString::FromInt(ExtraClipSize)));
+		}
+	}
+}
 
+void USVerticalBoxCurrentWeapon::SetWeaponText()
+{
+	if (CurrentWeaponType)
+	{
+		UTextBlock* WeaponText = Cast<UTextBlock>(CurrentWeaponType->GetChildAt(0));
+		if (WeaponText)
+		{
+			WeaponText->SetText(FText::FromString(CurrentWeaponInfo.WeaponName.ToString()));
+		}
+	}
+}
+
+void USVerticalBoxCurrentWeapon::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
+{
+	CurrentWeaponInfo = NewWeaponInfo;
+	ExtraClipSize = NewExtraAmmo;
+
+	SetAmmoText();
+	SetWeaponText();
+}

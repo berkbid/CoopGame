@@ -4,7 +4,6 @@
 #include "SHorizontalBoxInventory.h"
 #include "SOverlayInventorySlot.h"
 #include "Engine/Texture2D.h"
-#include "SPlayerController.h"
 
 
 void USHorizontalBoxInventory::ReleaseSlateResources(bool bReleaseChildren)
@@ -35,7 +34,7 @@ void USHorizontalBoxInventory::SynchronizeProperties()
 	}
 }
 
-void USHorizontalBoxInventory::HandlePickupWeapon(int32 WeaponSlot, UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType)
+void USHorizontalBoxInventory::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo, UTexture2D* WeaponTexture, int32 ExtraAmmo)
 {
 	// If we have a valid child at WeaponSlot, call InitSlot on that SOverlayInventorySlot class
 	if (InventorySlots.Num() > WeaponSlot)
@@ -43,12 +42,12 @@ void USHorizontalBoxInventory::HandlePickupWeapon(int32 WeaponSlot, UTexture2D* 
 		USOverlayInventorySlot* NewSlot = InventorySlots[WeaponSlot];
 		if (NewSlot)
 		{
-			NewSlot->InitSlot(WeaponTexture, CurrentAmmo, ExtraAmmo, NewAmmoType);
+			NewSlot->InitSlot(WeaponTexture, NewWeaponInfo, ExtraAmmo);
 		}
 	}
 }
 
-void USHorizontalBoxInventory::HandleSlotChange(int32 WeaponSlot, int32& SlotCurrentAmmo, int32& SlotExtraAmmo)
+void USHorizontalBoxInventory::HandleSlotChange(int32 WeaponSlot, FWeaponInfo &NewWeaponInfo, int32 &ExtraAmmo)
 {
 	// If we have a valid child at WeaponSlot index
 	if (InventorySlots.Num() > WeaponSlot)
@@ -56,8 +55,8 @@ void USHorizontalBoxInventory::HandleSlotChange(int32 WeaponSlot, int32& SlotCur
 		USOverlayInventorySlot* NewSlot = InventorySlots[WeaponSlot];
 		if (NewSlot)
 		{
-			SlotCurrentAmmo = NewSlot->CurrentClipAmmo;
-			SlotExtraAmmo = NewSlot->CurrentExtraAmmo;
+			NewWeaponInfo = NewSlot->CurrentWeaponInfo;
+			ExtraAmmo = NewSlot->CurrentExtraAmmo;
 
 			// If we have a current slot selected, reset that slot
 			if (CurrentSlot)
@@ -103,7 +102,7 @@ void USHorizontalBoxInventory::UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32
 	{
 		if (InvSlot)
 		{
-			if (InvSlot->CurrentAmmoType == NewAmmoType)
+			if (InvSlot->CurrentWeaponInfo.AmmoType == NewAmmoType)
 			{
 				InvSlot->UpdateExtraAmmo(NewExtraAmmo);
 			}

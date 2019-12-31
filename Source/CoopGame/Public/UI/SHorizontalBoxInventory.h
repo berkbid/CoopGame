@@ -3,11 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SPlayerController.h"
 #include "Components/HorizontalBox.h"
 #include "SHorizontalBoxInventory.generated.h"
 
-
-enum class EAmmoType : uint8;
 
 /**
  * 
@@ -33,10 +32,10 @@ public:
 	virtual void SynchronizeProperties() override;
 
 	/* Handle visuals for picking up weapon */
-	void HandlePickupWeapon(int32 WeaponSlot, class UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType);
+	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, class UTexture2D* WeaponTexture, int32 ExtraAmmo);
 
 	/* Handle visuals for changing to new inventory slot */
-	void HandleSlotChange(int32 WeaponSlot, int32 &SlotCurrentAmmo, int32 &SlotExtraAmmo);
+	void HandleSlotChange(int32 WeaponSlot, FWeaponInfo& NewWeaponInfo, int32& ExtraAmmo);
 
 	/* Set ammo data for slot */
 	void UpdateCurrentSlotAmmo(int32 CurrentAmmo);

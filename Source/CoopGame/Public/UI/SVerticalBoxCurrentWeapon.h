@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SPlayerController.h"
 #include "Components/VerticalBox.h"
 #include "SVerticalBoxCurrentWeapon.generated.h"
+
 
 /**
  * 
@@ -28,16 +30,17 @@ public:
 	 */
 	virtual void SynchronizeProperties() override;
 
-
-	void SetWeaponName(FString NewWeaponName);
-
-	void SetAmmoText();
-
 	void SetWeaponCurrentAmmo(int32 NewCurrentAmmo);
 
 	void SetWeaponExtraAmmo(int32 NewExtraAmmo);
 
 	void SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo);
+
+	void SetAmmoText();
+
+	void SetWeaponText();
+
+	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
 
 
 protected:
@@ -48,6 +51,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* CurrentWeaponType;
 
-	int32 CurrentClipSize;
+	FWeaponInfo CurrentWeaponInfo;
 	int32 ExtraClipSize;
 };

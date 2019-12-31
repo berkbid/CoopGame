@@ -140,7 +140,7 @@ void ASPlayerController::SetupInitialHUDState()
 			}
 
 			// Set initial HUD state for weapon slot, showing weapon image and slot ammo amount
-			MyGameInfo->HandlePickupWeapon(i, WeaponInventory[i].WeaponType, WeaponInventory[i].CurrentAmmo, NewMaxAmmo, WeaponInventory[i].AmmoType);
+			MyGameInfo->HandlePickupWeapon(i, WeaponInventory[i], NewMaxAmmo);
 		}
 
 		// Set inventory slot as active
@@ -375,7 +375,7 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo Weapon
 			break;
 		}
 		// Set initial HUD state for weapon s lot, including picture and ammo amount
-		MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo.WeaponType, WeaponInfo.CurrentAmmo, NewMaxAmmo, WeaponInfo.AmmoType);
+		MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo,  NewMaxAmmo);
 		
 	}
 
@@ -452,15 +452,15 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo)
 }
 
 // We are server in here
-int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSize, int32 MaxClipSize)
+int32 ASPlayerController::GrabAmmoOfType(int32 CurrentClipSize, int32 MaxClipSize)
 {
 	int32 AmmmoNeeded = MaxClipSize - CurrentClipSize;
 	if (AmmmoNeeded <= 0) { return 0; }
 
 	int32 AmmoReturnAmount = 0;
 	int32 ExtraAmmoTemp = 0;
-
-	switch (AmmoType)
+	EAmmoType AmmoTypeNeeded = WeaponInventory[CurrentSlot].AmmoType;
+	switch (AmmoTypeNeeded)
 	{
 	case EAmmoType::MiniAmmo:
 		ExtraAmmoTemp = AmmoInventory.MiniCount;
@@ -514,7 +514,7 @@ int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSi
 		break;
 	}
 
-	ClientHandleReloadHUD(AmmoType, CurrentClipSize + AmmoReturnAmount, ExtraAmmoTemp);
+	ClientHandleReloadHUD(AmmoTypeNeeded, CurrentClipSize + AmmoReturnAmount, ExtraAmmoTemp);
 	return AmmoReturnAmount;
 }
 

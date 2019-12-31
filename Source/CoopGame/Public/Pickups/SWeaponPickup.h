@@ -18,6 +18,8 @@ class COOPGAME_API ASWeaponPickup : public ASItemPickup
 
 
 public:
+	ASWeaponPickup();
+
 	/* Set these values in the child classes for specific weapon pickups */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FWeaponInfo WeaponInfo;

@@ -15,7 +15,6 @@ ASProjectileWeapon::ASProjectileWeapon()
 	// Update weapon variables
 	CurrentClipSize = -1;
 	MaxClipSize = -1;
-	AmmoType = EAmmoType::RocketAmmo;
 }
 
 void ASProjectileWeapon::Fire()

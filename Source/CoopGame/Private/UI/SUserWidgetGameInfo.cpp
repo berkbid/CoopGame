@@ -15,7 +15,6 @@
 #include "Engine/Texture2D.h"
 #include "SWeapon.h"
 #include "SHorizontalBoxInventory.h"
-#include "SPlayerController.h"
 #include "SVerticalBoxCurrentWeapon.h"
 
 bool USUserWidgetGameInfo::Initialize()
@@ -42,15 +41,16 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 	// Handle inventory visual for changing slot 
 	if (InventoryContainer)
 	{
-		int32 SlotCurrentAmmo = -1;
-		int32 SlotExtraAmmo = -1;
+		FWeaponInfo NewWeaponInfo;
+		int32 SlotExtraAmmo;
 
 		// Retrieve slot information of new slot in order to update other parts of HUD
-		InventoryContainer->HandleSlotChange(WeaponSlot, SlotCurrentAmmo, SlotExtraAmmo);
+		InventoryContainer->HandleSlotChange(WeaponSlot, NewWeaponInfo, SlotExtraAmmo);
 
 		if (CurrentWeaponInfo)
 		{
-			CurrentWeaponInfo->SetBothAmmo(SlotCurrentAmmo, SlotExtraAmmo);
+			// setup current weapon info from slot
+			CurrentWeaponInfo->InitWeaponInfo(NewWeaponInfo, SlotExtraAmmo);
 		}
 	}
 }
@@ -111,10 +111,10 @@ void USUserWidgetGameInfo::UpdateCurrentClipAmmo(int32 NewCurrentAmmo)
 }
 
 // When player picks up a weapon, update inventory with weapon picture and Slot Ammo amount
-void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType)
+void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo, int32 ExtraAmmo)
 {
 	// Find texture associated with weapon class we picked up
-	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
+	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(NewWeaponInfo.WeaponType);
 
 	if (InventoryContainer)
 	{
@@ -122,7 +122,7 @@ void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWe
 		if (TempWeaponTexture)
 		{
 			// Initialize slot in inventory with texture, ammo type, current and extra ammo data
-			InventoryContainer->HandlePickupWeapon(WeaponSlot, *TempWeaponTexture, CurrentAmmo, ExtraAmmo, NewAmmoType);
+			InventoryContainer->HandlePickupWeapon(WeaponSlot, NewWeaponInfo, *TempWeaponTexture, ExtraAmmo);
 		}
 	}
 }

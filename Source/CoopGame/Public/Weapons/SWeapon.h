@@ -59,18 +59,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	class USoundBase* WeaponSwapSound;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	EAmmoType AmmoType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	EWeaponRarity WeaponRarity;
-
 	int32 MaxClipSize;
 
 	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
-	void SetInitialState(EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 CurrentAmmo, int32 MaxAmmo);
+	void SetInitialState(int32 CurrentAmmo, int32 MaxAmmo);
 
 	int32 GetCurrentAmmo();
 

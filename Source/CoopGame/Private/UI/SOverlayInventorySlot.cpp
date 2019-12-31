@@ -12,7 +12,9 @@
 
 USOverlayInventorySlot::USOverlayInventorySlot()
 {
-
+	CurrentWeaponInfo = FWeaponInfo();
+	CurrentSlotAmmo = 0;
+	CurrentExtraAmmo = 0;
 }
 
 void USOverlayInventorySlot::ReleaseSlateResources(bool bReleaseChildren)
@@ -51,7 +53,7 @@ void USOverlayInventorySlot::PostInitProperties()
 void USOverlayInventorySlot::UpdateExtraAmmo(int32 NewExtraAmmo)
 {
 	CurrentExtraAmmo = NewExtraAmmo;
-	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
+	CurrentSlotAmmo = CurrentWeaponInfo.CurrentAmmo + CurrentExtraAmmo;
 
 	UpdateAmmoText();
 }
@@ -60,9 +62,9 @@ void USOverlayInventorySlot::UpdateExtraAmmo(int32 NewExtraAmmo)
 void USOverlayInventorySlot::UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
 {
 	// Update local data
-	CurrentClipAmmo = NewCurrentAmmo;
+	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
 	CurrentExtraAmmo = NewExtraAmmo;
-	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
+	CurrentSlotAmmo = NewCurrentAmmo + CurrentExtraAmmo;
 
 	UpdateAmmoText();
 }
@@ -70,8 +72,8 @@ void USOverlayInventorySlot::UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtra
 // Update local data then update text
 void USOverlayInventorySlot::UpdateCurrentAmmo(int32 NewCurrentAmmo)
 {
-	CurrentClipAmmo = NewCurrentAmmo;
-	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
+	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
+	CurrentSlotAmmo = NewCurrentAmmo + CurrentExtraAmmo;
 
 	UpdateAmmoText();
 }
@@ -89,13 +91,14 @@ void USOverlayInventorySlot::ActivateSlot()
 }
 
 // Slot just equipped new weapon, set children's data
-void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType AmmoTypeNew)
+void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo &NewWeaponInfo, int32 ExtraAmmo)
 {
-	// Update slot data for ourselves
-	CurrentAmmoType = AmmoTypeNew;
-	CurrentClipAmmo = CurrentAmmo;
+	// Hold weapon info for slot
+	CurrentWeaponInfo = NewWeaponInfo;
+	
+	// Hold extra data that is also important
 	CurrentExtraAmmo = ExtraAmmo;
-	CurrentSlotAmmo = CurrentAmmo + ExtraAmmo;
+	CurrentSlotAmmo = NewWeaponInfo.CurrentAmmo + ExtraAmmo;
 	
 	// Set text visible and initial text value
 	if (AmmoText)

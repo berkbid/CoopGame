@@ -26,7 +26,6 @@ ASRifle::ASRifle()
 	HeadShotMultiplier = 4.f;
 	CurrentClipSize = -1;
 	MaxClipSize = -1;
-	AmmoType = EAmmoType::MediumAmmo;
 
 	// This is defined in P_SmokeTrail under Target > Distribution > Parameter Name
 	TracerTargetName = "BeamEnd";

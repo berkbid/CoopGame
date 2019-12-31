@@ -3,11 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SPlayerController.h"
 #include "Components/Overlay.h"
 #include "SOverlayInventorySlot.generated.h"
-
-
-enum class EAmmoType : uint8;
 
 
 /**
@@ -49,17 +47,16 @@ public:
 
 	void ActivateSlot();
 
-	void InitSlot(class UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType AmmoTypeNew);
+	void InitSlot(class UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo, int32 ExtraAmmo);
 
 	void UpdateAmmoText();
 
-	EAmmoType CurrentAmmoType;
+	FWeaponInfo CurrentWeaponInfo;
 
 	int32 CurrentSlotAmmo;
 
-	int32 CurrentClipAmmo;
-
 	int32 CurrentExtraAmmo;
+
 
 protected:
 

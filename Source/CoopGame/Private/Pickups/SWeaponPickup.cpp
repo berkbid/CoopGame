@@ -4,6 +4,12 @@
 #include "SWeaponPickup.h"
 #include "SCharacter.h"
 
+ASWeaponPickup::ASWeaponPickup()
+{
+	WeaponInfo = FWeaponInfo();
+	
+}
+
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (WeaponInfo.WeaponType)

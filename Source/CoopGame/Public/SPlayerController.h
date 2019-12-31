@@ -39,6 +39,7 @@ enum class EWeaponRarity : uint8
 
 };
 
+
 USTRUCT(BlueprintType)
 struct FAmmoInfo
 {
@@ -99,6 +100,9 @@ struct FWeaponInfo
 	UClass* WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FName WeaponName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EWeaponRarity WeaponRarity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
@@ -120,6 +124,7 @@ struct FWeaponInfo
 	FWeaponInfo()
 	{
 		WeaponType = NULL;
+		WeaponName = FName();
 		WeaponRarity = EWeaponRarity::Common;
 		AmmoType = EAmmoType::MiniAmmo;
 		CurrentAmmo = 0;
@@ -127,9 +132,10 @@ struct FWeaponInfo
 	}
 
 	// Constructor with parameters for properties
-	FWeaponInfo(UClass* NewWeaponClass, EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 NewCurrentAmmo, int32 NewMaxAmmo)
+	FWeaponInfo(UClass* NewWeaponClass, FName NewWeaponName, EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 NewCurrentAmmo, int32 NewMaxAmmo)
 	{
 		WeaponType = NewWeaponClass;
+		WeaponName = NewWeaponName;
 		WeaponRarity = NewWeaponRarity;
 		AmmoType = NewAmmoType;
 		CurrentAmmo = NewCurrentAmmo;
@@ -194,7 +200,7 @@ public:
 	// Return success or failure for picking up weapon, based on inventory space
 	bool PickedUpNewWeapon(const FWeaponInfo& WeaponInfo);
 
-	int32 GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSize, int32 MaxClipSize);
+	int32 GrabAmmoOfType(int32 CurrentClipSize, int32 MaxClipSize);
 
 	/* Update current clip size for HUD */
 	UFUNCTION(Client, Unreliable)

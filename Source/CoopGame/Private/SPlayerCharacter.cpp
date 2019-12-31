@@ -29,15 +29,12 @@ ASPlayerCharacter::ASPlayerCharacter()
 }
 
 // Called once on client and once on server
-// Called when the game starts or when spawned
 void ASPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	DefaultFOV = CameraComp->FieldOfView;
-
 }
-
 
 // Handle when ASWeapon* CurrentWeapon changes value
 void ASPlayerCharacter::OnRep_CurrentWeapon()

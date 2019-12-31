@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "SUserWidgetGameInfo.generated.h"
 
@@ -11,7 +12,6 @@ class UBorder;
 class USOverlayInventorySlot;
 class USUserWidgetPlayerStats;
 class ASWeapon;
-enum class EAmmoType : uint8;
 
 /**
  * 
@@ -84,7 +84,7 @@ public:
 	/* Handles updating current clip ammo */
 	void UpdateCurrentClipAmmo(int32 NewCurrentAmmo);
 
-	void HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType);
+	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo, int32 ExtraAmmo);
 
 	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 

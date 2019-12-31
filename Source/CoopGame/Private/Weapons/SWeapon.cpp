@@ -20,8 +20,6 @@ ASWeapon::ASWeapon()
 	RateOfFire = 600.f;
 	BaseDamage = 20.f;
 	HeadShotMultiplier = 4.f;
-	AmmoType = EAmmoType::MiniAmmo;
-	WeaponRarity = EWeaponRarity::Common;
 	CurrentClipSize = -1;
 	MaxClipSize = -1;
 
@@ -53,15 +51,13 @@ bool ASWeapon::ServerFire_Validate()
 void ASWeapon::Fire() {}
 
 // Server is setting these variables
-void ASWeapon::SetInitialState(EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 CurrentAmmo, int32 MaxAmmo)
+void ASWeapon::SetInitialState(int32 CurrentAmmo, int32 MaxAmmo)
 {
 	// These are replicated to owner for use when firing
 	CurrentClipSize = FMath::Clamp(CurrentAmmo, 0, MaxAmmo);
 
 	// These are not replicated
 	MaxClipSize = MaxAmmo;
-	WeaponRarity = NewWeaponRarity;
-	AmmoType = NewAmmoType;
 }
 
 int32 ASWeapon::GetCurrentAmmo()

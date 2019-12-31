@@ -83,7 +83,7 @@ void ASCharacter::Reload()
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
 	if (PC)
 	{
-		CurrentWeapon->CurrentClipSize += PC->GrabAmmoOfType(CurrentWeapon->AmmoType, CurrentWeapon->CurrentClipSize, CurrentWeapon->MaxClipSize);
+		CurrentWeapon->CurrentClipSize += PC->GrabAmmoOfType(CurrentWeapon->CurrentClipSize, CurrentWeapon->MaxClipSize);
 	}
 }
 
@@ -134,7 +134,7 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	{
 		
 		// Tell weapon important info for its functionality and so it can upate HUD properly
-		CurrentWeapon->SetInitialState(NewWeaponInfo.WeaponRarity, NewWeaponInfo.AmmoType, NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo);
+		CurrentWeapon->SetInitialState(NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 
