@@ -48,7 +48,7 @@ void USHorizontalBoxInventory::HandlePickupWeapon(int32 WeaponSlot, UTexture2D* 
 	}
 }
 
-void USHorizontalBoxInventory::HandleSlotChange(int32 WeaponSlot)
+void USHorizontalBoxInventory::HandleSlotChange(int32 WeaponSlot, int32& SlotCurrentAmmo, int32& SlotExtraAmmo)
 {
 	// If we have a valid child at WeaponSlot index
 	if (InventorySlots.Num() > WeaponSlot)
@@ -56,6 +56,9 @@ void USHorizontalBoxInventory::HandleSlotChange(int32 WeaponSlot)
 		USOverlayInventorySlot* NewSlot = InventorySlots[WeaponSlot];
 		if (NewSlot)
 		{
+			SlotCurrentAmmo = NewSlot->CurrentClipAmmo;
+			SlotExtraAmmo = NewSlot->CurrentExtraAmmo;
+
 			// If we have a current slot selected, reset that slot
 			if (CurrentSlot)
 			{

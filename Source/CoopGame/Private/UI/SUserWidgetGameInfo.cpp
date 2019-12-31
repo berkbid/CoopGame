@@ -37,34 +37,43 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 }
 
 // When player changes inventory slots, handle container visual and current weapon info
-void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo)
+void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 {
 	// Handle inventory visual for changing slot 
 	if (InventoryContainer)
 	{
-		InventoryContainer->HandleSlotChange(WeaponSlot);
-	}
+		int32 SlotCurrentAmmo = -1;
+		int32 SlotExtraAmmo = -1;
 
-	if (CurrentWeaponInfo)
-	{
-		CurrentWeaponInfo->SetBothAmmo(CurrentAmmo, ExtraAmmo);
+		// Retrieve slot information of new slot in order to update other parts of HUD
+		InventoryContainer->HandleSlotChange(WeaponSlot, SlotCurrentAmmo, SlotExtraAmmo);
+
+		if (CurrentWeaponInfo)
+		{
+			CurrentWeaponInfo->SetBothAmmo(SlotCurrentAmmo, SlotExtraAmmo);
+		}
 	}
 }
 
 // When player reloads, update all ammo text and other weapon slots sharing same ammo type needs updating
 void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
 {
+	// Tell inventory new current ammo and extra ammo amount (current slot is assumed by inventory)
 	if (InventoryContainer)
 	{
 		InventoryContainer->UpdateBothAmmo(CurrentAmmo, ExtraAmmo);
+
+		// Update slot ammo text for all slots that share same ammo type since reload altered this amount
 		InventoryContainer->UpdateAmmoTypeAmount(NewAmmoType, ExtraAmmo);
 	}
+
+	// Update the weapon info HUD with new ammo values
 	if (CurrentWeaponInfo)
 	{
 		CurrentWeaponInfo->SetBothAmmo(CurrentAmmo, ExtraAmmo);
 	}
 
-	// Update extra ammo text only on reload not on fire
+	// Update extra ammo text
 	switch (NewAmmoType)
 	{
 	case EAmmoType::MiniAmmo:
@@ -87,6 +96,7 @@ void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 Cur
 	}
 }
 
+// When player shoots and current clip ammo changes, send data to relevant HUD objects
 void USUserWidgetGameInfo::UpdateCurrentClipAmmo(int32 NewCurrentAmmo)
 {
 	if (InventoryContainer)

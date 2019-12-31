@@ -327,32 +327,9 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 // Server or client can run this as all data inside is replicated and being read only
 void ASPlayerController::ChangeToSlotHUD(int32 NewSlot)
 {
-	if (MyGameInfo)
-	{
-		int32 NewExtraAmmo = 0;
-		switch (WeaponInventory[NewSlot].AmmoType)
-		{
-		case EAmmoType::MiniAmmo:
-			NewExtraAmmo = AmmoInventory.MiniCount;
-			break;
-		case EAmmoType::MediumAmmo:
-			NewExtraAmmo = AmmoInventory.MediumCount;
-			break;
-		case EAmmoType::HeavyAmmo:
-			NewExtraAmmo = AmmoInventory.HeavyCount;
-			break;
-		case EAmmoType::ShellAmmo:
-			NewExtraAmmo = AmmoInventory.ShellCount;
-			break;
-		case EAmmoType::RocketAmmo:
-			NewExtraAmmo = AmmoInventory.RocketCount;
-			break;
-		default:
-			break;
-		}
-		// Call HUD method to change slot with ammo info
-		MyGameInfo->InventoryChangeToSlot(NewSlot, WeaponInventory[NewSlot].CurrentAmmo, NewExtraAmmo);
-	}
+	// Call HUD method to change slot with ammo info
+	MyGameInfo->InventoryChangeToSlot(NewSlot);
+	
 }
 
 void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo)

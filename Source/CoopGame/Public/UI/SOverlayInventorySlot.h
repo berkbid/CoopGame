@@ -69,10 +69,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* SlotBorder;
 
-
-
 	// UWidget interface
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	// End of UWidget interface
-
 };

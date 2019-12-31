@@ -36,7 +36,7 @@ public:
 	void HandlePickupWeapon(int32 WeaponSlot, class UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType);
 
 	/* Handle visuals for changing to new inventory slot */
-	void HandleSlotChange(int32 WeaponSlot);
+	void HandleSlotChange(int32 WeaponSlot, int32 &SlotCurrentAmmo, int32 &SlotExtraAmmo);
 
 	/* Set ammo data for slot */
 	void UpdateCurrentSlotAmmo(int32 CurrentAmmo);
