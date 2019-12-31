@@ -40,7 +40,11 @@ public:
 
 	void SetWeaponText();
 
+	void SetAmmoType();
+
 	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
+
+
 
 
 protected:
@@ -50,6 +54,9 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* CurrentWeaponType;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "AmmoTextures")
+	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
 
 	FWeaponInfo CurrentWeaponInfo;
 	int32 ExtraClipSize;

@@ -86,6 +86,9 @@ public:
 
 	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo, int32 ExtraAmmo);
 
+	/* When we only need to update weapon info and not change to slot */
+	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 ExtraAmmo);
+
 	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 
 	void UpdatePlayerScore(uint32 PlayerNumber, float NewScore);

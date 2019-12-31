@@ -51,10 +51,11 @@ public:
 
 	void UpdateAmmoText();
 
+	// Weapon data for slot
 	FWeaponInfo CurrentWeaponInfo;
 
+	// Slot specific data
 	int32 CurrentSlotAmmo;
-
 	int32 CurrentExtraAmmo;
 
 

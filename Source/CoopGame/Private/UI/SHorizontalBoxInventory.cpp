@@ -11,6 +11,7 @@ void USHorizontalBoxInventory::ReleaseSlateResources(bool bReleaseChildren)
 	Super::ReleaseSlateResources(bReleaseChildren);
 
 	InventorySlots.Empty();
+	CurrentSlot = nullptr;
 
 }
 

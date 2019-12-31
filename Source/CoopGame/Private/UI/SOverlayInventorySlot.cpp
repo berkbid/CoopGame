@@ -23,6 +23,7 @@ void USOverlayInventorySlot::ReleaseSlateResources(bool bReleaseChildren)
 
 	SlotBorder = nullptr;
 	AmmoText = nullptr;
+	CurrentWeaponInfo.Destroy();
 }
 
 void USOverlayInventorySlot::SynchronizeProperties()
@@ -96,7 +97,7 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponIn
 	// Hold weapon info for slot
 	CurrentWeaponInfo = NewWeaponInfo;
 	
-	// Hold extra data that is also important
+	// Update slot data
 	CurrentExtraAmmo = ExtraAmmo;
 	CurrentSlotAmmo = NewWeaponInfo.CurrentAmmo + ExtraAmmo;
 	

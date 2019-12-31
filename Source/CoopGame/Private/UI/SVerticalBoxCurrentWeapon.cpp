@@ -17,6 +17,8 @@ void USVerticalBoxCurrentWeapon::ReleaseSlateResources(bool bReleaseChildren)
 
 	CurrentWeaponAmmo = nullptr;
 	CurrentWeaponType = nullptr;
+	CurrentWeaponInfo.Destroy();
+
 }
 
 void USVerticalBoxCurrentWeapon::SynchronizeProperties()
@@ -66,7 +68,37 @@ void USVerticalBoxCurrentWeapon::SetWeaponText()
 		UTextBlock* WeaponText = Cast<UTextBlock>(CurrentWeaponType->GetChildAt(0));
 		if (WeaponText)
 		{
-			WeaponText->SetText(FText::FromString(CurrentWeaponInfo.WeaponName.ToString()));
+			// If we have weapon in slot use its name, else set it blank
+			if (CurrentWeaponInfo.WeaponType)
+			{
+				WeaponText->SetText(FText::FromString(CurrentWeaponInfo.WeaponName.ToString()));
+			}
+			else
+			{
+				WeaponText->SetText(FText());
+			}
+			
+		}
+	}
+}
+
+void USVerticalBoxCurrentWeapon::SetAmmoType()
+{
+	if (!CurrentWeaponAmmo) { return; }
+	
+	UBorder* AmmoBorder = Cast<UBorder>(CurrentWeaponAmmo->GetChildAt(0));
+	if (AmmoBorder)
+	{
+		// Find texture associated with weapon class we picked up
+		UTexture2D** TempWeaponTexture = AmmoToTextureMap.Find(CurrentWeaponInfo.AmmoType);
+		if (TempWeaponTexture)
+		{
+			AmmoBorder->SetVisibility(ESlateVisibility::Visible);
+			AmmoBorder->SetBrushFromTexture(*TempWeaponTexture);
+		}
+		else
+		{
+			AmmoBorder->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -76,6 +108,7 @@ void USVerticalBoxCurrentWeapon::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo
 	CurrentWeaponInfo = NewWeaponInfo;
 	ExtraClipSize = NewExtraAmmo;
 
+	SetAmmoType();
 	SetAmmoText();
 	SetWeaponText();
 }

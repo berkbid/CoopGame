@@ -41,6 +41,7 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 	// Handle inventory visual for changing slot 
 	if (InventoryContainer)
 	{
+		// Grab values from slot to use for CurrentWeaponInfo updating
 		FWeaponInfo NewWeaponInfo;
 		int32 SlotExtraAmmo;
 
@@ -49,7 +50,7 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 
 		if (CurrentWeaponInfo)
 		{
-			// setup current weapon info from slot
+			// Setup current weapon info from weaponinfo and extra ammo
 			CurrentWeaponInfo->InitWeaponInfo(NewWeaponInfo, SlotExtraAmmo);
 		}
 	}
@@ -124,6 +125,16 @@ void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInf
 			// Initialize slot in inventory with texture, ammo type, current and extra ammo data
 			InventoryContainer->HandlePickupWeapon(WeaponSlot, NewWeaponInfo, *TempWeaponTexture, ExtraAmmo);
 		}
+	}
+}
+
+// This is a special case where we picked up a weapon in an already selected slot, we just need to update weapon info
+void USUserWidgetGameInfo::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 ExtraAmmo)
+{
+	if (CurrentWeaponInfo)
+	{
+		// Setup current weapon info from weaponinfo and extra ammo
+		CurrentWeaponInfo->InitWeaponInfo(NewWeaponInfo, ExtraAmmo);
 	}
 }
 

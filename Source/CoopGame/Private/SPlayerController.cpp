@@ -351,34 +351,34 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo WeaponInfo, int32 SlotToUpdate)
 {
 	// Handle HUD for picking up new weapon
-	if (MyGameInfo)
+	if (!MyGameInfo) { return; }
+	
+	int32 NewMaxAmmo = 0;
+	switch (WeaponInfo.AmmoType)
 	{
-		int32 NewMaxAmmo = 0;
-		switch (WeaponInfo.AmmoType)
-		{
-		case EAmmoType::MiniAmmo:
-			NewMaxAmmo = AmmoInventory.MiniCount;
-			break;
-		case EAmmoType::MediumAmmo:
-			NewMaxAmmo = AmmoInventory.MediumCount;
-			break;
-		case EAmmoType::HeavyAmmo:
-			NewMaxAmmo = AmmoInventory.HeavyCount;
-			break;
-		case EAmmoType::ShellAmmo:
-			NewMaxAmmo = AmmoInventory.ShellCount;
-			break;
-		case EAmmoType::RocketAmmo:
-			NewMaxAmmo = AmmoInventory.RocketCount;
-			break;
-		default:
-			break;
-		}
-		// Set initial HUD state for weapon s lot, including picture and ammo amount
-		MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo,  NewMaxAmmo);
-		
+	case EAmmoType::MiniAmmo:
+		NewMaxAmmo = AmmoInventory.MiniCount;
+		break;
+	case EAmmoType::MediumAmmo:
+		NewMaxAmmo = AmmoInventory.MediumCount;
+		break;
+	case EAmmoType::HeavyAmmo:
+		NewMaxAmmo = AmmoInventory.HeavyCount;
+		break;
+	case EAmmoType::ShellAmmo:
+		NewMaxAmmo = AmmoInventory.ShellCount;
+		break;
+	case EAmmoType::RocketAmmo:
+		NewMaxAmmo = AmmoInventory.RocketCount;
+		break;
+	default:
+		break;
 	}
 
+	// Set initial HUD state for weapon slot, including picture and ammo amount
+	MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo,  NewMaxAmmo);
+		
+	
 	// Only play weapon pickup sound if we aren't already selecting on new weapon slot, this is because weapon swap sound will play
 	// We don't want double sound. This works fine as long as weapon pickup sound is same as weapon swap sound.
 	// Instead of calling this code here, call a function on the pawn that gets the sound pointer from the actual weapon to play sound on pickups.
@@ -394,10 +394,11 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo Weapon
 			}
 		}
 	}
-	// If we did pickup a weapon in our current slot
+	// If we did pickup a weapon in our current slot, update HUD properly
 	else
 	{
-		
+		// Call HUD method to change to slot
+		MyGameInfo->UpdateWeaponInfo(WeaponInfo, NewMaxAmmo);
 	}
 }
 
