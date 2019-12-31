@@ -7,6 +7,7 @@
 #include "Styling/SlateColor.h"
 #include "Math/Color.h"
 #include "Engine/Texture2D.h"
+#include "SPlayerController.h"
 
 
 USOverlayInventorySlot::USOverlayInventorySlot()
@@ -46,34 +47,60 @@ void USOverlayInventorySlot::PostInitProperties()
 	//AddChildToOverlay(AmmoText);
 }
 
+// Updates text automatically after extra ammo is set
+void USOverlayInventorySlot::UpdateExtraAmmo(int32 NewExtraAmmo)
+{
+	// Update local slot data
+	CurrentExtraAmmo = NewExtraAmmo;
+	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
+
+	UpdateAmmoText();
+}
+
+void USOverlayInventorySlot::UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
+{
+	CurrentClipAmmo = NewCurrentAmmo;
+	CurrentExtraAmmo = NewExtraAmmo;
+	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
+
+	UpdateAmmoText();
+}
+
+void USOverlayInventorySlot::UpdateCurrentAmmo(int32 NewCurrentAmmo)
+{
+	CurrentClipAmmo = NewCurrentAmmo;
+	CurrentSlotAmmo = CurrentClipAmmo + CurrentExtraAmmo;
+
+	UpdateAmmoText();
+}
+
 // This slot is being un-equipped
 void USOverlayInventorySlot::ResetSlot()
 {
-	//if (SlotBorder)
-	//{
-	//	SlotBorder->SetBrushColor(FColor::White);
-	//}
 	SetRenderTranslation(FVector2D(0.f, 0.f));
 }
 
 // This slot is being equipped
 void USOverlayInventorySlot::ActivateSlot()
 {
-	//if (SlotBorder)
-	//{
-	//	SlotBorder->SetBrushColor(FColor::Blue);
-	//}
 	SetRenderTranslation(FVector2D(0.f, -20.f));
 }
 
 // Slot just equipped new weapon, set children's data
-void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, int32 AmmoAmount)
+void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType AmmoTypeNew)
 {
+	// Update slot data for ourselves
+	CurrentAmmoType = AmmoTypeNew;
+	CurrentClipAmmo = CurrentAmmo;
+	CurrentExtraAmmo = ExtraAmmo;
+	CurrentSlotAmmo = CurrentAmmo + ExtraAmmo;
+	
+
 	// Set text visible and initial text value
 	if (AmmoText)
 	{
 		AmmoText->SetVisibility(ESlateVisibility::Visible);
-		AmmoText->SetText(FText::FromString(FString::FromInt(AmmoAmount)));
+		AmmoText->SetText(FText::FromString(FString::FromInt(CurrentSlotAmmo)));
 	}
 
 	// Update slot properties
@@ -87,11 +114,11 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, int32 AmmoAmoun
 	}
 }
 
-void USOverlayInventorySlot::UpdateAmmoText(int32 AmmoAmount)
+void USOverlayInventorySlot::UpdateAmmoText()
 {
 	if (AmmoText)
 	{
-		AmmoText->SetText(FText::FromString(FString::FromInt(AmmoAmount)));
+		AmmoText->SetText(FText::FromString(FString::FromInt(CurrentSlotAmmo)));
 	}
 }
 

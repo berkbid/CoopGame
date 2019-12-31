@@ -11,6 +11,7 @@ class UBorder;
 class USOverlayInventorySlot;
 class USUserWidgetPlayerStats;
 class ASWeapon;
+enum class EAmmoType : uint8;
 
 /**
  * 
@@ -76,11 +77,14 @@ public:
 	void InventoryChangeToSlot(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo);
 
 	UFUNCTION()
-	void SetSlotAndWeaponAmmo(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo);
+	void HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
 
-	void SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo);
+	void SetCurrentSlotAmmo(int32 NewCurrentAmmo);
 
-	void HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 SlotTotal);
+	// To update HUD for a certain ammo type, wherever it exists
+	void SetAmmoTypeAmount(EAmmoType NewAmmoType, int32 ExtraAmmo);
+
+	void HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType);
 
 	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 

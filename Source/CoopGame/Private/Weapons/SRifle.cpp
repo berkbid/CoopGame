@@ -116,7 +116,7 @@ void ASRifle::Fire()
 			{
 				PC->ClientPlayCameraShake(FireCamShake);
 				// Update ammo HUD for client, no need to alter ammo inventory, only do that on reload
-				PC->ClientDecrementAmmoType(AmmoType, CurrentClipSize);
+				PC->ClientUpdateClipHUD(AmmoType, CurrentClipSize);
 			}
 		}
 	}

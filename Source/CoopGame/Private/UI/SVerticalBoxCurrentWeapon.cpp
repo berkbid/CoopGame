@@ -40,15 +40,32 @@ void USVerticalBoxCurrentWeapon::SetWeaponName(FString NewWeaponName)
 	}
 }
 
-void USVerticalBoxCurrentWeapon::SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo)
+void USVerticalBoxCurrentWeapon::SetAmmoText()
 {
 	if (CurrentWeaponAmmo)
 	{
 		UTextBlock* AmmoText = Cast<UTextBlock>(CurrentWeaponAmmo->GetChildAt(1));
 		if (AmmoText)
 		{
-			//FString NewAmmoText = FString::FromInt(CurrentAmmo) + " / " + FString::FromInt(TotalAmmo);
-			AmmoText->SetText(FText::FromString(FString::FromInt(CurrentAmmo) + " / " + FString::FromInt(TotalAmmo)));
+			AmmoText->SetText(FText::FromString(FString::FromInt(CurrentClipSize) + " / " + FString::FromInt(ExtraClipSize)));
 		}
 	}
 }
+
+void USVerticalBoxCurrentWeapon::SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
+{
+	CurrentClipSize = NewCurrentAmmo;
+	ExtraClipSize = NewExtraAmmo;
+}
+
+void USVerticalBoxCurrentWeapon::SetWeaponCurrentAmmo(int32 NewCurrentAmmo)
+{
+	CurrentClipSize = NewCurrentAmmo;
+}
+
+void USVerticalBoxCurrentWeapon::SetWeaponExtraAmmo(int32 NewExtraAmmo)
+{
+	ExtraClipSize = NewExtraAmmo;
+}
+
+

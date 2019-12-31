@@ -198,7 +198,7 @@ public:
 
 	/* Decrement AmmoType in our AmmoInventory an update HUD for clients */
 	UFUNCTION(Client, Unreliable)
-	void ClientDecrementAmmoType(EAmmoType AmmoType, int32 CurrentAmmo);
+	void ClientUpdateClipHUD(EAmmoType AmmoType, int32 CurrentAmmo);
 
 	bool bIsInventoryFull;
 
@@ -214,15 +214,15 @@ protected:
 	void ChangeToSlotHUD(int32 NewSlot);
 
 	UFUNCTION(Client, Reliable)
+	void ClientHandleReloadHUD(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo);
+
+	UFUNCTION(Client, Reliable)
 	void ClientChangeToSlotHUD(int32 NewSlot);
 
 	UFUNCTION(Client, Reliable)
 	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 SlotToUpdate);
 
-	void UpdateAllHUDAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
-
-	UFUNCTION(Client, Reliable)
-	void ClientUpdateAllHudAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 MaxAmmo);
+	void UpdateAmmoTypeHUD(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();

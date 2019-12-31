@@ -6,6 +6,10 @@
 #include "Components/Overlay.h"
 #include "SOverlayInventorySlot.generated.h"
 
+
+enum class EAmmoType : uint8;
+
+
 /**
  * 
  */
@@ -35,14 +39,27 @@ public:
 	 */
 	virtual void PostInitProperties() override;
 
+	void UpdateCurrentAmmo(int32 NewCurrentAmmo);
+
+	void UpdateExtraAmmo(int32 NewExtraAmmo);
+
+	void UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo);
+
 	void ResetSlot();
 
 	void ActivateSlot();
 
-	void InitSlot(class UTexture2D* WeaponTexture, int32 AmmoAmount);
+	void InitSlot(class UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType AmmoTypeNew);
 
-	void UpdateAmmoText(int32 AmmoAmount);
+	void UpdateAmmoText();
 
+	EAmmoType CurrentAmmoType;
+
+	int32 CurrentSlotAmmo;
+
+	int32 CurrentClipAmmo;
+
+	int32 CurrentExtraAmmo;
 
 protected:
 
@@ -51,6 +68,8 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* SlotBorder;
+
+
 
 	// UWidget interface
 	virtual TSharedRef<SWidget> RebuildWidget() override;

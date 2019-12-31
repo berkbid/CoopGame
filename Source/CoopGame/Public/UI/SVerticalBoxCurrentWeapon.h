@@ -31,7 +31,14 @@ public:
 
 	void SetWeaponName(FString NewWeaponName);
 
-	void SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo);
+	void SetAmmoText();
+
+	void SetWeaponCurrentAmmo(int32 NewCurrentAmmo);
+
+	void SetWeaponExtraAmmo(int32 NewExtraAmmo);
+
+	void SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo);
+
 
 protected:
 
@@ -40,4 +47,7 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* CurrentWeaponType;
+
+	int32 CurrentClipSize;
+	int32 ExtraClipSize;
 };

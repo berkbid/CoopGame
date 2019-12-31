@@ -65,7 +65,7 @@ void ASProjectileWeapon::Fire()
 			ASPlayerController* PC = Cast<ASPlayerController>(MyPawnOwner->GetController());
 			if (PC)
 			{
-				PC->ClientDecrementAmmoType(AmmoType, CurrentClipSize);
+				PC->ClientUpdateClipHUD(AmmoType, CurrentClipSize);
 			}
 		}
 	}

@@ -140,7 +140,7 @@ void ASPlayerController::SetupInitialHUDState()
 			}
 
 			// Set initial HUD state for weapon slot, showing weapon image and slot ammo amount
-			MyGameInfo->HandlePickupWeapon(i, WeaponInventory[i].WeaponType, WeaponInventory[i].CurrentAmmo + NewMaxAmmo);
+			MyGameInfo->HandlePickupWeapon(i, WeaponInventory[i].WeaponType, WeaponInventory[i].CurrentAmmo, NewMaxAmmo, WeaponInventory[i].AmmoType);
 		}
 
 		// Set inventory slot as active
@@ -355,45 +355,17 @@ void ASPlayerController::ChangeToSlotHUD(int32 NewSlot)
 	}
 }
 
-void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
-{
-	ChangeToSlotHUD(NewSlot);
-}
-
-void ASPlayerController::UpdateAllHUDAmmo(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
+void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo)
 {
 	if (!MyGameInfo) { return; }
 
-	// Update slot and weapon ammo
-	MyGameInfo->SetSlotAndWeaponAmmo(CurrentSlot, CurrentAmmo, ExtraAmmo);
+	MyGameInfo->HandleReloadAmmoType(NewAmmoType, NewClipAmmo, NewExtraAmmo);
 
-	// Update extra ammo text only on reload not on fire
-	switch (AmmoType)
-	{
-	case EAmmoType::MiniAmmo:
-		MyGameInfo->SetMiniAmmoText(FString::FromInt(ExtraAmmo));
-		break;
-	case EAmmoType::MediumAmmo:
-		MyGameInfo->SetMediumAmmoText(FString::FromInt(ExtraAmmo));
-		break;
-	case EAmmoType::HeavyAmmo:
-		MyGameInfo->SetHeavyAmmoText(FString::FromInt(ExtraAmmo));
-		break;
-	case EAmmoType::ShellAmmo:
-		MyGameInfo->SetShellAmmoText(FString::FromInt(ExtraAmmo));
-		break;
-	case EAmmoType::RocketAmmo:
-		MyGameInfo->SetRocketAmmoText(FString::FromInt(ExtraAmmo));
-		break;
-	default:
-		break;
-	}
 }
 
-// Server gives client necessary info to update HUD every time player shoots
-void ASPlayerController::ClientUpdateAllHudAmmo_Implementation(EAmmoType AmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
+void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 {
-	UpdateAllHUDAmmo(AmmoType, CurrentAmmo, ExtraAmmo);
+	ChangeToSlotHUD(NewSlot);
 }
 
 // When server PICKS UP NEW WEAPON, updates SlotToUpdate so owning client updates HUD for that slot
@@ -425,7 +397,7 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo Weapon
 			break;
 		}
 		// Set initial HUD state for weapon s lot, including picture and ammo amount
-		MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo.WeaponType, WeaponInfo.CurrentAmmo + NewMaxAmmo);
+		MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo.WeaponType, WeaponInfo.CurrentAmmo, NewMaxAmmo, WeaponInfo.AmmoType);
 		
 	}
 
@@ -470,7 +442,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo)
 		
 			// Update HUD elements for new weapon
 			ClientPickupWeaponHUD(WeaponInfo, i);
-			// want to inventoryupdateammo
 
 			// Update inventory size variable and set bIsInventoryFull
 			CurrentInventorySize++;
@@ -509,97 +480,72 @@ int32 ASPlayerController::GrabAmmoOfType(EAmmoType AmmoType, int32 CurrentClipSi
 	if (AmmmoNeeded <= 0) { return 0; }
 
 	int32 AmmoReturnAmount = 0;
-	int32 TempMaxAmmo = 0;
-
-	switch (AmmoType)
-	{
-	case EAmmoType::MiniAmmo:
-		TempMaxAmmo = AmmoInventory.MiniCount;
-
-		if (TempMaxAmmo > 0)
-		{
-			// Find out how much ammo we can give to weapon and save value for return
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, TempMaxAmmo);
-			// Remove that ammo from our ammo inventory
-			AmmoInventory.MiniCount -= AmmoReturnAmount;
-			// Store resulting amount of ammo in inventory of that type
-			TempMaxAmmo = AmmoInventory.MiniCount;
-		}
-		break;
-	case EAmmoType::MediumAmmo:
-		TempMaxAmmo = AmmoInventory.MediumCount;
-
-		if (TempMaxAmmo > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, TempMaxAmmo);
-			AmmoInventory.MediumCount -= AmmoReturnAmount;
-			TempMaxAmmo = AmmoInventory.MediumCount;
-		}
-		break;
-	case EAmmoType::HeavyAmmo:
-		TempMaxAmmo = AmmoInventory.HeavyCount;
-
-		if (TempMaxAmmo > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, TempMaxAmmo);
-			AmmoInventory.HeavyCount -= AmmoReturnAmount;
-			TempMaxAmmo = AmmoInventory.HeavyCount;
-		}
-		break;
-	case EAmmoType::ShellAmmo:
-		TempMaxAmmo = AmmoInventory.ShellCount;
-
-		if (TempMaxAmmo > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, TempMaxAmmo);
-			AmmoInventory.ShellCount -= AmmoReturnAmount;
-			TempMaxAmmo = AmmoInventory.ShellCount;
-		}
-		break;
-	case EAmmoType::RocketAmmo:
-		TempMaxAmmo = AmmoInventory.RocketCount;
-
-		if (TempMaxAmmo > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, TempMaxAmmo);
-			AmmoInventory.RocketCount -= AmmoReturnAmount;
-			TempMaxAmmo = AmmoInventory.RocketCount;
-		}
-		break;
-	default:
-		break;
-	}
-
-	//need to update ammo slot HUD for all slots using same ammo type
-	ClientUpdateAllHudAmmo(AmmoType, CurrentClipSize + AmmoReturnAmount, TempMaxAmmo);
-	return AmmoReturnAmount;
-}
-
-// Decrement AmmoType in our AmmoInventory an update HUD for clients
-void ASPlayerController::ClientDecrementAmmoType_Implementation(EAmmoType AmmoType, int32 CurrentAmmo)
-{
 	int32 ExtraAmmoTemp = 0;
+
 	switch (AmmoType)
 	{
 	case EAmmoType::MiniAmmo:
 		ExtraAmmoTemp = AmmoInventory.MiniCount;
+		if (ExtraAmmoTemp > 0)
+		{
+			// Find out how much ammo we can give to weapon and save value for return
+			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
+			// Remove that ammo from our ammo inventory
+			AmmoInventory.MiniCount -= AmmoReturnAmount;
+			// Store resulting amount of ammo in inventory of that type
+			ExtraAmmoTemp = AmmoInventory.MiniCount;
+		}
 		break;
 	case EAmmoType::MediumAmmo:
 		ExtraAmmoTemp = AmmoInventory.MediumCount;
+		if (ExtraAmmoTemp > 0)
+		{
+			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
+			AmmoInventory.MediumCount -= AmmoReturnAmount;
+			ExtraAmmoTemp = AmmoInventory.MediumCount;
+		}
 		break;
 	case EAmmoType::HeavyAmmo:
 		ExtraAmmoTemp = AmmoInventory.HeavyCount;
+		if (ExtraAmmoTemp > 0)
+		{
+			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
+			AmmoInventory.HeavyCount -= AmmoReturnAmount;
+			ExtraAmmoTemp = AmmoInventory.HeavyCount;
+		}
 		break;
 	case EAmmoType::ShellAmmo:
 		ExtraAmmoTemp = AmmoInventory.ShellCount;
+		if (ExtraAmmoTemp > 0)
+		{
+			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
+			AmmoInventory.ShellCount -= AmmoReturnAmount;
+			ExtraAmmoTemp = AmmoInventory.ShellCount;
+		}
 		break;
 	case EAmmoType::RocketAmmo:
 		ExtraAmmoTemp = AmmoInventory.RocketCount;
+		if (ExtraAmmoTemp > 0)
+		{
+			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
+			AmmoInventory.RocketCount -= AmmoReturnAmount;
+			ExtraAmmoTemp = AmmoInventory.RocketCount;
+		}
 		break;
 	default:
 		break;
 	}
-	UpdateAllHUDAmmo(AmmoType, CurrentAmmo, ExtraAmmoTemp);
+
+	ClientHandleReloadHUD(AmmoType, CurrentClipSize + AmmoReturnAmount, ExtraAmmoTemp);
+	return AmmoReturnAmount;
+}
+
+void ASPlayerController::ClientUpdateClipHUD_Implementation(EAmmoType AmmoType, int32 CurrentAmmo)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->SetCurrentSlotAmmo(CurrentAmmo);
+	}
 }
 
 void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

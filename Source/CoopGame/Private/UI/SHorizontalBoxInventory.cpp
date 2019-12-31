@@ -4,6 +4,7 @@
 #include "SHorizontalBoxInventory.h"
 #include "SOverlayInventorySlot.h"
 #include "Engine/Texture2D.h"
+#include "SPlayerController.h"
 
 
 void USHorizontalBoxInventory::ReleaseSlateResources(bool bReleaseChildren)
@@ -34,7 +35,7 @@ void USHorizontalBoxInventory::SynchronizeProperties()
 	}
 }
 
-void USHorizontalBoxInventory::HandlePickupWeapon(int32 WeaponSlot, UTexture2D* WeaponTexture, int32 SlotTotal)
+void USHorizontalBoxInventory::HandlePickupWeapon(int32 WeaponSlot, UTexture2D* WeaponTexture, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType)
 {
 	// If we have a valid child at WeaponSlot, call InitSlot on that SOverlayInventorySlot class
 	if (InventorySlots.Num() > WeaponSlot)
@@ -42,7 +43,7 @@ void USHorizontalBoxInventory::HandlePickupWeapon(int32 WeaponSlot, UTexture2D* 
 		USOverlayInventorySlot* NewSlot = InventorySlots[WeaponSlot];
 		if (NewSlot)
 		{
-			NewSlot->InitSlot(WeaponTexture, SlotTotal);
+			NewSlot->InitSlot(WeaponTexture, CurrentAmmo, ExtraAmmo, NewAmmoType);
 		}
 	}
 }
@@ -68,16 +69,41 @@ void USHorizontalBoxInventory::HandleSlotChange(int32 WeaponSlot)
 	}
 }
 
-void USHorizontalBoxInventory::SetSlotAmmo(int32 WeaponSlot, int32 SlotTotal)
+// @TODO Figure out how to handle extra ammo updates
+void USHorizontalBoxInventory::UpdateCurrentSlotAmmo(int32 CurrentAmmo)
 {
-	if (WeaponSlot < 0) { return; }
-	// If we have a valid child at WeaponSlot index
-	if (InventorySlots.Num() > WeaponSlot)
+	if (CurrentSlot)
 	{
-		USOverlayInventorySlot* NewSlot = InventorySlots[WeaponSlot];
-		if (NewSlot)
+		CurrentSlot->UpdateCurrentAmmo(CurrentAmmo);
+	}
+}
+
+void USHorizontalBoxInventory::UpdateExtraSlotAmmo(int32 ExtraAmmo)
+{
+	if (CurrentSlot)
+	{
+		CurrentSlot->UpdateExtraAmmo(ExtraAmmo);
+	}
+}
+
+void USHorizontalBoxInventory::UpdateBothAmmo(int32 CurrentAmmo, int32 ExtraAmmo)
+{
+	if (CurrentSlot)
+	{
+		CurrentSlot->UpdateBothAmmo(CurrentAmmo, ExtraAmmo);
+	}
+}
+
+void USHorizontalBoxInventory::UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewExtraAmmo)
+{
+	for (USOverlayInventorySlot* InvSlot : InventorySlots)
+	{
+		if (InvSlot)
 		{
-			NewSlot->UpdateAmmoText(SlotTotal);
+			if (InvSlot->CurrentAmmoType == NewAmmoType)
+			{
+				InvSlot->UpdateExtraAmmo(NewExtraAmmo);
+			}
 		}
 	}
 }

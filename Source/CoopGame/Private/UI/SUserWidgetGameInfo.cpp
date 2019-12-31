@@ -44,32 +44,75 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot, int32 Current
 	{
 		InventoryContainer->HandleSlotChange(WeaponSlot);
 	}
-	// Handle current weapon info showing new slot info
-	SetWeaponAmmo(CurrentAmmo, ExtraAmmo);
+
+	if (CurrentWeaponInfo)
+	{
+		CurrentWeaponInfo->SetBothAmmo(CurrentAmmo, ExtraAmmo);
+	}
 }
 
-// Whenever we set slot ammo, we ant to set weapon ammo also
-// When player reloads or shoots, this is only time SlotAmmo changes, not from swapping weapons
-void USUserWidgetGameInfo::SetSlotAndWeaponAmmo(int32 WeaponSlot, int32 CurrentAmmo, int32 ExtraAmmo)
+
+// When player reloads
+void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
 {
 	if (InventoryContainer)
 	{
-		InventoryContainer->SetSlotAmmo(WeaponSlot, CurrentAmmo + ExtraAmmo);
+		InventoryContainer->UpdateBothAmmo(CurrentAmmo, ExtraAmmo);
+		InventoryContainer->UpdateAmmoTypeAmount(NewAmmoType, ExtraAmmo);
 	}
-	SetWeaponAmmo(CurrentAmmo, ExtraAmmo);
-}
-
-// When player reloads or shoots, weapon ammo changes, also reload calls this
-void USUserWidgetGameInfo::SetWeaponAmmo(int32 CurrentAmmo, int32 TotalAmmo)
-{
 	if (CurrentWeaponInfo)
 	{
-		CurrentWeaponInfo->SetWeaponAmmo(CurrentAmmo, TotalAmmo);
+		CurrentWeaponInfo->SetBothAmmo(CurrentAmmo, ExtraAmmo);
+	}
+}
+
+void USUserWidgetGameInfo::SetCurrentSlotAmmo(int32 NewCurrentAmmo)
+{
+	if (InventoryContainer)
+	{
+		InventoryContainer->UpdateCurrentSlotAmmo(NewCurrentAmmo);
+	}
+
+	if (CurrentWeaponInfo)
+	{
+		CurrentWeaponInfo->SetWeaponCurrentAmmo(NewCurrentAmmo);
+	}
+}
+
+
+void USUserWidgetGameInfo::SetAmmoTypeAmount(EAmmoType NewAmmoType, int32 ExtraAmmo)
+{
+	if (InventoryContainer)
+	{
+		// Inventory loops through slots and sees if ammo type matches, if so, updates HUD
+		InventoryContainer->UpdateAmmoTypeAmount(NewAmmoType, ExtraAmmo);
+	}
+
+	// Update extra ammo text only on reload not on fire
+	switch (NewAmmoType)
+	{
+	case EAmmoType::MiniAmmo:
+		SetMiniAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::MediumAmmo:
+		SetMediumAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::HeavyAmmo:
+		SetHeavyAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::ShellAmmo:
+		SetShellAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::RocketAmmo:
+		SetRocketAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	default:
+		break;
 	}
 }
 
 // When player picks up a weapon, update inventory with weapon picture and Slot Ammo amount
-void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 SlotTotal)
+void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWeapon> InventoryItemClass, int32 CurrentAmmo, int32 ExtraAmmo, EAmmoType NewAmmoType)
 {
 	// Find texture associated with weapon class we picked up
 	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(InventoryItemClass);
@@ -79,10 +122,9 @@ void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, TSubclassOf<ASWe
 		// Check pointer before dereferencing it
 		if (TempWeaponTexture)
 		{
-			// initializes WeaponSlot with weapon image and slot total ammo text
-			InventoryContainer->HandlePickupWeapon(WeaponSlot, *TempWeaponTexture, SlotTotal);
+			// Initialize slot in inventory with texture, ammo type, current and extra ammo data
+			InventoryContainer->HandlePickupWeapon(WeaponSlot, *TempWeaponTexture, CurrentAmmo, ExtraAmmo, NewAmmoType);
 		}
-
 	}
 }
 
