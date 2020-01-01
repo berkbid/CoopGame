@@ -84,6 +84,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void PickupWeapon(const FWeaponInfo& WeaponInfo, AActor* PickupActor);
 
+	UFUNCTION(BlueprintCallable, Category = "Ammo")
+	int32 PickupAmmo(EAmmoType AmmoType, int32 AmmoAmount);
+
 	/* Equips the new weapon and returns ammo count of last weapon */
 	int32 EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot);
 

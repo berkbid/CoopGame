@@ -2,6 +2,7 @@
 
 
 #include "SAmmoPickup.h"
+#include "SCharacter.h"
 
 ASAmmoPickup::ASAmmoPickup()
 {
@@ -11,5 +12,18 @@ ASAmmoPickup::ASAmmoPickup()
 
 void ASAmmoPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-
+	//UE_LOG(LogTemp, Warning, TEXT("OVERLAPPING"));
+	ASCharacter* OverlappedCharacter = Cast<ASCharacter>(OtherActor);
+	if (OverlappedCharacter)
+	{
+		int32 LeftOverAmmo = OverlappedCharacter->PickupAmmo(AmmoType, AmmoAmount);
+		if (LeftOverAmmo <= 0)
+		{
+			Destroy();
+		}
+		else
+		{
+			AmmoAmount = LeftOverAmmo;
+		}
+	}
 }

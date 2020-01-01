@@ -94,6 +94,47 @@ void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 Cur
 	}
 }
 
+void USUserWidgetGameInfo::HandlePickupAmmo(EAmmoType NewAmmoType, int32 ExtraAmmo)
+{
+	// Tell inventory new current ammo and extra ammo amount (current slot is assumed by inventory)
+	if (InventoryContainer)
+	{
+		InventoryContainer->UpdateExtraSlotAmmo(ExtraAmmo);
+
+		// Update slot ammo text for all slots that share same ammo type since reload altered this amount
+		InventoryContainer->UpdateAmmoTypeAmount(NewAmmoType, ExtraAmmo);
+	}
+
+	// Update the weapon info HUD with new ammo values
+	if (CurrentWeaponInfo)
+	{
+		CurrentWeaponInfo->SetWeaponExtraAmmo(ExtraAmmo);
+	}
+
+
+	// Update extra ammo text
+	switch (NewAmmoType)
+	{
+	case EAmmoType::MiniAmmo:
+		SetMiniAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::MediumAmmo:
+		SetMediumAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::HeavyAmmo:
+		SetHeavyAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::ShellAmmo:
+		SetShellAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	case EAmmoType::RocketAmmo:
+		SetRocketAmmoText(FString::FromInt(ExtraAmmo));
+		break;
+	default:
+		break;
+	}
+}
+
 // When player shoots and current clip ammo changes, send data to relevant HUD objects
 void USUserWidgetGameInfo::UpdateCurrentClipAmmo(int32 NewCurrentAmmo)
 {

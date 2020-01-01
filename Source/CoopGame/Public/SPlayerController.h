@@ -9,36 +9,26 @@
 
 class ASWeapon;
 
-UENUM(BlueprintType)		
+
+UENUM(BlueprintType)
 enum class EAmmoType : uint8
 {
 	MiniAmmo,
-
 	MediumAmmo,
-
 	HeavyAmmo,
-
 	ShellAmmo,
-
 	RocketAmmo
 };
-
 
 UENUM(BlueprintType)
 enum class EWeaponRarity : uint8
 {
 	Common,
-
 	Uncommon,
-
 	Rare,
-
 	Epic,
-
 	Legendary
-
 };
-
 
 USTRUCT(BlueprintType)
 struct FAmmoInfo
@@ -47,23 +37,38 @@ struct FAmmoInfo
 
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 MiniCount;
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		int32 MiniCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 MediumCount;
+		int32 MediumCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 HeavyCount;
+		int32 HeavyCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 ShellCount;
+		int32 ShellCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 RocketCount;
+		int32 RocketCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		int32 MaxMiniAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		int32 MaxMediumAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		int32 MaxHeavyAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		int32 MaxShellAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+		int32 MaxRocketAmmo;
 
 	/* Helper function for retrieving ammo of a certain type, passes back how much ammo could be returned and new total for ammo type*/
-	void RequestAmmo(EAmmoType AmmoTypeNeeded, int32 AmmoAmountRequested, int32 &AmmoReturned, int32 &NewAmmoTotal)
+	void RequestAmmo(EAmmoType AmmoTypeNeeded, int32 AmmoAmountRequested, int32& AmmoReturned, int32& NewAmmoTotal)
 	{
 		int32 ExtraAmmoTemp = 0;
 		int32 AmmoReturnAmount = 0;
@@ -123,6 +128,86 @@ struct FAmmoInfo
 		NewAmmoTotal = ExtraAmmoTemp;
 	}
 
+	/* Function to add ammo, returns left over ammo if full of specified type, and new ammo total of specified type */
+	void AddAmmo(EAmmoType NewAmmoType, int32 AmmoAmount, int32& LeftOverAmmo, int32& NewAmmoTotal)
+	{
+		switch (NewAmmoType)
+		{
+		case EAmmoType::MiniAmmo:
+			if (MiniCount + AmmoAmount > MaxMiniAmmo)
+			{
+				LeftOverAmmo = AmmoAmount - (MaxMiniAmmo - MiniCount);
+				MiniCount = MaxMiniAmmo;
+				NewAmmoTotal = MiniCount;
+			}
+			else
+			{
+				LeftOverAmmo = 0;
+				MiniCount += AmmoAmount;
+				NewAmmoTotal = MiniCount;
+			}
+			break;
+		case EAmmoType::MediumAmmo:
+			if (MediumCount + AmmoAmount > MaxMediumAmmo)
+			{
+				LeftOverAmmo = AmmoAmount - (MaxMediumAmmo - MediumCount);
+				MediumCount = MaxMediumAmmo;
+				NewAmmoTotal = MediumCount;
+			}
+			else
+			{
+				LeftOverAmmo = 0;
+				MediumCount += AmmoAmount;
+				NewAmmoTotal = MediumCount;
+			}
+			break;
+		case EAmmoType::HeavyAmmo:
+			if (HeavyCount + AmmoAmount > MaxHeavyAmmo)
+			{
+				LeftOverAmmo = AmmoAmount - (MaxHeavyAmmo - HeavyCount);
+				HeavyCount = MaxHeavyAmmo;
+				NewAmmoTotal = HeavyCount;
+			}
+			else
+			{
+				LeftOverAmmo = 0;
+				HeavyCount += AmmoAmount;
+				NewAmmoTotal = HeavyCount;
+			}
+			break;
+		case EAmmoType::ShellAmmo:
+			if (ShellCount + AmmoAmount > MaxShellAmmo)
+			{
+				LeftOverAmmo = AmmoAmount - (MaxShellAmmo - ShellCount);
+				ShellCount = MaxShellAmmo;
+				NewAmmoTotal = ShellCount;
+			}
+			else
+			{
+				LeftOverAmmo = 0;
+				ShellCount += AmmoAmount;
+				NewAmmoTotal = ShellCount;
+			}
+			break;
+		case EAmmoType::RocketAmmo:
+			if (RocketCount + AmmoAmount > MaxRocketAmmo)
+			{
+				LeftOverAmmo = AmmoAmount - (MaxRocketAmmo - RocketCount);
+				RocketCount = MaxRocketAmmo;
+				NewAmmoTotal = RocketCount;
+			}
+			else
+			{
+				LeftOverAmmo = 0;
+				RocketCount += AmmoAmount;
+				NewAmmoTotal = RocketCount;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
 	// For Garbage Cleanup
 	void Destroy()
 	{
@@ -137,9 +222,14 @@ struct FAmmoInfo
 		HeavyCount = 0;
 		ShellCount = 0;
 		RocketCount = 0;
+
+		MaxMiniAmmo = 500;
+		MaxMediumAmmo = 500;
+		MaxHeavyAmmo = 500;
+		MaxShellAmmo = 500;
+		MaxRocketAmmo = 500;
 	}
 
-	
 	FAmmoInfo(int32 NewMiniAmmo, int32 NewMediumAmmo, int32 NewHeavyAmmo, int32 NewShellAmmo, int32 NewRocketAmmo)
 	{
 		MiniCount = NewMiniAmmo;
@@ -147,6 +237,12 @@ struct FAmmoInfo
 		HeavyCount = NewHeavyAmmo;
 		ShellCount = NewShellAmmo;
 		RocketCount = NewRocketAmmo;
+
+		MaxMiniAmmo = 500;
+		MaxMediumAmmo = 500;
+		MaxHeavyAmmo = 500;
+		MaxShellAmmo = 500;
+		MaxRocketAmmo = 500;
 	}
 };
 
@@ -157,23 +253,23 @@ struct FWeaponInfo
 
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	UClass* WeaponType;
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		UClass* WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FName WeaponName;
+		FName WeaponName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	EWeaponRarity WeaponRarity;
+		EWeaponRarity WeaponRarity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	EAmmoType AmmoType;
+		EAmmoType AmmoType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 CurrentAmmo;
+		int32 CurrentAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 MaxAmmo;
+		int32 MaxAmmo;
 
 	// For Garbage Cleanup
 	void Destroy()
@@ -203,6 +299,7 @@ struct FWeaponInfo
 		MaxAmmo = NewMaxAmmo;
 	}
 };
+
 
 
 /**
@@ -261,7 +358,10 @@ public:
 	// Return success or failure for picking up weapon, based on inventory space
 	bool PickedUpNewWeapon(const FWeaponInfo& WeaponInfo);
 
-	int32 GrabAmmoOfType(int32 CurrentClipSize, int32 MaxClipSize);
+	// Return success or failure for picking up ammo, based on inventory space
+	int32 PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount);
+
+	int32 ReloadAmmoClip(int32 CurrentClipSize, int32 MaxClipSize);
 
 	/* Update current clip size for HUD, called by weapons after firing */
 	UFUNCTION(Client, Unreliable)
@@ -288,6 +388,10 @@ protected:
 
 	UFUNCTION(Client, Reliable)
 	void ClientPickupWeaponHUD(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, int32 ExtraAmmoAmount);
+
+
+	UFUNCTION(Client, Reliable)
+	void ClientPickupAmmoHUD(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();

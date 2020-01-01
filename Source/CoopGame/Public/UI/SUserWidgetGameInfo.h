@@ -81,6 +81,8 @@ public:
 	UFUNCTION()
 	void HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
 
+	void HandlePickupAmmo(EAmmoType NewAmmoType, int32 NewAmmo);
+
 	/* Handles updating current clip ammo */
 	void UpdateCurrentClipAmmo(int32 NewCurrentAmmo);
 

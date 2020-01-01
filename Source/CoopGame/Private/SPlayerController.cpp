@@ -345,6 +345,13 @@ void ASPlayerController::ChangeToSlotHUD(int32 NewSlot)
 	MyGameInfo->InventoryChangeToSlot(NewSlot);
 }
 
+void ASPlayerController::ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoType, int32 NewExtraAmmo)
+{
+	if (!MyGameInfo) { return; }
+
+	MyGameInfo->HandlePickupAmmo(NewAmmoType, NewExtraAmmo);
+}
+
 void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 {
 	ChangeToSlotHUD(NewSlot);
@@ -438,8 +445,20 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo)
 	return false;
 }
 
+int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount)
+{
+	int32 NewReturnedAmmo = 0;
+	int32 NewExtraAmmo = 0;
+	
+	AmmoInventory.AddAmmo(AmmoType, AmmoAmount, NewReturnedAmmo, NewExtraAmmo);
+
+	ClientPickupAmmoHUD(AmmoType, NewExtraAmmo);
+
+	return NewReturnedAmmo;
+}
+
 // We are server in here
-int32 ASPlayerController::GrabAmmoOfType(int32 CurrentClipSize, int32 MaxClipSize)
+int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize, int32 MaxClipSize)
 {
 	int32 AmmmoNeeded = MaxClipSize - CurrentClipSize;
 	if (AmmmoNeeded <= 0) { return 0; }

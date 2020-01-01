@@ -83,7 +83,7 @@ void ASCharacter::Reload()
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
 	if (PC)
 	{
-		CurrentWeapon->CurrentClipSize += PC->GrabAmmoOfType(CurrentWeapon->CurrentClipSize, CurrentWeapon->MaxClipSize);
+		CurrentWeapon->CurrentClipSize += PC->ReloadAmmoClip(CurrentWeapon->CurrentClipSize, CurrentWeapon->MaxClipSize);
 	}
 }
 
@@ -165,6 +165,18 @@ void ASCharacter::PickupWeapon(const FWeaponInfo& WeaponInfo, AActor* PickupActo
 			PickupActor->Destroy();
 		}
 	}
+}
+
+// Being called by server only
+int32 ASCharacter::PickupAmmo(EAmmoType AmmoType, int32 AmmoAmount)
+{
+	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
+	if (PC)
+	{
+		return PC->PickedUpNewAmmo(AmmoType, AmmoAmount);
+	}
+
+	return AmmoAmount;
 }
 
 // Only called on server because we only hooked this on the server
