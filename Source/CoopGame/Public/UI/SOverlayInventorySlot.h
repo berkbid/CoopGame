@@ -61,11 +61,16 @@ public:
 
 protected:
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
-	class UTextBlock* AmmoText;
+
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* SlotBorder;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
+	class UImage* SlotImage;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
+	class UTextBlock* AmmoText;
 
 	// UWidget interface
 	virtual TSharedRef<SWidget> RebuildWidget() override;

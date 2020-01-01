@@ -48,11 +48,8 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 		// Retrieve slot information of new slot in order to update other parts of HUD
 		InventoryContainer->HandleSlotChange(WeaponSlot, NewWeaponInfo, SlotExtraAmmo);
 
-		if (CurrentWeaponInfo)
-		{
-			// Setup current weapon info from weaponinfo and extra ammo
-			CurrentWeaponInfo->InitWeaponInfo(NewWeaponInfo, SlotExtraAmmo);
-		}
+		// Update WeaponInfo object
+		UpdateWeaponInfo(NewWeaponInfo, SlotExtraAmmo);
 	}
 }
 

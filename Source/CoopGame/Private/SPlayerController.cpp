@@ -79,7 +79,6 @@ void ASPlayerController::ServerPostLogin()
 	// Can run server code here if needed for RPC's
 	ClientPostLogin(AmmoInventory);
 
-	// Can't initialize game state here, do this at begin play
 	// Loop through WeaponInventory array and update HUD images if weapons are present
 	int32 WeaponInventoryLen = WeaponInventory.Num();
 
@@ -445,64 +444,15 @@ int32 ASPlayerController::GrabAmmoOfType(int32 CurrentClipSize, int32 MaxClipSiz
 	int32 AmmmoNeeded = MaxClipSize - CurrentClipSize;
 	if (AmmmoNeeded <= 0) { return 0; }
 
+	// Retrieve ammo from ammo inventory
 	int32 AmmoReturnAmount = 0;
 	int32 ExtraAmmoTemp = 0;
 	EAmmoType AmmoTypeNeeded = WeaponInventory[CurrentSlot].AmmoType;
-	switch (AmmoTypeNeeded)
-	{
-	case EAmmoType::MiniAmmo:
-		ExtraAmmoTemp = AmmoInventory.MiniCount;
-		if (ExtraAmmoTemp > 0)
-		{
-			// Find out how much ammo we can give to weapon and save value for return
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
-			// Remove that ammo from our ammo inventory
-			AmmoInventory.MiniCount -= AmmoReturnAmount;
-			// Store resulting amount of ammo in inventory of that type
-			ExtraAmmoTemp = AmmoInventory.MiniCount;
-		}
-		break;
-	case EAmmoType::MediumAmmo:
-		ExtraAmmoTemp = AmmoInventory.MediumCount;
-		if (ExtraAmmoTemp > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
-			AmmoInventory.MediumCount -= AmmoReturnAmount;
-			ExtraAmmoTemp = AmmoInventory.MediumCount;
-		}
-		break;
-	case EAmmoType::HeavyAmmo:
-		ExtraAmmoTemp = AmmoInventory.HeavyCount;
-		if (ExtraAmmoTemp > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
-			AmmoInventory.HeavyCount -= AmmoReturnAmount;
-			ExtraAmmoTemp = AmmoInventory.HeavyCount;
-		}
-		break;
-	case EAmmoType::ShellAmmo:
-		ExtraAmmoTemp = AmmoInventory.ShellCount;
-		if (ExtraAmmoTemp > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
-			AmmoInventory.ShellCount -= AmmoReturnAmount;
-			ExtraAmmoTemp = AmmoInventory.ShellCount;
-		}
-		break;
-	case EAmmoType::RocketAmmo:
-		ExtraAmmoTemp = AmmoInventory.RocketCount;
-		if (ExtraAmmoTemp > 0)
-		{
-			AmmoReturnAmount = FMath::Min(AmmmoNeeded, ExtraAmmoTemp);
-			AmmoInventory.RocketCount -= AmmoReturnAmount;
-			ExtraAmmoTemp = AmmoInventory.RocketCount;
-		}
-		break;
-	default:
-		break;
-	}
+	AmmoInventory.RequestAmmo(AmmoTypeNeeded, AmmmoNeeded, AmmoReturnAmount, ExtraAmmoTemp);
 
+	// Update HUD with new ammo inventory change
 	ClientHandleReloadHUD(AmmoTypeNeeded, CurrentClipSize + AmmoReturnAmount, ExtraAmmoTemp);
+
 	return AmmoReturnAmount;
 }
 

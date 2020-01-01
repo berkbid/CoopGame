@@ -62,6 +62,67 @@ struct FAmmoInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	int32 RocketCount;
 
+	/* Helper function for retrieving ammo of a certain type, passes back how much ammo could be returned and new total for ammo type*/
+	void RequestAmmo(EAmmoType AmmoTypeNeeded, int32 AmmoAmountRequested, int32 &AmmoReturned, int32 &NewAmmoTotal)
+	{
+		int32 ExtraAmmoTemp = 0;
+		int32 AmmoReturnAmount = 0;
+
+		switch (AmmoTypeNeeded)
+		{
+		case EAmmoType::MiniAmmo:
+			ExtraAmmoTemp = MiniCount;
+			if (ExtraAmmoTemp > 0)
+			{
+				AmmoReturnAmount = FMath::Min(AmmoAmountRequested, ExtraAmmoTemp);
+				MiniCount -= AmmoReturnAmount;
+				ExtraAmmoTemp = MiniCount;
+			}
+			break;
+		case EAmmoType::MediumAmmo:
+			ExtraAmmoTemp = MediumCount;
+			if (ExtraAmmoTemp > 0)
+			{
+				AmmoReturnAmount = FMath::Min(AmmoAmountRequested, ExtraAmmoTemp);
+				MediumCount -= AmmoReturnAmount;
+				ExtraAmmoTemp = MediumCount;
+			}
+			break;
+		case EAmmoType::HeavyAmmo:
+			ExtraAmmoTemp = HeavyCount;
+			if (ExtraAmmoTemp > 0)
+			{
+				AmmoReturnAmount = FMath::Min(AmmoAmountRequested, ExtraAmmoTemp);
+				HeavyCount -= AmmoReturnAmount;
+				ExtraAmmoTemp = HeavyCount;
+			}
+			break;
+		case EAmmoType::ShellAmmo:
+			ExtraAmmoTemp = ShellCount;
+			if (ExtraAmmoTemp > 0)
+			{
+				AmmoReturnAmount = FMath::Min(AmmoAmountRequested, ExtraAmmoTemp);
+				ShellCount -= AmmoReturnAmount;
+				ExtraAmmoTemp = ShellCount;
+			}
+			break;
+		case EAmmoType::RocketAmmo:
+			ExtraAmmoTemp = RocketCount;
+			if (ExtraAmmoTemp > 0)
+			{
+				AmmoReturnAmount = FMath::Min(AmmoAmountRequested, ExtraAmmoTemp);
+				RocketCount -= AmmoReturnAmount;
+				ExtraAmmoTemp = RocketCount;
+			}
+			break;
+		default:
+			break;
+		}
+
+		AmmoReturned = AmmoReturnAmount;
+		NewAmmoTotal = ExtraAmmoTemp;
+	}
+
 	// For Garbage Cleanup
 	void Destroy()
 	{

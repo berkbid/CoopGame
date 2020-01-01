@@ -4,10 +4,10 @@
 #include "SOverlayInventorySlot.h"
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
+#include "Components/Image.h"
 #include "Styling/SlateColor.h"
 #include "Math/Color.h"
 #include "Engine/Texture2D.h"
-#include "SPlayerController.h"
 
 
 USOverlayInventorySlot::USOverlayInventorySlot()
@@ -22,6 +22,7 @@ void USOverlayInventorySlot::ReleaseSlateResources(bool bReleaseChildren)
 	Super::ReleaseSlateResources(bReleaseChildren);
 
 	SlotBorder = nullptr;
+	SlotImage = nullptr;
 	AmmoText = nullptr;
 	CurrentWeaponInfo.Destroy();
 }
@@ -32,9 +33,9 @@ void USOverlayInventorySlot::SynchronizeProperties()
 
 	// Get reference to our children here for use during play
 	SlotBorder = Cast<UBorder>(GetChildAt(0));
-	AmmoText = Cast<UTextBlock>(GetChildAt(1));
+	SlotImage = Cast<UImage>(GetChildAt(1));
+	AmmoText = Cast<UTextBlock>(GetChildAt(2));
 }
-
 
 void USOverlayInventorySlot::PostInitProperties()
 {
@@ -82,12 +83,22 @@ void USOverlayInventorySlot::UpdateCurrentAmmo(int32 NewCurrentAmmo)
 // This slot is being un-equipped
 void USOverlayInventorySlot::ResetSlot()
 {
+	if (SlotBorder)
+	{
+		SlotBorder->SetVisibility(ESlateVisibility::Hidden);
+	}
+
 	SetRenderTranslation(FVector2D(0.f, 0.f));
 }
 
 // This slot is being equipped
 void USOverlayInventorySlot::ActivateSlot()
 {
+	if (SlotBorder)
+	{
+		SlotBorder->SetVisibility(ESlateVisibility::Visible);
+	}
+
 	SetRenderTranslation(FVector2D(0.f, -20.f));
 }
 
@@ -109,12 +120,13 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponIn
 	}
 
 	// Update slot properties
-	if (SlotBorder)
+	if (SlotImage)
 	{
 		// Set new weapon texture to the slot
 		if (WeaponTexture)
 		{
-			SlotBorder->SetBrushFromTexture(WeaponTexture);
+			SlotImage->SetBrushFromTexture(WeaponTexture);
+			SlotImage->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }
