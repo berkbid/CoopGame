@@ -79,40 +79,13 @@ void ASPlayerController::InitPlayerState()
 void ASPlayerController::ServerPostLogin()
 {
 	// Can run server code here if needed for RPC's
-	ClientPostLogin();
-
-}
-
-// Playerstate and gamestate not valid for clients here
-void ASPlayerController::ClientPostLogin_Implementation()
-{
-	// Create and setup initial HUD state
-	// Only local controllers can add widgets
-	if (IsLocalController())
-	{
-		// Add Game Info widget to viewport
-		if (!wGameInfo) { return; }
-		MyGameInfo = CreateWidget<USUserWidgetGameInfo>(this, wGameInfo);
-		if (!MyGameInfo) { return; }
-
-		// Pass reference of ourself to widget while calling setup logic on widget
-		MyGameInfo->SetOwningController(this);
-		MyGameInfo->AddToViewport();
-
-		// Call HUD functions to setup initial HUD state
-		SetupInitialHUDState();
-	}
-}
-
-// Client setup initial HUD state here, gamestate and playerstate only valid for server
-void ASPlayerController::SetupInitialHUDState()
-{
-	if (!MyGameInfo) { return; }
+	ClientPostLogin(AmmoInventory);
 
 	// Can't initialize game state here, do this at begin play
 	// Loop through WeaponInventory array and update HUD images if weapons are present
 	int32 WeaponInventoryLen = WeaponInventory.Num();
 
+	// Loop through our weapon inventory and populate HUD with the data
 	for (int32 i = 0; i != WeaponInventoryLen; ++i)
 	{
 		int32 NewMaxAmmo = 0;
@@ -138,24 +111,34 @@ void ASPlayerController::SetupInitialHUDState()
 			default:
 				break;
 			}
-
-			// Set initial HUD state for weapon slot, showing weapon image and slot ammo amount
-			MyGameInfo->HandlePickupWeapon(i, WeaponInventory[i], NewMaxAmmo);
-		}
-
-		// Set inventory slot as active
-		if (i == CurrentSlot)
-		{
-			// Sets current slot as selected and updates current weapon ammo info
-			ChangeToSlotHUD(i);
+			// Handle HUD for picking up weapon, will detect if is in current slot by arguments
+			ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i, NewMaxAmmo);
 		}
 	}
+}
 
-	MyGameInfo->SetMiniAmmoText(FString::FromInt(AmmoInventory.MiniCount));
-	MyGameInfo->SetMediumAmmoText(FString::FromInt(AmmoInventory.MediumCount));
-	MyGameInfo->SetHeavyAmmoText(FString::FromInt(AmmoInventory.HeavyCount));
-	MyGameInfo->SetShellAmmoText(FString::FromInt(AmmoInventory.ShellCount));
-	MyGameInfo->SetRocketAmmoText(FString::FromInt(AmmoInventory.RocketCount));
+// Playerstate and gamestate not valid for clients here
+void ASPlayerController::ClientPostLogin_Implementation(const FAmmoInfo& TempAmmoInfo)
+{
+	// Create and setup initial HUD state
+	// Only local controllers can add widgets
+	if (IsLocalController())
+	{
+		// Add Game Info widget to viewport
+		if (!wGameInfo) { return; }
+		MyGameInfo = CreateWidget<USUserWidgetGameInfo>(this, wGameInfo);
+		if (!MyGameInfo) { return; }
+
+		// Pass reference of ourself to widget while calling setup logic on widget
+		MyGameInfo->SetOwningController(this);
+		MyGameInfo->AddToViewport();
+
+		MyGameInfo->SetMiniAmmoText(FString::FromInt(TempAmmoInfo.MiniCount));
+		MyGameInfo->SetMediumAmmoText(FString::FromInt(TempAmmoInfo.MediumCount));
+		MyGameInfo->SetHeavyAmmoText(FString::FromInt(TempAmmoInfo.HeavyCount));
+		MyGameInfo->SetShellAmmoText(FString::FromInt(TempAmmoInfo.ShellCount));
+		MyGameInfo->SetRocketAmmoText(FString::FromInt(TempAmmoInfo.RocketCount));
+	}
 }
 
 void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const& NewPlayerName, uint32 NewPlayerNumber)
@@ -222,6 +205,34 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 			}
 		}
 	}
+}
+
+int32 ASPlayerController::GetExtraAmmoOfType(EAmmoType QueryAmmoType)
+{
+	int32 ReturnAmount = 0;
+
+	switch (QueryAmmoType)
+	{
+	case EAmmoType::MiniAmmo:
+		ReturnAmount = AmmoInventory.MiniCount;
+		break;
+	case EAmmoType::MediumAmmo:
+		ReturnAmount = AmmoInventory.MediumCount;
+		break;
+	case EAmmoType::HeavyAmmo:
+		ReturnAmount = AmmoInventory.HeavyCount;
+		break;
+	case EAmmoType::ShellAmmo:
+		ReturnAmount = AmmoInventory.ShellCount;
+		break;
+	case EAmmoType::RocketAmmo:
+		ReturnAmount = AmmoInventory.RocketCount;
+		break;
+	default:
+		break;
+	}
+
+	return ReturnAmount;
 }
 
 void ASPlayerController::SetupInputComponent()
@@ -346,43 +357,17 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 
 }
 
-// When server PICKS UP NEW WEAPON, updates SlotToUpdate so owning client updates HUD for that slot
 // This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
-void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo WeaponInfo, int32 SlotToUpdate)
+void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, int32 ExtraAmmoAmount)
 {
 	// Handle HUD for picking up new weapon
 	if (!MyGameInfo) { return; }
 	
-	int32 NewMaxAmmo = 0;
-	switch (WeaponInfo.AmmoType)
-	{
-	case EAmmoType::MiniAmmo:
-		NewMaxAmmo = AmmoInventory.MiniCount;
-		break;
-	case EAmmoType::MediumAmmo:
-		NewMaxAmmo = AmmoInventory.MediumCount;
-		break;
-	case EAmmoType::HeavyAmmo:
-		NewMaxAmmo = AmmoInventory.HeavyCount;
-		break;
-	case EAmmoType::ShellAmmo:
-		NewMaxAmmo = AmmoInventory.ShellCount;
-		break;
-	case EAmmoType::RocketAmmo:
-		NewMaxAmmo = AmmoInventory.RocketCount;
-		break;
-	default:
-		break;
-	}
-
 	// Set initial HUD state for weapon slot, including picture and ammo amount
-	MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo,  NewMaxAmmo);
+	MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo, ExtraAmmoAmount);
 		
-	
 	// Only play weapon pickup sound if we aren't already selecting on new weapon slot, this is because weapon swap sound will play
-	// We don't want double sound. This works fine as long as weapon pickup sound is same as weapon swap sound.
-	// Instead of calling this code here, call a function on the pawn that gets the sound pointer from the actual weapon to play sound on pickups.
-	if (CurrentSlot != SlotToUpdate)
+	if (TempCurrentSlot != SlotToUpdate)
 	{
 		// Play pickup sound also
 		if (PickedupSound)
@@ -398,7 +383,7 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo Weapon
 	else
 	{
 		// Call HUD method to change to slot
-		MyGameInfo->UpdateWeaponInfo(WeaponInfo, NewMaxAmmo);
+		MyGameInfo->UpdateWeaponInfo(WeaponInfo, ExtraAmmoAmount);
 	}
 }
 
@@ -419,8 +404,9 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo)
 			// Update weapon inventory slot to new weaponclass
 			WeaponInventory[i] = WeaponInfo;
 		
-			// Update HUD elements for new weapon
-			ClientPickupWeaponHUD(WeaponInfo, i);
+			int32 ExtraAmmoAmount = GetExtraAmmoOfType(WeaponInfo.AmmoType);
+			// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
+			ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, i, ExtraAmmoAmount);
 
 			// Update inventory size variable and set bIsInventoryFull
 			CurrentInventorySize++;
@@ -443,7 +429,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo)
 			{
 				// Only want to play pickup sound in this scenario, or don't want to play weapon swap sound in "if" clause above
 			}
-
 			//We officially equipped new weapon, return success
 			return true;
 		}
@@ -530,14 +515,5 @@ void ASPlayerController::ClientUpdateClipHUD_Implementation(int32 CurrentAmmo)
 void ASPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// WeaponInventory is an array of the weapons the controller has, server updates this array and owning client needs the data
-	DOREPLIFETIME_CONDITION(ASPlayerController, WeaponInventory, COND_OwnerOnly);
-
-	// Share ammo inventory data with client
-	DOREPLIFETIME_CONDITION(ASPlayerController, AmmoInventory, COND_OwnerOnly);
-
-	// Server updates this property and owning client reacts by updating HUD showing newly "selected" inventory slot
-	DOREPLIFETIME_CONDITION(ASPlayerController, CurrentSlot, COND_OwnerOnly);
 
 }

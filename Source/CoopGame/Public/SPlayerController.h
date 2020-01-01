@@ -173,7 +173,7 @@ public:
 
 	// Needs to be set Reliable, GameMode calls this OnPostLogin
 	UFUNCTION(Client, Reliable)
-	void ClientPostLogin();
+	void ClientPostLogin(const FAmmoInfo& TempAmmoInfo);
 
 	UFUNCTION(Client, Reliable)
 	void ClientAddPlayerToHUDScoreboard(FString const &NewPlayerName, uint32 NewPlayerNumber);
@@ -202,7 +202,7 @@ public:
 
 	int32 GrabAmmoOfType(int32 CurrentClipSize, int32 MaxClipSize);
 
-	/* Update current clip size for HUD */
+	/* Update current clip size for HUD, called by weapons after firing */
 	UFUNCTION(Client, Unreliable)
 	void ClientUpdateClipHUD(int32 CurrentAmmo);
 
@@ -213,7 +213,7 @@ protected:
 
 	virtual void OnPossess(APawn* aPawn) override;
 
-	void SetupInitialHUDState();
+	int32 GetExtraAmmoOfType(EAmmoType QueryAmmoType);
 
 	void EquipWeapon(int NewWeaponSlot);
 
@@ -226,7 +226,7 @@ protected:
 	void ClientHandleReloadHUD(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo);
 
 	UFUNCTION(Client, Reliable)
-	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 SlotToUpdate);
+	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, int32 ExtraAmmoAmount);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();
@@ -243,17 +243,17 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponFive();
 
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TArray<FWeaponInfo> WeaponInventory;
 
-	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Inventory")
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	FAmmoInfo AmmoInventory;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	class USoundBase* PickedupSound;
 
 	/* Keep track of which weapon slot is currently equipped */
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	int CurrentSlot;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
