@@ -15,12 +15,10 @@
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	CurrentSlot = 0;
 	CurrentInventorySize = 0;
 	InventoryMaxSize = 5;
 	bIsInventoryFull = false;
-
-	// These are replicated variables that the server updates and owning client updates HUD OnRep
-	CurrentSlot = 0;
 
 	// Setup initial WeaponInventory with appropriate size and NULL values
 	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
@@ -113,6 +111,10 @@ void ASPlayerController::ServerPostLogin()
 			}
 			// Handle HUD for picking up weapon, will detect if is in current slot by arguments
 			ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i, NewMaxAmmo);
+			if (i == CurrentSlot)
+			{
+				ClientChangeToSlotHUD(i);
+			}
 		}
 	}
 }
@@ -358,7 +360,7 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 }
 
 // This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
-void ASPlayerController::ClientPickupWeaponHUD_Implementation(FWeaponInfo WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, int32 ExtraAmmoAmount)
+void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo &WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, int32 ExtraAmmoAmount)
 {
 	// Handle HUD for picking up new weapon
 	if (!MyGameInfo) { return; }

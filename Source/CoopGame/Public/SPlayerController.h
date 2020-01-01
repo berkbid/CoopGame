@@ -226,7 +226,7 @@ protected:
 	void ClientHandleReloadHUD(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo);
 
 	UFUNCTION(Client, Reliable)
-	void ClientPickupWeaponHUD(FWeaponInfo WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, int32 ExtraAmmoAmount);
+	void ClientPickupWeaponHUD(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, int32 ExtraAmmoAmount);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();
