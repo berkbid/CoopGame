@@ -110,10 +110,12 @@ void ASPlayerController::ServerPostLogin()
 			}
 			// Handle HUD for picking up weapon, will detect if is in current slot by arguments
 			ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i, NewMaxAmmo);
-			if (i == CurrentSlot)
-			{
-				ClientChangeToSlotHUD(i);
-			}
+		}
+
+		// If we found our current slot, change HUD to that slot, doesn't matter if weapon is equipped in it
+		if (i == CurrentSlot)
+		{
+			ClientChangeToSlotHUD(i);
 		}
 	}
 }
