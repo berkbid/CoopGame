@@ -14,7 +14,7 @@
 #include "SWidgetCompHealthBar.h"
 #include "SPlayerState.h"
 #include "SWeapon.h"
-
+#include "SPlayerController.h"
 
 // Sets default values
 ASCharacter::ASCharacter()

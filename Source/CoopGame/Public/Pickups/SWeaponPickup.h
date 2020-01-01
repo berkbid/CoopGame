@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SPlayerController.h"
+#include "SWeaponTypes.h"
 #include "Pickups/SItemPickup.h"
 #include "SWeaponPickup.generated.h"
 

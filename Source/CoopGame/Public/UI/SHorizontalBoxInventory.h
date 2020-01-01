@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SPlayerController.h"
+#include "SWeaponTypes.h"
 #include "Components/HorizontalBox.h"
 #include "SHorizontalBoxInventory.generated.h"
 

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SPlayerController.h"
+#include "SWeaponTypes.h"
 #include "Components/Overlay.h"
 #include "SOverlayInventorySlot.generated.h"
 
