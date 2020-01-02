@@ -27,6 +27,8 @@ ASRifle::ASRifle()
 	CurrentClipSize = -1;
 	MaxClipSize = -1;
 
+	MaterialIndexToChange = 1;
+
 	// This is defined in P_SmokeTrail under Target > Distribution > Parameter Name
 	TracerTargetName = "BeamEnd";
 }

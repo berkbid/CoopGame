@@ -25,7 +25,7 @@ protected:
 	class UBoxComponent* BoxComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class USkeletalMeshComponent* MeshComp;
+	class UStaticMeshComponent* MeshComp;
 
 	UFUNCTION()
 	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);

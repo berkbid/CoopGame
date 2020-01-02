@@ -125,6 +125,7 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	// Must set owner so they are awarded for damage done by the weapon
 	SpawnParams.Owner = this;
 
+
 	// Create On_Rep function for client to update HUD when weapon changes and play sound
 	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
 	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
@@ -134,7 +135,7 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	{
 		
 		// Tell weapon important info for its functionality and so it can upate HUD properly
-		CurrentWeapon->SetInitialState(NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo);
+		CurrentWeapon->SetInitialState(NewWeaponInfo.WeaponRarity, NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 

@@ -28,6 +28,7 @@ public:
 	int32 AmmoAmount;
 
 protected:
+
 	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
 
 };

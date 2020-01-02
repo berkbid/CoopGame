@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SWeaponTypes.h"
 #include "GameFramework/Actor.h"
 #include "SWeapon.generated.h"
 
@@ -35,11 +36,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float HeadShotMultiplier;
 
+	uint8 MaterialIndexToChange;
+
+	class UMaterialInstanceDynamic* MatInst;
+
+	UPROPERTY(Replicated)
+	EWeaponRarity WeaponRarity;
+
 	virtual void Fire();
 
 	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
+
+	void InitializeVariables();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
@@ -64,13 +74,14 @@ public:
 	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
-	void SetInitialState(int32 CurrentAmmo, int32 MaxAmmo);
+	void SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo, int32 MaxAmmo);
 
 	int32 GetCurrentAmmo();
 
 	void StartFire();
 
 	void StopFire();
+
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

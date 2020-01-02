@@ -6,6 +6,7 @@
 
 ASAmmoPickup::ASAmmoPickup()
 {
+
 	AmmoType = EAmmoType::MiniAmmo;
 	AmmoAmount = 30;
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SWeapon.h"
 #include "SweaponTypes.generated.h"
 
 
@@ -291,7 +290,7 @@ struct FWeaponInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TSubclassOf<ASWeapon> WeaponType;
+	UClass* WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FName WeaponName;

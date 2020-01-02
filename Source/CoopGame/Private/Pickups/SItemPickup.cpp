@@ -2,11 +2,10 @@
 
 
 #include "SItemPickup.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SCharacter.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ASItemPickup::ASItemPickup()
@@ -21,8 +20,10 @@ ASItemPickup::ASItemPickup()
 	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	RootComponent = BoxComp;
 
-	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetupAttachment(BoxComp);
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetGenerateOverlapEvents(false);
+	MeshComp->SetupAttachment(RootComponent);
 
 	SetReplicates(true);
 }

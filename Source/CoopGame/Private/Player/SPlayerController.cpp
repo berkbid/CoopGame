@@ -256,8 +256,12 @@ int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount)
 
 	AmmoInventory.AddAmmo(AmmoType, AmmoAmount, NewReturnedAmmo, NewExtraAmmo);
 
-	ClientPickupAmmoHUD(AmmoType, NewExtraAmmo);
-
+	// If we grabbed SOME ammo, update HUD
+	if (NewReturnedAmmo < AmmoAmount)
+	{
+		ClientPickupAmmoHUD(AmmoType, NewExtraAmmo);
+	}
+	
 	return NewReturnedAmmo;
 }
 

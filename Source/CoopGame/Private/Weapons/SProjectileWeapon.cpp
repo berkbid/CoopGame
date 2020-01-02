@@ -12,6 +12,8 @@ ASProjectileWeapon::ASProjectileWeapon()
 	BaseDamage = 30.f;
 	HeadShotMultiplier = 4.f;
 
+	MaterialIndexToChange = 0;
+
 	// Update weapon variables
 	CurrentClipSize = -1;
 	MaxClipSize = -1;

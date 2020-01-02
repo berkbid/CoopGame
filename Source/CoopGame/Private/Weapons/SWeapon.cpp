@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "SPlayerController.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 // Sets default values
 ASWeapon::ASWeapon()
@@ -23,6 +24,8 @@ ASWeapon::ASWeapon()
 	CurrentClipSize = -1;
 	MaxClipSize = -1;
 
+	MaterialIndexToChange = 0;
+
 	SetReplicates(true);
 
 	NetUpdateFrequency = 66.f;
@@ -32,8 +35,10 @@ ASWeapon::ASWeapon()
 void ASWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	TimeBetweenShots = 60.f / RateOfFire;
+
+	InitializeVariables();
 }
 
 // MUST prefix with Server and require _Implementation
@@ -51,13 +56,14 @@ bool ASWeapon::ServerFire_Validate()
 void ASWeapon::Fire() {}
 
 // Server is setting these variables
-void ASWeapon::SetInitialState(int32 CurrentAmmo, int32 MaxAmmo)
+void ASWeapon::SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo, int32 MaxAmmo)
 {
-	// These are replicated to owner for use when firing
+	// This is replicated to owner for use when firing
 	CurrentClipSize = FMath::Clamp(CurrentAmmo, 0, MaxAmmo);
 
-	// These are not replicated
 	MaxClipSize = MaxAmmo;
+
+	WeaponRarity = NewWeaponRarity;
 }
 
 int32 ASWeapon::GetCurrentAmmo()
@@ -81,9 +87,64 @@ void ASWeapon::StopFire()
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
+void ASWeapon::InitializeVariables()
+{
+	switch (WeaponRarity)
+	{
+	case EWeaponRarity::Common:
+		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
+		if (MatInst)
+		{
+			MatInst->SetVectorParameterValue("Color", FLinearColor(.18f, .18f, .18f, 1.f));
+		}
+
+		break;
+	case EWeaponRarity::Uncommon:
+		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
+		if (MatInst)
+		{
+			// This variable "LastTimeDamageTaken" is set in the editor in the graph for the material
+			MatInst->SetVectorParameterValue("Color", FLinearColor(0.f, .1f, 0.f, 1.f));
+		}
+		break;
+	case EWeaponRarity::Rare:
+
+		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
+
+		if (MatInst)
+		{
+			MatInst->SetVectorParameterValue("Color", FLinearColor(0.f, 0.f, 1.f, 1.f));
+		}
+		break;
+	case EWeaponRarity::Epic:
+		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
+		if (MatInst)
+		{
+			MatInst->SetVectorParameterValue("Color", FLinearColor(1.f, 0.f, 1.f, 1.f));
+		}
+		break;
+	case EWeaponRarity::Legendary:
+		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
+		if (MatInst)
+		{
+			MatInst->SetVectorParameterValue("Color", FLinearColor(1.f, 1.f, 0.f, 1.f));
+		}
+		break;
+	default:
+		break;
+	}
+}
 void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASWeapon, CurrentClipSize, COND_OwnerOnly);
+
+	// Replicate this to clients so they can update texture on begin play
+	DOREPLIFETIME_CONDITION(ASWeapon, WeaponRarity, COND_InitialOnly);
 }
