@@ -12,7 +12,6 @@ void USHorizontalBoxInventory::ReleaseSlateResources(bool bReleaseChildren)
 
 	InventorySlots.Empty();
 	CurrentSlot = nullptr;
-
 }
 
 USHorizontalBoxInventory::USHorizontalBoxInventory()
@@ -92,22 +91,6 @@ void USHorizontalBoxInventory::UpdateCurrentSlotAmmo(int32 CurrentAmmo)
 	if (CurrentSlot)
 	{
 		CurrentSlot->UpdateCurrentAmmo(CurrentAmmo);
-	}
-}
-
-void USHorizontalBoxInventory::UpdateExtraSlotAmmo(int32 ExtraAmmo)
-{
-	if (CurrentSlot)
-	{
-		CurrentSlot->UpdateExtraAmmo(ExtraAmmo);
-	}
-}
-
-void USHorizontalBoxInventory::UpdateBothAmmo(int32 CurrentAmmo, int32 ExtraAmmo)
-{
-	if (CurrentSlot)
-	{
-		CurrentSlot->UpdateBothAmmo(CurrentAmmo, ExtraAmmo);
 	}
 }
 

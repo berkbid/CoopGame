@@ -40,15 +40,10 @@ public:
 	/* Returns extra ammo for current slot */
 	int32 GetExtraAmmoOfType(EAmmoType NewAmmoType);
 
-	/* Set ammo data for slot */
+	/* Set current ammo data for slot */
 	void UpdateCurrentSlotAmmo(int32 CurrentAmmo);
 
-	/* Set ammo data for slot */
-	void UpdateExtraSlotAmmo(int32 ExtraAmmo);
-
-	/* Set ammo data for slot */
-	void UpdateBothAmmo(int32 CurrentAmmo, int32 ExtraAmmo);
-
+	/* Set extra ammo data for ALL relevant slots using that ammo type */
 	void UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
 protected:
