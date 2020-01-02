@@ -11,6 +11,15 @@ USVerticalBoxCurrentWeapon::USVerticalBoxCurrentWeapon()
 
 }
 
+void USVerticalBoxCurrentWeapon::SynchronizeProperties()
+{
+	Super::SynchronizeProperties();
+
+	// Get reference to our children here for use during play
+	CurrentWeaponAmmo = Cast<UOverlay>(GetChildAt(0));
+	CurrentWeaponType = Cast<UBorder>(GetChildAt(1));
+}
+
 void USVerticalBoxCurrentWeapon::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);
@@ -21,13 +30,15 @@ void USVerticalBoxCurrentWeapon::ReleaseSlateResources(bool bReleaseChildren)
 
 }
 
-void USVerticalBoxCurrentWeapon::SynchronizeProperties()
+// We need this specific data from current slot to initialize our values
+void USVerticalBoxCurrentWeapon::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
 {
-	Super::SynchronizeProperties();
+	CurrentWeaponInfo = NewWeaponInfo;
+	ExtraClipSize = NewExtraAmmo;
 
-	// Get reference to our children here for use during play
-	CurrentWeaponAmmo = Cast<UOverlay>(GetChildAt(0));
-	CurrentWeaponType = Cast<UBorder>(GetChildAt(1));
+	SetAmmoType();
+	SetAmmoText();
+	SetWeaponText();
 }
 
 void USVerticalBoxCurrentWeapon::QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo)
@@ -38,13 +49,6 @@ void USVerticalBoxCurrentWeapon::QueryToSetExtraAmmo(EAmmoType NewAmmoType, int3
 	}
 }
 
-void USVerticalBoxCurrentWeapon::SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
-{
-	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
-	ExtraClipSize = NewExtraAmmo;
-	SetAmmoText();
-}
-
 void USVerticalBoxCurrentWeapon::SetWeaponCurrentAmmo(int32 NewCurrentAmmo)
 {
 	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
@@ -53,6 +57,13 @@ void USVerticalBoxCurrentWeapon::SetWeaponCurrentAmmo(int32 NewCurrentAmmo)
 
 void USVerticalBoxCurrentWeapon::SetWeaponExtraAmmo(int32 NewExtraAmmo)
 {
+	ExtraClipSize = NewExtraAmmo;
+	SetAmmoText();
+}
+
+void USVerticalBoxCurrentWeapon::SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
+{
+	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
 	ExtraClipSize = NewExtraAmmo;
 	SetAmmoText();
 }
@@ -109,15 +120,4 @@ void USVerticalBoxCurrentWeapon::SetAmmoType()
 			AmmoBorder->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-}
-
-// We need this specific data from current slot to initialize our values
-void USVerticalBoxCurrentWeapon::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
-{
-	CurrentWeaponInfo = NewWeaponInfo;
-	ExtraClipSize = NewExtraAmmo;
-
-	SetAmmoType();
-	SetAmmoText();
-	SetWeaponText();
 }

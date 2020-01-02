@@ -17,14 +17,16 @@ USOverlayInventorySlot::USOverlayInventorySlot()
 	CurrentExtraAmmo = 0;
 }
 
-void USOverlayInventorySlot::ReleaseSlateResources(bool bReleaseChildren)
+void USOverlayInventorySlot::PostInitProperties()
 {
-	Super::ReleaseSlateResources(bReleaseChildren);
-
-	SlotBorder = nullptr;
-	SlotImage = nullptr;
-	AmmoText = nullptr;
-	CurrentWeaponInfo.Destroy();
+	Super::PostInitProperties();
+	//SlotBorder = NewObject<UBorder>(this, UBorder::StaticClass());
+	//AddChildToOverlay(SlotBorder);
+	//
+	//AmmoText = NewObject<UTextBlock>(this, UTextBlock::StaticClass());
+	//AmmoText->SetText(FText::FromString(FString("40")));
+	//AmmoText->SetColorAndOpacity(FSlateColor(FLinearColor::Black));
+	//AddChildToOverlay(AmmoText);
 }
 
 void USOverlayInventorySlot::SynchronizeProperties()
@@ -37,16 +39,73 @@ void USOverlayInventorySlot::SynchronizeProperties()
 	AmmoText = Cast<UTextBlock>(GetChildAt(2));
 }
 
-void USOverlayInventorySlot::PostInitProperties()
+void USOverlayInventorySlot::ReleaseSlateResources(bool bReleaseChildren)
 {
-	Super::PostInitProperties();
-	//SlotBorder = NewObject<UBorder>(this, UBorder::StaticClass());
-	//AddChildToOverlay(SlotBorder);
-	//
-	//AmmoText = NewObject<UTextBlock>(this, UTextBlock::StaticClass());
-	//AmmoText->SetText(FText::FromString(FString("40")));
-	//AmmoText->SetColorAndOpacity(FSlateColor(FLinearColor::Black));
-	//AddChildToOverlay(AmmoText);
+	Super::ReleaseSlateResources(bReleaseChildren);
+
+	SlotBorder = nullptr;
+	SlotImage = nullptr;
+	AmmoText = nullptr;
+	CurrentWeaponInfo.Destroy();
+}
+
+// Slot just equipped new weapon, set children's data
+void USOverlayInventorySlot::UpdateWeaponInfo(UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo)
+{
+	// Hold weapon info for slot
+	CurrentWeaponInfo = NewWeaponInfo;
+
+	// Update slot data, extra ammo doesn't change
+	CurrentSlotAmmo = NewWeaponInfo.CurrentAmmo + CurrentExtraAmmo;
+
+	// Set text visible and initial text value
+	if (AmmoText)
+	{
+		AmmoText->SetVisibility(ESlateVisibility::Visible);
+		AmmoText->SetText(FText::FromString(FString::FromInt(CurrentSlotAmmo)));
+	}
+
+	// Update slot properties
+	if (SlotImage)
+	{
+		// Set new weapon texture to the slot
+		if (WeaponTexture)
+		{
+			SlotImage->SetBrushFromTexture(WeaponTexture);
+			SlotImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+}
+
+// This slot is being equipped
+void USOverlayInventorySlot::ActivateSlot()
+{
+	if (SlotBorder)
+	{
+		SlotBorder->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	SetRenderTranslation(FVector2D(0.f, -20.f));
+}
+
+// This slot is being un-equipped
+void USOverlayInventorySlot::ResetSlot()
+{
+	if (SlotBorder)
+	{
+		SlotBorder->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	SetRenderTranslation(FVector2D(0.f, 0.f));
+}
+
+// Update local data then update text
+void USOverlayInventorySlot::UpdateCurrentAmmo(int32 NewCurrentAmmo)
+{
+	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
+	CurrentSlotAmmo = NewCurrentAmmo + CurrentExtraAmmo;
+
+	UpdateAmmoText();
 }
 
 // Update local data then update text
@@ -70,71 +129,6 @@ void USOverlayInventorySlot::UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtra
 	CurrentSlotAmmo = NewCurrentAmmo + CurrentExtraAmmo;
 
 	UpdateAmmoText();
-}
-
-// Update local data then update text
-void USOverlayInventorySlot::UpdateCurrentAmmo(int32 NewCurrentAmmo)
-{
-	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
-	CurrentSlotAmmo = NewCurrentAmmo + CurrentExtraAmmo;
-
-	UpdateAmmoText();
-}
-
-// This slot is being un-equipped
-void USOverlayInventorySlot::ResetSlot()
-{
-	if (SlotBorder)
-	{
-		SlotBorder->SetVisibility(ESlateVisibility::Hidden);
-	}
-
-	SetRenderTranslation(FVector2D(0.f, 0.f));
-}
-
-// This slot is being equipped
-void USOverlayInventorySlot::ActivateSlot()
-{
-	if (SlotBorder)
-	{
-		SlotBorder->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	SetRenderTranslation(FVector2D(0.f, -20.f));
-}
-
-// Slot just equipped new weapon, set children's data
-void USOverlayInventorySlot::UpdateWeaponInfo(UTexture2D* WeaponTexture, const FWeaponInfo &NewWeaponInfo)
-{
-	// Hold weapon info for slot
-	CurrentWeaponInfo = NewWeaponInfo;
-	
-	// Update slot data, extra ammo doesn't change
-	CurrentSlotAmmo = NewWeaponInfo.CurrentAmmo + CurrentExtraAmmo;
-	
-	// Set text visible and initial text value
-	if (AmmoText)
-	{
-		AmmoText->SetVisibility(ESlateVisibility::Visible);
-		AmmoText->SetText(FText::FromString(FString::FromInt(CurrentSlotAmmo)));
-	}
-
-	// Update slot properties
-	if (SlotImage)
-	{
-		// Set new weapon texture to the slot
-		if (WeaponTexture)
-		{
-			SlotImage->SetBrushFromTexture(WeaponTexture);
-			SlotImage->SetVisibility(ESlateVisibility::Visible);
-		}
-	}
-}
-
-void USOverlayInventorySlot::GetWeaponInfo(FWeaponInfo& CopyWeaponInfo, int32& SlotExtraAmmo)
-{
-	CopyWeaponInfo = CurrentWeaponInfo;
-	SlotExtraAmmo = CurrentExtraAmmo;
 }
 
 // Use local data to update text

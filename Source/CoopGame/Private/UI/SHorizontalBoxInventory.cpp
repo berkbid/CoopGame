@@ -6,14 +6,6 @@
 #include "Engine/Texture2D.h"
 
 
-void USHorizontalBoxInventory::ReleaseSlateResources(bool bReleaseChildren)
-{
-	Super::ReleaseSlateResources(bReleaseChildren);
-
-	InventorySlots.Empty();
-	CurrentSlot = nullptr;
-}
-
 USHorizontalBoxInventory::USHorizontalBoxInventory()
 {
 
@@ -32,6 +24,14 @@ void USHorizontalBoxInventory::SynchronizeProperties()
 	{
 		InventorySlots.Add(Cast<USOverlayInventorySlot>(ChildArray[i]));
 	}
+}
+
+void USHorizontalBoxInventory::ReleaseSlateResources(bool bReleaseChildren)
+{
+	Super::ReleaseSlateResources(bReleaseChildren);
+
+	InventorySlots.Empty();
+	CurrentSlot = nullptr;
 }
 
 // Need to tell slot the weapon info and extra ammo

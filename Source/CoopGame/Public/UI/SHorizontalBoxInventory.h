@@ -19,9 +19,6 @@ class COOPGAME_API USHorizontalBoxInventory : public UHorizontalBox
 
 
 public:
-
-	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
-
 	USHorizontalBoxInventory();
 
 	/**
@@ -30,6 +27,8 @@ public:
 	 * properties are performed here, or the property and visual state may become unsynced.
 	 */
 	virtual void SynchronizeProperties() override;
+
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 
 	/* Handle visuals for picking up weapon, return true if picked up weapon in current slot */
 	bool HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, class UTexture2D* WeaponTexture);

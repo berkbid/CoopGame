@@ -21,8 +21,6 @@ class COOPGAME_API USVerticalBoxCurrentWeapon : public UVerticalBox
 public:
 	USVerticalBoxCurrentWeapon();
 
-	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
-
 	/**
 	 * Applies all properties to the native widget if possible.  This is called after a widget is constructed.
 	 * It can also be called by the editor to update modified state, so ensure all initialization to a widgets
@@ -30,15 +28,17 @@ public:
 	 */
 	virtual void SynchronizeProperties() override;
 
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+
+	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
+
 	void QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
 	void SetWeaponCurrentAmmo(int32 NewCurrentAmmo);
 
-	void SetWeaponExtraAmmo(int32 NewExtraAmmo);
-
 	void SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo);
 
-	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
+	void SetWeaponExtraAmmo(int32 NewExtraAmmo);
 
 
 protected:

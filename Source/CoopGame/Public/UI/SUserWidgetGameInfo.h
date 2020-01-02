@@ -73,20 +73,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LODZERO|UI")
 	void SetOwningController(class APlayerController* NewController);
 
-	/* Handles inventory functionality to change to new slot with new ammo amounts */
-	UFUNCTION()
-	void InventoryChangeToSlot(int32 WeaponSlot);
-
-	/* Handles reload situation with new ammo amounts also updating other slots of same ammo type*/
-	UFUNCTION()
-	void HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
+	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo);
 
 	void HandlePickupAmmo(EAmmoType NewAmmoType, int32 NewAmmo);
+
+	/* Handles reload situation with new ammo amounts also updating other slots of same ammo type*/
+	void HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo);
 
 	/* Handles updating current clip ammo */
 	void UpdateCurrentClipAmmo(int32 NewCurrentAmmo);
 
-	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo);
+	/* Handles inventory functionality to change to new slot with new ammo amounts */
+	void InventoryChangeToSlot(int32 WeaponSlot);
 
 	/* When we only need to update weapon info and not change to slot */
 	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);

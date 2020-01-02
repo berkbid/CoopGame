@@ -22,7 +22,11 @@ class COOPGAME_API USOverlayInventorySlot : public UOverlay
 public:
 	USOverlayInventorySlot();
 
-	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+	/**
+	 * Called after the C++ constructor and after the properties have been initialized, including those loaded from config.
+	 * This is called before any serialization or other setup has happened.
+	 */
+	virtual void PostInitProperties() override;
 
 	/**
 	 * Applies all properties to the native widget if possible.  This is called after a widget is constructed.
@@ -31,11 +35,11 @@ public:
 	 */
 	virtual void SynchronizeProperties() override;
 
-	/**
-	 * Called after the C++ constructor and after the properties have been initialized, including those loaded from config.
-	 * This is called before any serialization or other setup has happened.
-	 */
-	virtual void PostInitProperties() override;
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+
+	void ActivateSlot();
+
+	void ResetSlot();
 
 	void UpdateCurrentAmmo(int32 NewCurrentAmmo);
 
@@ -43,15 +47,7 @@ public:
 
 	void UpdateBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo);
 
-	void ResetSlot();
-
-	void ActivateSlot();
-
 	void UpdateWeaponInfo(class UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo);
-
-	void GetWeaponInfo(FWeaponInfo& CopyWeaponInfo, int32& SlotExtraAmmo);
-
-	void UpdateAmmoText();
 
 	// Weapon data for slot
 	FWeaponInfo CurrentWeaponInfo;
@@ -63,8 +59,6 @@ public:
 
 protected:
 
-
-
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UBorder* SlotBorder;
 
@@ -73,6 +67,8 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Children")
 	class UTextBlock* AmmoText;
+
+	void UpdateAmmoText();
 
 	// UWidget interface
 	virtual TSharedRef<SWidget> RebuildWidget() override;
