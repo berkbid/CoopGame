@@ -18,6 +18,7 @@ ASItemPickup::ASItemPickup()
 	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
 	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	BoxComp->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
 	RootComponent = BoxComp;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));

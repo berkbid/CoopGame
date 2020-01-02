@@ -38,7 +38,11 @@ void ASWeapon::BeginPlay()
 	
 	TimeBetweenShots = 60.f / RateOfFire;
 
-	InitializeVariables();
+	// Only run this code here for clients, listen server runs it elsewhere
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		InitializeVariables();
+	}
 }
 
 // MUST prefix with Server and require _Implementation
@@ -64,6 +68,9 @@ void ASWeapon::SetInitialState(EWeaponRarity NewWeaponRarity, int32 CurrentAmmo,
 	MaxClipSize = MaxAmmo;
 
 	WeaponRarity = NewWeaponRarity;
+
+	// Run this for server here since beginplay happens before this for server
+	InitializeVariables();
 }
 
 int32 ASWeapon::GetCurrentAmmo()
@@ -89,9 +96,17 @@ void ASWeapon::StopFire()
 
 void ASWeapon::InitializeVariables()
 {
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FOUND SERVER1"));
+	}
 	switch (WeaponRarity)
 	{
 	case EWeaponRarity::Common:
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("COMMON"));
+		}
 		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
 		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
 		if (MatInst)
@@ -110,7 +125,10 @@ void ASWeapon::InitializeVariables()
 		}
 		break;
 	case EWeaponRarity::Rare:
-
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOUND SERVER 2"));
+		}
 		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
 		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
 
@@ -120,6 +138,10 @@ void ASWeapon::InitializeVariables()
 		}
 		break;
 	case EWeaponRarity::Epic:
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOUND SERVER 3"));
+		}
 		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
 		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
 		if (MatInst)
@@ -128,6 +150,10 @@ void ASWeapon::InitializeVariables()
 		}
 		break;
 	case EWeaponRarity::Legendary:
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOUND SERVER 4"));
+		}
 		// Need to create dynamic instance so changes on only the one instance of the material, not all instances
 		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(MaterialIndexToChange, MeshComp->GetMaterial(MaterialIndexToChange));
 		if (MatInst)
