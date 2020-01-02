@@ -45,10 +45,10 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 		FWeaponInfo NewWeaponInfo;
 		int32 SlotExtraAmmo;
 
-		// Retrieve slot information of new slot in order to update other parts of HUD
+		// Change to slot and get how much extra ammo is in slot in order to update weapon info
 		InventoryContainer->HandleSlotChange(WeaponSlot, NewWeaponInfo, SlotExtraAmmo);
 
-		// Update WeaponInfo object
+		// Update WeaponInfo
 		UpdateWeaponInfo(NewWeaponInfo, SlotExtraAmmo);
 	}
 }
@@ -94,23 +94,21 @@ void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 Cur
 	}
 }
 
+// shouldnt have to be given extra ammo amount
 void USUserWidgetGameInfo::HandlePickupAmmo(EAmmoType NewAmmoType, int32 ExtraAmmo)
 {
 	// Tell inventory new current ammo and extra ammo amount (current slot is assumed by inventory)
 	if (InventoryContainer)
 	{
-		InventoryContainer->UpdateExtraSlotAmmo(ExtraAmmo);
-
 		// Update slot ammo text for all slots that share same ammo type since reload altered this amount
 		InventoryContainer->UpdateAmmoTypeAmount(NewAmmoType, ExtraAmmo);
 	}
 
-	// Update the weapon info HUD with new ammo values
+	// If our current weapon shares the ammo type, then update its ammo
 	if (CurrentWeaponInfo)
 	{
-		CurrentWeaponInfo->SetWeaponExtraAmmo(ExtraAmmo);
+		CurrentWeaponInfo->QueryToSetExtraAmmo(NewAmmoType, ExtraAmmo);
 	}
-
 
 	// Update extra ammo text
 	switch (NewAmmoType)
@@ -150,29 +148,35 @@ void USUserWidgetGameInfo::UpdateCurrentClipAmmo(int32 NewCurrentAmmo)
 }
 
 // When player picks up a weapon, update inventory with weapon picture and Slot Ammo amount
-void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo, int32 ExtraAmmo)
+void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo)
 {
 	// Find texture associated with weapon class we picked up
 	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(NewWeaponInfo.WeaponType);
 
-	if (InventoryContainer)
+	if (InventoryContainer && TempWeaponTexture)
 	{
-		// Check pointer before dereferencing it
-		if (TempWeaponTexture)
+		// Want to see if we picked up weapon that was in our currently active slot
+		bool bPickupInCurrentSlot = false;
+		bPickupInCurrentSlot = InventoryContainer->HandlePickupWeapon(WeaponSlot, NewWeaponInfo, *TempWeaponTexture);
+
+		// Need to setup WeaponInfo if we picked up a weapon in our current slot
+		if (bPickupInCurrentSlot)
 		{
-			// Initialize slot in inventory with texture, ammo type, current and extra ammo data
-			InventoryContainer->HandlePickupWeapon(WeaponSlot, NewWeaponInfo, *TempWeaponTexture, ExtraAmmo);
+			// Query for extra ammo for current slot and update weapon info
+			int32 NewExtraAmmo = InventoryContainer->GetExtraAmmoOfType(NewWeaponInfo.AmmoType);
+			UpdateWeaponInfo(NewWeaponInfo, NewExtraAmmo);
 		}
 	}
 }
 
 // This is a special case where we picked up a weapon in an already selected slot, we just need to update weapon info
-void USUserWidgetGameInfo::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 ExtraAmmo)
+void USUserWidgetGameInfo::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
 {
+	// be given the slot number, and get weapon info and extra ammo from the inventory by query, ALREADY DO
 	if (CurrentWeaponInfo)
 	{
-		// Setup current weapon info from weaponinfo and extra ammo
-		CurrentWeaponInfo->InitWeaponInfo(NewWeaponInfo, ExtraAmmo);
+		// Setup current weapon info from weaponinfo
+		CurrentWeaponInfo->InitWeaponInfo(NewWeaponInfo, NewExtraAmmo);
 	}
 }
 

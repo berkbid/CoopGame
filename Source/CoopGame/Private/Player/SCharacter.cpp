@@ -153,7 +153,7 @@ void ASCharacter::PickupWeapon(const FWeaponInfo& WeaponInfo, AActor* PickupActo
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
 	if (PC)
 	{
-		if (PC->bIsInventoryFull) 
+		if (PC->GetIsInventoryFull()) 
 		{ 
 			bIsInventoryFullTemp = true;
 			return; 

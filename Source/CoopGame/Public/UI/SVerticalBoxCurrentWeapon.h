@@ -30,6 +30,8 @@ public:
 	 */
 	virtual void SynchronizeProperties() override;
 
+	void QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo);
+
 	void SetWeaponCurrentAmmo(int32 NewCurrentAmmo);
 
 	void SetWeaponExtraAmmo(int32 NewExtraAmmo);

@@ -86,10 +86,10 @@ public:
 	/* Handles updating current clip ammo */
 	void UpdateCurrentClipAmmo(int32 NewCurrentAmmo);
 
-	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo, int32 ExtraAmmo);
+	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo &NewWeaponInfo);
 
 	/* When we only need to update weapon info and not change to slot */
-	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 ExtraAmmo);
+	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
 
 	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 

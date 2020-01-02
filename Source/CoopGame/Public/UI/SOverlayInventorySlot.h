@@ -47,7 +47,9 @@ public:
 
 	void ActivateSlot();
 
-	void InitSlot(class UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo, int32 ExtraAmmo);
+	void UpdateWeaponInfo(class UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo);
+
+	void GetWeaponInfo(FWeaponInfo& CopyWeaponInfo, int32& SlotExtraAmmo);
 
 	void UpdateAmmoText();
 

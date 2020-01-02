@@ -31,11 +31,14 @@ public:
 	 */
 	virtual void SynchronizeProperties() override;
 
-	/* Handle visuals for picking up weapon */
-	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, class UTexture2D* WeaponTexture, int32 ExtraAmmo);
+	/* Handle visuals for picking up weapon, return true if picked up weapon in current slot */
+	bool HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, class UTexture2D* WeaponTexture);
 
 	/* Handle visuals for changing to new inventory slot */
 	void HandleSlotChange(int32 WeaponSlot, FWeaponInfo& NewWeaponInfo, int32& ExtraAmmo);
+
+	/* Returns extra ammo for current slot */
+	int32 GetExtraAmmoOfType(EAmmoType NewAmmoType);
 
 	/* Set ammo data for slot */
 	void UpdateCurrentSlotAmmo(int32 CurrentAmmo);
@@ -52,6 +55,11 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Children")
 	TArray<class USOverlayInventorySlot*> InventorySlots;
 
+	/* Hold manually updated copy of players ammo inventory */
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Children")
+	FAmmoInfo AmmoInventoryCopy;
+
 	/* Keep track of currently active slot locally */
 	class USOverlayInventorySlot* CurrentSlot;
+
 };

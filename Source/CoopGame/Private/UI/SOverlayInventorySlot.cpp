@@ -40,8 +40,6 @@ void USOverlayInventorySlot::SynchronizeProperties()
 void USOverlayInventorySlot::PostInitProperties()
 {
 	Super::PostInitProperties();
-
-
 	//SlotBorder = NewObject<UBorder>(this, UBorder::StaticClass());
 	//AddChildToOverlay(SlotBorder);
 	//
@@ -54,10 +52,13 @@ void USOverlayInventorySlot::PostInitProperties()
 // Update local data then update text
 void USOverlayInventorySlot::UpdateExtraAmmo(int32 NewExtraAmmo)
 {
-	CurrentExtraAmmo = NewExtraAmmo;
-	CurrentSlotAmmo = CurrentWeaponInfo.CurrentAmmo + CurrentExtraAmmo;
-
-	UpdateAmmoText();
+	// only update ammo if we have a valid weapon type meaning a valid item in this slot
+	if (CurrentWeaponInfo.WeaponType)
+	{
+		CurrentExtraAmmo = NewExtraAmmo;
+		CurrentSlotAmmo = CurrentWeaponInfo.CurrentAmmo + CurrentExtraAmmo;
+		UpdateAmmoText();
+	}
 }
 
 // Update local data then update text
@@ -103,14 +104,13 @@ void USOverlayInventorySlot::ActivateSlot()
 }
 
 // Slot just equipped new weapon, set children's data
-void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo &NewWeaponInfo, int32 ExtraAmmo)
+void USOverlayInventorySlot::UpdateWeaponInfo(UTexture2D* WeaponTexture, const FWeaponInfo &NewWeaponInfo)
 {
 	// Hold weapon info for slot
 	CurrentWeaponInfo = NewWeaponInfo;
 	
-	// Update slot data
-	CurrentExtraAmmo = ExtraAmmo;
-	CurrentSlotAmmo = NewWeaponInfo.CurrentAmmo + ExtraAmmo;
+	// Update slot data, extra ammo doesn't change
+	CurrentSlotAmmo = NewWeaponInfo.CurrentAmmo + CurrentExtraAmmo;
 	
 	// Set text visible and initial text value
 	if (AmmoText)
@@ -129,6 +129,12 @@ void USOverlayInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponIn
 			SlotImage->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
+}
+
+void USOverlayInventorySlot::GetWeaponInfo(FWeaponInfo& CopyWeaponInfo, int32& SlotExtraAmmo)
+{
+	CopyWeaponInfo = CurrentWeaponInfo;
+	SlotExtraAmmo = CurrentExtraAmmo;
 }
 
 // Use local data to update text

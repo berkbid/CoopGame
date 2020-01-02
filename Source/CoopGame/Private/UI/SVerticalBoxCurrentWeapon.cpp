@@ -30,6 +30,14 @@ void USVerticalBoxCurrentWeapon::SynchronizeProperties()
 	CurrentWeaponType = Cast<UBorder>(GetChildAt(1));
 }
 
+void USVerticalBoxCurrentWeapon::QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo)
+{
+	if (CurrentWeaponInfo.AmmoType == NewAmmoType)
+	{
+		SetWeaponExtraAmmo(NewExtraAmmo);
+	}
+}
+
 void USVerticalBoxCurrentWeapon::SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo)
 {
 	CurrentWeaponInfo.CurrentAmmo = NewCurrentAmmo;
@@ -103,6 +111,7 @@ void USVerticalBoxCurrentWeapon::SetAmmoType()
 	}
 }
 
+// We need this specific data from current slot to initialize our values
 void USVerticalBoxCurrentWeapon::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
 {
 	CurrentWeaponInfo = NewWeaponInfo;

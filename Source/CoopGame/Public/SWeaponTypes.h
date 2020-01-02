@@ -199,6 +199,55 @@ struct FAmmoInfo
 		}
 	}
 
+	void SetAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewAmmoAmount)
+	{
+		switch (NewAmmoType)
+		{
+		case EAmmoType::MiniAmmo:
+			MiniCount = NewAmmoAmount;
+			break;
+		case EAmmoType::MediumAmmo:
+			MediumCount = NewAmmoAmount;
+			break;
+		case EAmmoType::HeavyAmmo:
+			HeavyCount = NewAmmoAmount;
+			break;
+		case EAmmoType::ShellAmmo:
+			ShellCount = NewAmmoAmount;
+			break;
+		case EAmmoType::RocketAmmo:
+			RocketCount = NewAmmoAmount;
+			break;
+		default:
+			break;
+		}
+	}
+
+	int32 GetAmmoTypeAmount(EAmmoType NewAmmoType)
+	{
+		switch (NewAmmoType)
+		{
+		case EAmmoType::MiniAmmo:
+			return MiniCount;
+			break;
+		case EAmmoType::MediumAmmo:
+			return MediumCount;
+			break;
+		case EAmmoType::HeavyAmmo:
+			return HeavyCount;
+			break;
+		case EAmmoType::ShellAmmo:
+			return ShellCount;
+			break;
+		case EAmmoType::RocketAmmo:
+			return RocketCount;
+			break;
+		default:
+			break;
+		}
+		return 0;
+	}
+
 	// For Garbage Cleanup
 	void Destroy()
 	{
