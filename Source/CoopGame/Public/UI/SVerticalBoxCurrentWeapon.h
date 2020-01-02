@@ -38,15 +38,7 @@ public:
 
 	void SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo);
 
-	void SetAmmoText();
-
-	void SetWeaponText();
-
-	void SetAmmoType();
-
 	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
-
-
 
 
 protected:
@@ -62,4 +54,10 @@ protected:
 
 	FWeaponInfo CurrentWeaponInfo;
 	int32 ExtraClipSize;
+
+	void SetAmmoText();
+
+	void SetWeaponText();
+
+	void SetAmmoType();
 };

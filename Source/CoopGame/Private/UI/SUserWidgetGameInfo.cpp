@@ -56,12 +56,10 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 // When player reloads, update all ammo text and other weapon slots sharing same ammo type needs updating
 void USUserWidgetGameInfo::HandleReloadAmmoType(EAmmoType NewAmmoType, int32 CurrentAmmo, int32 ExtraAmmo)
 {
-	// Tell inventory new current ammo and extra ammo amount (current slot is assumed by inventory)
+	// Update current slot ammo and ammo type ammo for all slots who share that ammo type
 	if (InventoryContainer)
 	{
-		InventoryContainer->UpdateBothAmmo(CurrentAmmo, ExtraAmmo);
-
-		// Update slot ammo text for all slots that share same ammo type since reload altered this amount
+		InventoryContainer->UpdateCurrentSlotAmmo(CurrentAmmo);
 		InventoryContainer->UpdateAmmoTypeAmount(NewAmmoType, ExtraAmmo);
 	}
 

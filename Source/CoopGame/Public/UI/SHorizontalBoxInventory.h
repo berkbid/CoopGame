@@ -43,8 +43,10 @@ public:
 	/* Set ammo data for slot */
 	void UpdateCurrentSlotAmmo(int32 CurrentAmmo);
 
+	/* Set ammo data for slot */
 	void UpdateExtraSlotAmmo(int32 ExtraAmmo);
 
+	/* Set ammo data for slot */
 	void UpdateBothAmmo(int32 CurrentAmmo, int32 ExtraAmmo);
 
 	void UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewExtraAmmo);
