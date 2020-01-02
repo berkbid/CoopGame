@@ -16,14 +16,14 @@ struct FHitScanTrace
 public:
 
 	UPROPERTY()
-		TEnumAsByte<EPhysicalSurface> SurfaceType;
+	TEnumAsByte<EPhysicalSurface> SurfaceType;
 
 	UPROPERTY()
-		FVector_NetQuantize TraceTo;
+	FVector_NetQuantize TraceTo;
 
 	// Used to update struct on a line trace to the SAME TraceTo value
 	UPROPERTY()
-		uint8 ReplicationCount;
+	uint8 ReplicationCount;
 };
 
 /**

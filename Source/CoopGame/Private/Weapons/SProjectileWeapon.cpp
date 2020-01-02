@@ -8,16 +8,12 @@
 ASProjectileWeapon::ASProjectileWeapon()
 {
 	// Setup weapon state
-	RateOfFire = 200.f;
-	BaseDamage = 30.f;
 	HeadShotMultiplier = 4.f;
-
-	MaterialIndexToChange = 0;
-
-	// Update weapon variables
 	CurrentClipSize = -1;
-	MaxClipSize = -1;
+
+	WeaponStats = FWeaponStats(30.f, .5f, 2.5f, 20);
 }
+
 
 void ASProjectileWeapon::Fire()
 {

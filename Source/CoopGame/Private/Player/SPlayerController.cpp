@@ -266,9 +266,9 @@ int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount)
 }
 
 // We are server in here
-int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize, int32 MaxClipSize)
+int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
 {
-	int32 AmmmoNeeded = MaxClipSize - CurrentClipSize;
+	int32 AmmmoNeeded = WeaponInventory[CurrentSlot].WeaponStats.MagazineSize - CurrentClipSize;
 	if (AmmmoNeeded <= 0) { return 0; }
 
 	// Retrieve ammo from ammo inventory
@@ -431,6 +431,7 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 	// Handle HUD for picking up new weapon
 	if (!MyGameInfo) { return; }
 
+	// THis uses weaponinfo for current ammo which is wrong
 	// Set initial HUD state for weapon slot, including picture and ammo amount
 	MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo);
 

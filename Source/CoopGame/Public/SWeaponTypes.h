@@ -58,6 +58,7 @@ struct FAmmoInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	int32 MaxRocketAmmo;
 
+
 	/* Helper function for retrieving ammo of a certain type, passes back how much ammo could be returned and new total for ammo type*/
 	void RequestAmmo(EAmmoType AmmoTypeNeeded, int32 AmmoAmountRequested, int32& AmmoReturned, int32& NewAmmoTotal)
 	{
@@ -285,27 +286,61 @@ struct FAmmoInfo
 };
 
 USTRUCT(BlueprintType)
-struct FWeaponInfo
+struct FWeaponStats
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	float BaseDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	float FireRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	float ReloadTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	int32 MagazineSize;
+
+	FWeaponStats()
+	{
+		BaseDamage = 20.f;
+		FireRate = 0.3f;
+		ReloadTime = 2.f;
+		MagazineSize = 30;
+	}
+
+	FWeaponStats(float NewBaseDamage, float NewFireRate, float NewReloadTime, int32 NewMagazineSize)
+	{
+		BaseDamage = NewBaseDamage;
+		FireRate = NewFireRate;
+		ReloadTime = NewReloadTime;
+		MagazineSize = NewMagazineSize;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	UClass* WeaponType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FName WeaponName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	EWeaponRarity WeaponRarity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	EAmmoType AmmoType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int32 CurrentAmmo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 MaxAmmo;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	FWeaponStats WeaponStats;
 
 	// For Garbage Cleanup
 	void Destroy()
@@ -321,17 +356,18 @@ struct FWeaponInfo
 		WeaponRarity = EWeaponRarity::Common;
 		AmmoType = EAmmoType::MiniAmmo;
 		CurrentAmmo = 0;
-		MaxAmmo = 0;
+		WeaponStats = FWeaponStats();
 	}
 
 	// Constructor with parameters for properties
-	FWeaponInfo(UClass* NewWeaponClass, FName NewWeaponName, EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 NewCurrentAmmo, int32 NewMaxAmmo)
+	FWeaponInfo(UClass* NewWeaponClass, FName NewWeaponName, EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 NewCurrentAmmo, const FWeaponStats &NewWeaponStats)
 	{
 		WeaponType = NewWeaponClass;
 		WeaponName = NewWeaponName;
 		WeaponRarity = NewWeaponRarity;
 		AmmoType = NewAmmoType;
 		CurrentAmmo = NewCurrentAmmo;
-		MaxAmmo = NewMaxAmmo;
+		WeaponStats = NewWeaponStats;
 	}
 };
+

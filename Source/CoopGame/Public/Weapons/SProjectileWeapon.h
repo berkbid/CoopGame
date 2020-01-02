@@ -19,12 +19,11 @@ public:
 	ASProjectileWeapon();
 
 protected:
-
-	//virtual void BeginPlay() override;
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectileWeapon")
+	TSubclassOf<AActor> ProjectileClass;
 
 	virtual void Fire() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectileWeapon")
-	TSubclassOf<AActor> ProjectileClass;
+
 	
 };

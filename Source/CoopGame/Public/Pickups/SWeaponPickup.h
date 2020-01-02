@@ -20,22 +20,12 @@ class COOPGAME_API ASWeaponPickup : public ASItemPickup
 public:
 	ASWeaponPickup();
 
-	virtual void PostInitProperties() override;
-
 	/* Set these values in the child classes for specific weapon pickups */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FWeaponInfo WeaponInfo;
-
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
-
 
 protected:
 
 	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
 
-	class UMaterialInstanceDynamic* MatInst;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Material")
-	uint8 MaterialIndexToChange;
 };

@@ -20,14 +20,11 @@ ASRifle::ASRifle()
 	TracerEffect = nullptr;
 	BulletSpread = 2.f;
 
+	WeaponStats = FWeaponStats(22.f, .25f, 2.f, 35);
+
 	// Setup weapon stats
-	RateOfFire = 600.f;
-	BaseDamage = 25.f;
 	HeadShotMultiplier = 4.f;
 	CurrentClipSize = -1;
-	MaxClipSize = -1;
-
-	MaterialIndexToChange = 1;
 
 	// This is defined in P_SmokeTrail under Target > Distribution > Parameter Name
 	TracerTargetName = "BeamEnd";
@@ -82,7 +79,7 @@ void ASRifle::Fire()
 		AActor* HitActor = Hit.GetActor();
 		SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 
-		float ActualDamage = BaseDamage;
+		float ActualDamage = WeaponStats.BaseDamage;
 		if (SurfaceType == SURFACE_FLESHVULNERABLE)
 		{
 			ActualDamage *= HeadShotMultiplier;
@@ -126,6 +123,8 @@ void ASRifle::Fire()
 	// This variable is set for both clients and server, thus even if a server is a player, he will have the appropiate LastFireTime
 	LastFireTime = GetWorld()->TimeSeconds;
 }
+
+
 
 void ASRifle::PlayFireEffect(FVector TracerEndPoint)
 {

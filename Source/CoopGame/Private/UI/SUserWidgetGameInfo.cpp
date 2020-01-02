@@ -45,6 +45,8 @@ void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInf
 	{
 		// Want to see if we picked up weapon that was in our currently active slot
 		bool bPickupInCurrentSlot = false;
+
+		// This is passing incorrect current ammo inside of NewWeaponInfo
 		bPickupInCurrentSlot = InventoryContainer->HandlePickupWeapon(WeaponSlot, NewWeaponInfo, *TempWeaponTexture);
 
 		// Need to setup WeaponInfo if we picked up a weapon in our current slot

@@ -47,7 +47,7 @@ public:
 	// Return success or failure for picking up ammo, based on inventory space
 	int32 PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount);
 
-	int32 ReloadAmmoClip(int32 CurrentClipSize, int32 MaxClipSize);
+	int32 ReloadAmmoClip(int32 CurrentClipSize);
 
 	/* For character to query player controller if inventory is full upon weapon pickup (getter for protected variable) */
 	bool GetIsInventoryFull();

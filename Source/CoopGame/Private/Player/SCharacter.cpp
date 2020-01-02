@@ -83,7 +83,7 @@ void ASCharacter::Reload()
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
 	if (PC)
 	{
-		CurrentWeapon->CurrentClipSize += PC->ReloadAmmoClip(CurrentWeapon->CurrentClipSize, CurrentWeapon->MaxClipSize);
+		CurrentWeapon->CurrentClipSize += PC->ReloadAmmoClip(CurrentWeapon->CurrentClipSize);
 	}
 }
 
@@ -124,6 +124,7 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Must set owner so they are awarded for damage done by the weapon
 	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
 
 
 	// Create On_Rep function for client to update HUD when weapon changes and play sound
@@ -135,7 +136,7 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	{
 		
 		// Tell weapon important info for its functionality and so it can upate HUD properly
-		CurrentWeapon->SetInitialState(NewWeaponInfo.WeaponRarity, NewWeaponInfo.CurrentAmmo, NewWeaponInfo.MaxAmmo);
+		CurrentWeapon->SetCurrentClipSize(NewWeaponInfo.CurrentAmmo);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 
