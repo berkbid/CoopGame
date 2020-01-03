@@ -13,7 +13,7 @@ ASAmmoPickup::ASAmmoPickup()
 
 void ASAmmoPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("OVERLAPPING"));
+	
 	ASCharacter* OverlappedCharacter = Cast<ASCharacter>(OtherActor);
 	if (OverlappedCharacter)
 	{

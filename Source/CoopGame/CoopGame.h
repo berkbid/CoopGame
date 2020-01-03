@@ -8,3 +8,6 @@
 #define SURFACE_FLESHVULNERABLE			SurfaceType2
 
 #define COLLISION_WEAPON				ECC_GameTraceChannel1
+#define COLLISION_PROJECTILE			ECC_GameTraceChannel2
+#define COLLISION_INTERACTABLE			ECC_GameTraceChannel3
+#define COLLISION_INTERACTABLEOBJECT	ECC_GameTraceChannel4

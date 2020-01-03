@@ -22,11 +22,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual FVector GetPawnViewLocation() const override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual FVector GetPawnViewLocation() const override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,6 +39,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USpringArmComponent* SpringArmComp;
 
+	void TraceForPickups();
+
 	void MoveForward(float Amount);
 
 	void MoveRight(float Amount);
@@ -47,6 +48,8 @@ protected:
 	void BeginCrouch();
 
 	void EndCrouch();
+
+	void HandleZoom(float DeltaTime);
 
 	void BeginZoom();
 

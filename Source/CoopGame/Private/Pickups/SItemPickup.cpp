@@ -6,29 +6,17 @@
 #include "Net/UnrealNetwork.h"
 #include "SCharacter.h"
 #include "Components/StaticMeshComponent.h"
+#include "CoopGame.h"
+#include "SWidgetCompPickupInfo.h"
 
 // Sets default values
 ASItemPickup::ASItemPickup()
 {
-	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
-	BoxComp->SetMassOverrideInKg(NAME_None, 425.f, true);
-	BoxComp->SetSimulatePhysics(true);
-	BoxComp->SetCanEverAffectNavigation(false);
-	BoxComp->SetCollisionObjectType(ECC_WorldStatic);
-	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
+	// Set custom collision responses for item pickups
+	BoxComp->SetGenerateOverlapEvents(true);
 	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	BoxComp->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
-	RootComponent = BoxComp;
-
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeshComp->SetGenerateOverlapEvents(false);
-	MeshComp->SetupAttachment(RootComponent);
-
-	SetReplicates(true);
 }
-
 // Called when the game starts or when spawned
 void ASItemPickup::BeginPlay()
 {
@@ -42,8 +30,13 @@ void ASItemPickup::BeginPlay()
 	}
 }
 
+void ASItemPickup::ShowItemInfo()
+{
+	Super::ShowItemInfo();
+
+}
+
 // Only server hooks onto this event
 void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-
 }
