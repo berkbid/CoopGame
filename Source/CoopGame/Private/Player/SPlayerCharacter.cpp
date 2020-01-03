@@ -122,86 +122,50 @@ void ASPlayerCharacter::TraceForPickups()
 
 	if (bDidWeHit)
 	{
+		ASInteractable* TempInteractable = nullptr;
 
 		for (FHitResult HR : HitArray)
 		{
 			AActor* HitActor = HR.GetActor();
+			if (!HitActor) { continue; }
+			ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
+			if (!HitInteractable) { continue; }
 
-			if (HitActor)
-			{
-				ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-				if (HitInteractable)
-				{
-					HitInteractable->ShowItemInfo();
-					UE_LOG(LogTemp, Warning, TEXT("WE HIT: %s"), *HitInteractable->GetName());
-				}
-			}
-
+			// Keep pointer to latest hit interactable in HitArray
+			TempInteractable = HitInteractable;
 		}
-		UE_LOG(LogTemp, Warning, TEXT("DONE"));
+
+		if (!TempInteractable) { return; }
+
+		// If we were previously interacting with an object,
+		if (CurrentSelectedInteractable)
+		{
+			// And the new object is a different object, handle this
+			if (TempInteractable != CurrentSelectedInteractable)
+			{
+				CurrentSelectedInteractable->ShowItemInfo(false);
+				TempInteractable->ShowItemInfo(true);
+				CurrentSelectedInteractable = TempInteractable;
+			}
+		}
+		// If we find a new interactable and were previously interacting with nothing
+		else
+		{
+			TempInteractable->ShowItemInfo(true);
+			CurrentSelectedInteractable = TempInteractable;
+		}
+
 	}
-
-
-	//bool bDidWeHit = GetWorld()->LineTraceMultiByChannel(HitArray, TraceStart, TraceEnd, COLLISION_INTERACTABLE, QueryParams);
-	//if (bDidWeHit)
-	//{
-	//	ASInteractable* ClosestInteractable = nullptr;
-	//	float ClosestDistance = 400.f;
-
-	//	for (FHitResult HR : HitArray)
-	//	{
-	//		float TempDistance = HR.Distance;
-	//		if (TempDistance < ClosestDistance)
-	//		{
-	//			ClosestDistance = TempDistance;
-	//			ClosestInteractable = Cast<ASInteractable>(HR.GetActor());
-	//		}
-
-	//		AActor* HitActor = HR.GetActor();
-
-	//		if (HitActor)
-	//		{
-	//			ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-	//			if (HitInteractable)
-	//			{
-	//				UE_LOG(LogTemp, Warning, TEXT("WE HIT: %s"), *HitInteractable->GetName());
-	//			}
-	//		}
-	//	}
-
-	//	if (ClosestInteractable)
-	//	{
-	//		ClosestInteractable->ShowItemInfo();
-	//		UE_LOG(LogTemp, Warning, TEXT("Closest actor: %s"), *ClosestInteractable->GetName());
-	//	}
-	//	
-	//}
-
-
-
-
-
-
-	//FHitResult Hit;
-	//bool bDidWeHit = GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_INTERACTABLE, QueryParams);
-
-
-	//if (bDidWeHit)
-	//{
-	//	AActor* HitActor = Hit.GetActor();
-
-	//	if (HitActor)
-	//	{
-	//		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-	//		if (HitInteractable)
-	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("HIT INTERACTABLE: %s"), *HitInteractable->GetName());
-	//			// We want to call this as client only since we don't want this replicated to anyone
-	//			HitInteractable->ShowItemInfo();
-	//		}
-	//	}
-	//}
-
+	// If we didn't hit anything
+	else
+	{
+		// If we were previously interacting with an object, stop interacting with it
+		if (CurrentSelectedInteractable)
+		{
+			CurrentSelectedInteractable->ShowItemInfo(false);
+			CurrentSelectedInteractable = nullptr;
+		}
+	}
 }
 
 void ASPlayerCharacter::MoveForward(float Amount)

@@ -17,6 +17,6 @@ class COOPGAME_API ASChest : public ASContainer
 
 public:
 
-	virtual void ShowItemInfo() override;
+	//virtual void ShowItemInfo() override;
 	
 };

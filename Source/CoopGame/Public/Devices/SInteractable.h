@@ -15,7 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ASInteractable();
 
-	virtual void ShowItemInfo();
+	virtual void ShowItemInfo(bool bIsVisible);
 
 protected:
 	// Called when the game starts or when spawned

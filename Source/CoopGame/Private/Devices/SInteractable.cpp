@@ -48,15 +48,29 @@ ASInteractable::ASInteractable()
 
 }
 
-void ASInteractable::ShowItemInfo()
+void ASInteractable::ShowItemInfo(bool bIsVisible)
 {
-	if (bIsInfoVisible) { return; }
-
-	if (InfoWidget)
+	if (bIsVisible)
 	{
-		InfoWidget->SetInfoVisible();
-		bIsInfoVisible = true;
+		if (bIsInfoVisible) { return; }
+
+		if (InfoWidget)
+		{
+			InfoWidget->SetInfoVisible(bIsVisible);
+			bIsInfoVisible = true;
+		}
 	}
+	else
+	{
+		if (!bIsInfoVisible) { return; }
+
+		if (InfoWidget)
+		{
+			InfoWidget->SetInfoVisible(bIsVisible);
+			bIsInfoVisible = false;
+		}
+	}
+
 }
 
 // Called when the game starts or when spawned

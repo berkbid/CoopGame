@@ -39,6 +39,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USpringArmComponent* SpringArmComp;
 
+	class ASInteractable* CurrentSelectedInteractable;
+
 	void TraceForPickups();
 
 	void MoveForward(float Amount);

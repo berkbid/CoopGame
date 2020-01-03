@@ -30,11 +30,11 @@ void ASItemPickup::BeginPlay()
 	}
 }
 
-void ASItemPickup::ShowItemInfo()
-{
-	Super::ShowItemInfo();
-
-}
+//void ASItemPickup::ShowItemInfo()
+//{
+//	Super::ShowItemInfo();
+//
+//}
 
 // Only server hooks onto this event
 void ASItemPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)

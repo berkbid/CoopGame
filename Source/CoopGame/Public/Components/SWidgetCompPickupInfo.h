@@ -26,7 +26,7 @@ public:
 
 	void UpdateWidgetText(FString PlayerName);
 
-	void SetInfoVisible();
+	void SetInfoVisible(bool bIsVisible);
 
 protected:
 

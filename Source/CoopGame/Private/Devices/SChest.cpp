@@ -3,7 +3,7 @@
 
 #include "SChest.h"
 
-void ASChest::ShowItemInfo()
-{
-	Super::ShowItemInfo();
-}
+//void ASChest::ShowItemInfo()
+//{
+//	Super::ShowItemInfo();
+//}

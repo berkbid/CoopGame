@@ -20,8 +20,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* SampleText;
 
+	AActor* OwningActor;
+
 
 public:
+
+	void SetOwningActor(AActor* NewOwner);
 	void SetSampleText(FString PlayerName);
-	void SetTextVisibility();
+	void SetTextVisibility(bool bIsVisible);
+	
 };

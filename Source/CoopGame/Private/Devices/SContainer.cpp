@@ -21,10 +21,10 @@ void ASContainer::BeginPlay()
 }
 
 
-void ASContainer::ShowItemInfo()
-{
-	Super::ShowItemInfo();
-
-
-}
+//void ASContainer::ShowItemInfo()
+//{
+//	Super::ShowItemInfo();
+//
+//
+//}
 

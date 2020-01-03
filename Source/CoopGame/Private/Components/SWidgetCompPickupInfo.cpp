@@ -39,8 +39,11 @@ void USWidgetCompPickupInfo::InitWidget()
 #endif
 		WidgetInfoInst = Cast<USUserWidgetInfo>(Widget);
 
-		if (WidgetInfoInst)
+		AActor* OwningActor = GetOwner();
+		if (OwningActor)
 		{
+			// Assign the owner, now we have easy access in the widget itself
+			WidgetInfoInst->SetOwningActor(OwningActor);
 		}
 	}
 }
@@ -53,10 +56,10 @@ void USWidgetCompPickupInfo::UpdateWidgetText(FString PlayerName)
 	}
 }
 
-void USWidgetCompPickupInfo::SetInfoVisible()
+void USWidgetCompPickupInfo::SetInfoVisible(bool bIsVisible)
 {
 	if (WidgetInfoInst)
 	{
-		WidgetInfoInst->SetTextVisibility();
+		WidgetInfoInst->SetTextVisibility(bIsVisible);
 	}
 }
