@@ -269,7 +269,8 @@ struct FAmmoInfo
 		MaxRocketAmmo = 500;
 	}
 
-	FAmmoInfo(int32 NewMiniAmmo, int32 NewMediumAmmo, int32 NewHeavyAmmo, int32 NewShellAmmo, int32 NewRocketAmmo)
+	FAmmoInfo(int32 NewMiniAmmo, int32 NewMediumAmmo, int32 NewHeavyAmmo, int32 NewShellAmmo, int32 NewRocketAmmo,
+		int32 NewMaxMiniAmmo, int32 NewMaxMediumAmmo, int32 NewMaxHeavyAmmo, int32 NewMaxShellAmmo, int32 NewMaxRocketAmmo)
 	{
 		MiniCount = NewMiniAmmo;
 		MediumCount = NewMediumAmmo;
@@ -277,11 +278,11 @@ struct FAmmoInfo
 		ShellCount = NewShellAmmo;
 		RocketCount = NewRocketAmmo;
 
-		MaxMiniAmmo = 500;
-		MaxMediumAmmo = 500;
-		MaxHeavyAmmo = 500;
-		MaxShellAmmo = 500;
-		MaxRocketAmmo = 500;
+		MaxMiniAmmo = NewMaxMiniAmmo;
+		MaxMediumAmmo = NewMaxMediumAmmo;
+		MaxHeavyAmmo = NewMaxHeavyAmmo;
+		MaxShellAmmo = NewMaxShellAmmo;
+		MaxRocketAmmo = NewMaxRocketAmmo;
 	}
 };
 

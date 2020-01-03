@@ -134,8 +134,7 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 
 	if (CurrentWeapon)
 	{
-		
-		// Tell weapon important info for its functionality and so it can upate HUD properly
+		// Pass current clip size info to the spawned weapon
 		CurrentWeapon->SetCurrentClipSize(NewWeaponInfo.CurrentAmmo);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}

@@ -22,7 +22,7 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 
 	// Setup initial WeaponInventory with appropriate size and NULL values
 	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
-	AmmoInventory = FAmmoInfo(50, 60, 20, 25, 12);
+	AmmoInventory = FAmmoInfo(0, 0, 0, 0, 0, 250, 250, 250, 250, 250);
 }
 
 void ASPlayerController::PostInitProperties()
@@ -94,12 +94,8 @@ void ASPlayerController::ServerPostLogin()
 		}
 	}
 
-	// Handle HUD picking up ammo for starting ammo inventory state
-	ClientPickupAmmoHUD(EAmmoType::MiniAmmo, AmmoInventory.MiniCount);
-	ClientPickupAmmoHUD(EAmmoType::MediumAmmo, AmmoInventory.MediumCount);
-	ClientPickupAmmoHUD(EAmmoType::HeavyAmmo, AmmoInventory.HeavyCount);
-	ClientPickupAmmoHUD(EAmmoType::ShellAmmo, AmmoInventory.ShellCount);
-	ClientPickupAmmoHUD(EAmmoType::RocketAmmo, AmmoInventory.RocketCount);
+	// Initialize ammo info for HUD
+	ClientInitAmmoInventoryHUD(AmmoInventory);
 }
 
 // Playerstate and gamestate not valid for clients here
@@ -380,6 +376,14 @@ void ASPlayerController::EquipSlotFour()
 void ASPlayerController::EquipSlotFive()
 {
 	ServerEquipWeaponFive();
+}
+
+void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->InitAmmoInventory(NewAmmoInfo);
+	}
 }
 
 void ASPlayerController::ServerEquipWeaponOne_Implementation()

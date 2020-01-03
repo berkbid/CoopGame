@@ -62,8 +62,11 @@ protected:
 	/* Mapping from unique PlayerID to their scoreboard PlayerStats object reference */
 	TMap<uint32, USUserWidgetPlayerStats*> ScoreboardDictionary;
 
+	/* Mapping from Weapon class type to textures */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TMap<TSubclassOf<ASWeapon>, class UTexture2D* > WeaponToTextureMap;
+	TMap<TSubclassOf<ASWeapon>, class UTexture2D*> WeaponToTextureMap;
+
+	FAmmoInfo CurrentAmmoInfo;
 
 public:
 
@@ -85,6 +88,8 @@ public:
 
 	/* Handles inventory functionality to change to new slot with new ammo amounts */
 	void InventoryChangeToSlot(int32 WeaponSlot);
+
+	void InitAmmoInventory(const FAmmoInfo& StartingAmmoInfo);
 
 	/* When we only need to update weapon info and not change to slot */
 	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);

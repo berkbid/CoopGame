@@ -144,4 +144,6 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void ClientPickupAmmoHUD(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
+	UFUNCTION(Client, Reliable)
+	void ClientInitAmmoInventoryHUD(const FAmmoInfo &NewAmmoInfo);
 };

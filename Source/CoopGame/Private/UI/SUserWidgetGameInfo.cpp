@@ -169,6 +169,25 @@ void USUserWidgetGameInfo::InventoryChangeToSlot(int32 WeaponSlot)
 	}
 }
 
+void USUserWidgetGameInfo::InitAmmoInventory(const FAmmoInfo& StartingAmmoInfo)
+{
+	CurrentAmmoInfo = StartingAmmoInfo;
+
+	// Pickup any ammo that we have in ammo inventory
+	HandlePickupAmmo(EAmmoType::MiniAmmo, StartingAmmoInfo.MiniCount);
+	HandlePickupAmmo(EAmmoType::MediumAmmo, StartingAmmoInfo.MediumCount);
+	HandlePickupAmmo(EAmmoType::HeavyAmmo, StartingAmmoInfo.HeavyCount);
+	HandlePickupAmmo(EAmmoType::ShellAmmo, StartingAmmoInfo.ShellCount);
+	HandlePickupAmmo(EAmmoType::RocketAmmo, StartingAmmoInfo.RocketCount);
+
+	SetMiniAmmoText(FString::FromInt(StartingAmmoInfo.MiniCount));
+	SetMediumAmmoText(FString::FromInt(StartingAmmoInfo.MediumCount));
+	SetHeavyAmmoText(FString::FromInt(StartingAmmoInfo.HeavyCount));
+	SetShellAmmoText(FString::FromInt(StartingAmmoInfo.ShellCount));
+	SetRocketAmmoText(FString::FromInt(StartingAmmoInfo.RocketCount));
+
+}
+
 // This is a special case where we picked up a weapon in an already selected slot, we just need to update weapon info
 void USUserWidgetGameInfo::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
 {
@@ -239,7 +258,7 @@ void USUserWidgetGameInfo::SetMiniAmmoText(FString NewText)
 	if (MiniAmmoText)
 	{
 
-		MiniAmmoText->SetText(FText::FromString("Mini: " + NewText));
+		MiniAmmoText->SetText(FText::FromString("Mini: " + NewText + "/" + FString::FromInt(CurrentAmmoInfo.MaxMiniAmmo)));
 	}
 }
 
@@ -247,7 +266,7 @@ void USUserWidgetGameInfo::SetMediumAmmoText(FString NewText)
 {
 	if (MediumAmmoText)
 	{
-		MediumAmmoText->SetText(FText::FromString("Medium: " + NewText));
+		MediumAmmoText->SetText(FText::FromString("Medium: " + NewText + "/" + FString::FromInt(CurrentAmmoInfo.MaxMediumAmmo)));
 	}
 }
 
@@ -255,7 +274,7 @@ void USUserWidgetGameInfo::SetHeavyAmmoText(FString NewText)
 {
 	if (HeavyAmmoText)
 	{
-		HeavyAmmoText->SetText(FText::FromString("Heavy: " + NewText));
+		HeavyAmmoText->SetText(FText::FromString("Heavy: " + NewText + "/" + FString::FromInt(CurrentAmmoInfo.MaxHeavyAmmo)));
 	}
 }
 
@@ -263,7 +282,7 @@ void USUserWidgetGameInfo::SetShellAmmoText(FString NewText)
 {
 	if (ShellAmmoText)
 	{
-		ShellAmmoText->SetText(FText::FromString("Shell: " + NewText));
+		ShellAmmoText->SetText(FText::FromString("Shell: " + NewText + "/" + FString::FromInt(CurrentAmmoInfo.MaxShellAmmo)));
 	}
 }
 
@@ -271,6 +290,6 @@ void USUserWidgetGameInfo::SetRocketAmmoText(FString NewText)
 {
 	if (RocketAmmoText)
 	{
-		RocketAmmoText->SetText(FText::FromString("Rocket: " + NewText));
+		RocketAmmoText->SetText(FText::FromString("Rocket: " + NewText + "/" + FString::FromInt(CurrentAmmoInfo.MaxRocketAmmo)));
 	}
 }
