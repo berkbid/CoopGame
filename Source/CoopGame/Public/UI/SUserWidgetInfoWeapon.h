@@ -49,7 +49,7 @@ protected:
 	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-	TMap<TEnumAsByte<EWeaponRarity>, class UTexture2D*> RarityToTextureMap;
+	TMap<EWeaponRarity, class UTexture2D*> RarityToTextureMap;
 
 public:
 
