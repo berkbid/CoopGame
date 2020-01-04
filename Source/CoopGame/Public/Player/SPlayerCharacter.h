@@ -28,11 +28,6 @@ public:
 	virtual FVector GetPawnViewLocation() const override;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	virtual void OnRep_CurrentWeapon() override;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UCameraComponent* CameraComp;
 
@@ -41,7 +36,12 @@ protected:
 
 	class ASInteractable* CurrentSelectedInteractable;
 
-	void TraceForPickups();
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	virtual void OnRep_CurrentWeapon() override;
+
+	void TraceForInteractables();
 
 	void MoveForward(float Amount);
 
