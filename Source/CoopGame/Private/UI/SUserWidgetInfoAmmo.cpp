@@ -2,4 +2,43 @@
 
 
 #include "SUserWidgetInfoAmmo.h"
+#include "Components/TextBlock.h"
+#include "Components/Image.h"
+#include "SAmmoPickup.h"
+#include "Engine/Texture2D.h"
 
+void USUserWidgetInfoAmmo::SetOwningActor(AActor* NewOwner)
+{
+	Super::SetOwningActor(NewOwner);
+
+	if (NewOwner)
+	{
+		ASAmmoPickup* AP = Cast<ASAmmoPickup>(NewOwner);
+		if (AP)
+		{
+			SetAmmoText(FString::FromInt(AP->AmmoAmount));
+
+			UTexture2D** TempWeaponTexture = AmmoToTextureMap.Find(AP->AmmoType);
+			if (TempWeaponTexture)
+			{
+				SetAmmoImage(*TempWeaponTexture);
+			}
+		}
+	}
+}
+
+void USUserWidgetInfoAmmo::SetAmmoText(FString AmmoText)
+{
+	if (AmmoAmountText)
+	{
+		AmmoAmountText->SetText(FText::FromString("x" + AmmoText));
+	}
+}
+
+void USUserWidgetInfoAmmo::SetAmmoImage(UTexture2D* NewTexture)
+{
+	if (AmmoImage && NewTexture)
+	{
+		AmmoImage->SetBrushFromTexture(NewTexture);
+	}
+}

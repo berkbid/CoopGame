@@ -5,6 +5,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "SWeaponPickup.h"
+#include "Components/Image.h"
 
 void USUserWidgetInfoWeapon::SetOwningActor(AActor* NewOwner)
 {
@@ -12,8 +13,8 @@ void USUserWidgetInfoWeapon::SetOwningActor(AActor* NewOwner)
 
 	if (NewOwner)
 	{
-		SetWeaponText(NewOwner->GetName());
-		// Do a lot more setup with owner reference with FWeaponInfo 
+		//SetWeaponText(NewOwner->GetName());
+
 		ASWeaponPickup* WP = Cast<ASWeaponPickup>(NewOwner);
 		if (WP)
 		{
@@ -40,6 +41,7 @@ void USUserWidgetInfoWeapon::SetOwningActor(AActor* NewOwner)
 				break;
 			}
 			SetWeaponBorderColor(TempColor);
+			SetWeaponText(WP->WeaponInfo.WeaponName.ToString());
 		}
 	}
 }
@@ -57,5 +59,13 @@ void USUserWidgetInfoWeapon::SetWeaponBorderColor(FLinearColor NewColor)
 	if (WeaponNameBorder)
 	{
 		WeaponNameBorder->SetBrushColor(NewColor);
+		
+	}
+	if (WeaponSecondBorder)
+	{
+		NewColor.R /= 3.f;
+		NewColor.G /= 3.f;
+		NewColor.B /= 3.f;
+		WeaponSecondBorder->SetBrushColor(NewColor);
 	}
 }

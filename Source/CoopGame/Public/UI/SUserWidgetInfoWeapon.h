@@ -22,6 +22,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UBorder* WeaponNameBorder;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* WeaponSecondBorder;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UImage* AmmoImage;
+
 	void SetWeaponText(FString PlayerName);
 
 	void SetWeaponBorderColor(FLinearColor NewColor);
