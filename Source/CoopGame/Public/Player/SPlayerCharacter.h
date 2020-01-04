@@ -57,6 +57,8 @@ protected:
 
 	void EndZoom();
 
+	FCollisionObjectQueryParams TraceObjectQueryParams;
+
 	bool bIsZooming;
 	bool bIsZoomingIn;
 	bool bIsZoomingOut;

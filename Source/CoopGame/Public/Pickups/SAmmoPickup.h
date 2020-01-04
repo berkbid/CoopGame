@@ -20,6 +20,8 @@ class COOPGAME_API ASAmmoPickup : public ASItemPickup
 public:
 	ASAmmoPickup();
 
+	virtual void Interact(AActor* InteractedActor) override;
+
 	/* Set these values in the child classes for specific weapon pickups */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	EAmmoType AmmoType;
@@ -30,5 +32,7 @@ public:
 protected:
 
 	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
+
+	void RequestPickupAmmo(AActor* PickupActor);
 
 };

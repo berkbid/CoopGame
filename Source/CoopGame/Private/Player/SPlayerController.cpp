@@ -12,6 +12,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "SWeapon.h"
+#include "CoopGame.h"
+#include "DrawDebugHelpers.h"
+#include "SInteractable.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -23,6 +26,7 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 	// Setup initial WeaponInventory with appropriate size and NULL values
 	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
 	AmmoInventory = FAmmoInfo(0, 0, 0, 0, 0, 250, 250, 250, 250, 250);
+
 }
 
 void ASPlayerController::PostInitProperties()
@@ -135,6 +139,8 @@ void ASPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Weapon3", IE_Pressed, this, &ASPlayerController::EquipSlotThree);
 	InputComponent->BindAction("Weapon4", IE_Pressed, this, &ASPlayerController::EquipSlotFour);
 	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
+	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &ASPlayerController::Interact);
 }
 
 void ASPlayerController::OnPossess(APawn* aPawn)
@@ -353,6 +359,53 @@ void ASPlayerController::ChangeToSlotHUD(int32 NewSlot)
 	MyGameInfo->InventoryChangeToSlot(NewSlot);
 }
 
+void ASPlayerController::Interact()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		ServerInteract();
+		return;
+	}
+	
+	FVector EyeLocation;
+	FRotator EyeRotation;
+	// We override the location return in SCharacter.cpp to return camera location instead
+	GetActorEyesViewPoint(EyeLocation, EyeRotation);
+	FVector TraceDirection = EyeRotation.Vector();
+	FVector TraceStart = EyeLocation;
+	FVector TraceEnd = TraceStart + (TraceDirection * 500.f);
+	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Yellow, false, 2.f, 0, 5.f);
+
+	FCollisionObjectQueryParams ObjectParams; 
+	ObjectParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
+
+	TArray<FHitResult> HitArray;
+	bool bDidWeHit = GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, ObjectParams);
+
+	if (bDidWeHit)
+	{
+		ASInteractable* TempInteractable = nullptr;
+
+		for (FHitResult HR : HitArray)
+		{
+			AActor* HitActor = HR.GetActor();
+			if (!HitActor) { continue; }
+			ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
+			if (!HitInteractable) { continue; }
+
+			// Keep pointer to latest hit interactable in HitArray
+			TempInteractable = HitInteractable;
+		}
+
+		// Try to interact with interactable object, pass reference to our controlled pawn
+		// Controlled pawn is in charge of picking up weapons/ammo but player controller probably should be
+		if (TempInteractable) 
+		{
+			TempInteractable->Interact(GetPawn());
+		}
+	}
+}
+
 void ASPlayerController::EquipSlotOne()
 {
 	ServerEquipWeaponOne();
@@ -376,6 +429,11 @@ void ASPlayerController::EquipSlotFour()
 void ASPlayerController::EquipSlotFive()
 {
 	ServerEquipWeaponFive();
+}
+
+void ASPlayerController::ServerInteract_Implementation()
+{
+	Interact();
 }
 
 void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo)

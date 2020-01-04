@@ -17,6 +17,8 @@ public:
 
 	virtual void ShowItemInfo(bool bIsVisible);
 
+	virtual void Interact(AActor* InteractedActor);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

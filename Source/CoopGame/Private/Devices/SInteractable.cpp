@@ -73,6 +73,11 @@ void ASInteractable::ShowItemInfo(bool bIsVisible)
 
 }
 
+void ASInteractable::Interact(AActor* InteractedActor)
+{
+	if (!InteractedActor) { return; }
+}
+
 // Called when the game starts or when spawned
 void ASInteractable::BeginPlay()
 {

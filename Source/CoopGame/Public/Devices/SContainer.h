@@ -18,6 +18,8 @@ public:
 	/* Method for line trace of players to call to show item info on widget component*/
 	//virtual void ShowItemInfo() override;
 
+	virtual void Interact(AActor* InteractedActor) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

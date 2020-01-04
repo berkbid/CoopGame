@@ -24,8 +24,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FWeaponInfo WeaponInfo;
 
+	virtual void Interact(AActor* InteractedActor) override;
+
+	
 protected:
 
 	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
 
+	void RequestPickupWeapon(AActor* PickupActor);
+
+	
 };

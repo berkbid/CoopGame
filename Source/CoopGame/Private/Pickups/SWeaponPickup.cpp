@@ -13,9 +13,22 @@ ASWeaponPickup::ASWeaponPickup()
 
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	RequestPickupWeapon(OtherActor);
+}
+
+void ASWeaponPickup::Interact(AActor* InteractedActor)
+{
+	Super::Interact(InteractedActor);
+
+	RequestPickupWeapon(InteractedActor);
+	
+}
+
+void ASWeaponPickup::RequestPickupWeapon(AActor* PickupActor)
+{
 	if (WeaponInfo.WeaponType)
 	{
-		ASCharacter* OverlappedCharacter = Cast<ASCharacter>(OtherActor);
+		ASCharacter* OverlappedCharacter = Cast<ASCharacter>(PickupActor);
 		if (OverlappedCharacter)
 		{
 			OverlappedCharacter->PickupWeapon(WeaponInfo, this);

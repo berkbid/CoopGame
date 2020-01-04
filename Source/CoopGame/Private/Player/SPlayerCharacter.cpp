@@ -30,6 +30,8 @@ ASPlayerCharacter::ASPlayerCharacter()
 	bIsZooming = false;
 	ZoomedFOV = 65.f;
 	ZoomInterpSpeed = 20.f;
+
+	TraceObjectQueryParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
 }
 
 // Called once on client and once on server
@@ -73,25 +75,17 @@ void ASPlayerCharacter::Tick(float DeltaTime)
 
 void ASPlayerCharacter::TraceForInteractables()
 {
-	FCollisionQueryParams QueryParams;
-	QueryParams.bTraceComplex = false;
-	QueryParams.bReturnPhysicalMaterial = false;
-
 	FVector EyeLocation;
 	FRotator EyeRotation;
 	// We override the location return in SCharacter.cpp to return camera location instead
 	GetActorEyesViewPoint(EyeLocation, EyeRotation);
 	FVector TraceDirection = EyeRotation.Vector();
-	FVector TraceStart = GetActorLocation();
-	FVector TraceEnd = EyeLocation + (TraceDirection * 500.f);
+	FVector TraceStart = EyeLocation;
+	FVector TraceEnd = TraceStart + (TraceDirection * 500.f);
 	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
-
-	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
-
-
+	
 	TArray<FHitResult> HitArray;
-	bool bDidWeHit = GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, ObjectQueryParams, QueryParams);
+	bool bDidWeHit = GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, TraceObjectQueryParams);
 
 	if (bDidWeHit)
 	{
@@ -107,7 +101,6 @@ void ASPlayerCharacter::TraceForInteractables()
 			// Keep pointer to latest hit interactable in HitArray
 			TempInteractable = HitInteractable;
 		}
-
 		if (!TempInteractable) { return; }
 
 		// If we were previously interacting with an object,
@@ -127,9 +120,8 @@ void ASPlayerCharacter::TraceForInteractables()
 			TempInteractable->ShowItemInfo(true);
 			CurrentSelectedInteractable = TempInteractable;
 		}
-
 	}
-	// If we didn't hit anything
+	// If we didn't hit anything, update item info showing if necessary
 	else
 	{
 		// If we were previously interacting with an object, stop interacting with it

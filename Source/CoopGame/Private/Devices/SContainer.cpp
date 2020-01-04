@@ -21,10 +21,9 @@ void ASContainer::BeginPlay()
 }
 
 
-//void ASContainer::ShowItemInfo()
-//{
-//	Super::ShowItemInfo();
-//
-//
-//}
+void ASContainer::Interact(AActor* InteractedActor)
+{
+	Super::Interact(InteractedActor);
+
+}
 

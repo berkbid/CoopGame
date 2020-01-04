@@ -111,11 +111,15 @@ protected:
 
 	void ChangeToSlotHUD(int32 NewSlot);
 
+	void Interact();
 	void EquipSlotOne();
 	void EquipSlotTwo();
 	void EquipSlotThree();
 	void EquipSlotFour();
 	void EquipSlotFive();
+
+	UFUNCTION(Server, Reliable)
+	void ServerInteract();
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeaponOne();
