@@ -18,15 +18,14 @@ class COOPGAME_API USUserWidgetInfo : public UUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* SampleText;
+	class UHorizontalBox* InfoBox;
 
 	AActor* OwningActor;
 
 
 public:
 
-	void SetOwningActor(AActor* NewOwner);
-	void SetSampleText(FString PlayerName);
-	void SetTextVisibility(bool bIsVisible);
+	virtual void SetOwningActor(AActor* NewOwner);
+	void SetWidgetVisibility(bool bIsVisible);
 	
 };

@@ -3,7 +3,7 @@
 
 #include "SUserWidgetInfo.h"
 #include "Components/TextBlock.h"
-
+#include "Components/HorizontalBox.h"
 
 void USUserWidgetInfo::SetOwningActor(AActor* NewOwner)
 {
@@ -13,30 +13,22 @@ void USUserWidgetInfo::SetOwningActor(AActor* NewOwner)
 
 	OwningActor = NewOwner;
 
-	SetSampleText(NewOwner->GetName());
 }
 
-void USUserWidgetInfo::SetTextVisibility(bool bIsVisible)
+void USUserWidgetInfo::SetWidgetVisibility(bool bIsVisible)
 {
-	if (SampleText)
+	if (InfoBox)
 	{
 		if (bIsVisible)
 		{
-			SampleText->SetVisibility(ESlateVisibility::Visible);
+			InfoBox->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		else
 		{
-			SampleText->SetVisibility(ESlateVisibility::Hidden);
+			InfoBox->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
 
-void USUserWidgetInfo::SetSampleText(FString PlayerName)
-{
-	if (SampleText)
-	{
-		SampleText->SetText(FText::FromString(PlayerName));
-	}
-}
 
 

@@ -24,8 +24,6 @@ public:
 
 	virtual void InitWidget() override;
 
-	void UpdateWidgetText(FString PlayerName);
-
 	void SetInfoVisible(bool bIsVisible);
 
 protected:

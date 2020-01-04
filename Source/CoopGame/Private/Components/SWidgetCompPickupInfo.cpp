@@ -48,18 +48,10 @@ void USWidgetCompPickupInfo::InitWidget()
 	}
 }
 
-void USWidgetCompPickupInfo::UpdateWidgetText(FString PlayerName)
-{
-	if (WidgetInfoInst)
-	{
-		WidgetInfoInst->SetSampleText(PlayerName);
-	}
-}
-
 void USWidgetCompPickupInfo::SetInfoVisible(bool bIsVisible)
 {
 	if (WidgetInfoInst)
 	{
-		WidgetInfoInst->SetTextVisibility(bIsVisible);
+		WidgetInfoInst->SetWidgetVisibility(bIsVisible);
 	}
 }
