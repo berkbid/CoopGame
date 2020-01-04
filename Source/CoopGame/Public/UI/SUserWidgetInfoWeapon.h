@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SWeaponTypes.h"
 #include "UI/SUserWidgetInfo.h"
 #include "SUserWidgetInfoWeapon.generated.h"
 
@@ -20,6 +21,9 @@ protected:
 	class UTextBlock* WeaponNameText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* ClipText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UBorder* WeaponNameBorder;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -28,9 +32,24 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UImage* AmmoImage;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UImage* StarImage;
+
 	void SetWeaponText(FString PlayerName);
 
-	void SetWeaponBorderColor(FLinearColor NewColor);
+	void SetClipText(int32 ClipAmount);
+
+	void SetBorderColors(FLinearColor NewColor);
+
+	void SetAmmoImage(EAmmoType NewAmmoType);
+
+	void SetStarImage(EWeaponRarity NewWeaponRarity);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
+	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
+	TMap<TEnumAsByte<EWeaponRarity>, class UTexture2D*> RarityToTextureMap;
 
 public:
 

@@ -26,11 +26,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
 
-	void SetAmmoText(FString AmmoText);
-
 	void SetAmmoImage(UTexture2D* NewTexture);
+
 public:
 
 	virtual void SetOwningActor(AActor* NewOwner) override;
+
+	void SetAmmoText(int32 NewAmmo);
 	
 };

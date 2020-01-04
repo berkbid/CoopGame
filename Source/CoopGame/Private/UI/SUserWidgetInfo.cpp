@@ -29,6 +29,3 @@ void USUserWidgetInfo::SetWidgetVisibility(bool bIsVisible)
 		}
 	}
 }
-
-
-

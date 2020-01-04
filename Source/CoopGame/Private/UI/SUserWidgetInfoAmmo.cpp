@@ -16,7 +16,7 @@ void USUserWidgetInfoAmmo::SetOwningActor(AActor* NewOwner)
 		ASAmmoPickup* AP = Cast<ASAmmoPickup>(NewOwner);
 		if (AP)
 		{
-			SetAmmoText(FString::FromInt(AP->AmmoAmount));
+			SetAmmoText(AP->AmmoAmount);
 
 			UTexture2D** TempWeaponTexture = AmmoToTextureMap.Find(AP->AmmoType);
 			if (TempWeaponTexture)
@@ -27,11 +27,11 @@ void USUserWidgetInfoAmmo::SetOwningActor(AActor* NewOwner)
 	}
 }
 
-void USUserWidgetInfoAmmo::SetAmmoText(FString AmmoText)
+void USUserWidgetInfoAmmo::SetAmmoText(int32 NewAmmo)
 {
 	if (AmmoAmountText)
 	{
-		AmmoAmountText->SetText(FText::FromString("x" + AmmoText));
+		AmmoAmountText->SetText(FText::FromString("x" + FString::FromInt(NewAmmo)));
 	}
 }
 

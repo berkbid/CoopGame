@@ -26,7 +26,9 @@ public:
 
 	void SetInfoVisible(bool bIsVisible);
 
+	class USUserWidgetInfo* WidgetInfoInst;
+
 protected:
 
-	class USUserWidgetInfo* WidgetInfoInst;
+	
 };

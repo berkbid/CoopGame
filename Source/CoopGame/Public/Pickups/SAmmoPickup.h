@@ -7,6 +7,9 @@
 #include "Pickups/SItemPickup.h"
 #include "SAmmoPickup.generated.h"
 
+
+
+
 /**
  * 
  */
@@ -22,12 +25,14 @@ public:
 
 	virtual void Interact(AActor* InteractedActor) override;
 
+	UPROPERTY(ReplicatedUsing = OnRep_AmmoAmount, EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int32 AmmoAmount;
+
 	/* Set these values in the child classes for specific weapon pickups */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	EAmmoType AmmoType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 AmmoAmount;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 
@@ -35,4 +40,6 @@ protected:
 
 	void RequestPickupAmmo(AActor* PickupActor);
 
+	UFUNCTION()
+	void OnRep_AmmoAmount();
 };
