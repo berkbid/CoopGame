@@ -16,7 +16,16 @@ class COOPGAME_API ASChest : public ASContainer
 
 
 public:
+	ASChest();
 
-	//virtual void ShowItemInfo() override;
-	
+	virtual void Interact(AActor* InteractedActor) override;
+
+	virtual void ShowItemInfo(bool bIsVisible) override;
+
+
+protected:
+
+	UPROPERTY(EditAnywhere, Category="Items")
+	TArray<TSubclassOf<class ASWeaponPickup>> WeaponArray;
+
 };

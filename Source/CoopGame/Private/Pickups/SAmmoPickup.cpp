@@ -41,7 +41,6 @@ void ASAmmoPickup::RequestPickupAmmo(AActor* PickupActor)
 		}
 		else
 		{
-			// Call multicast passing AmmoAmount instead, and don't replicate AmmoAmount?
 			AmmoAmount = LeftOverAmmo;
 			OnRep_AmmoAmount();
 		}
@@ -62,6 +61,7 @@ void ASAmmoPickup::OnRep_AmmoAmount()
 		}
 	}
 }
+
 
 void ASAmmoPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

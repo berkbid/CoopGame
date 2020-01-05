@@ -87,6 +87,11 @@ protected:
 
 	class USUserWidgetGameInfo* MyGameInfo;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<class USUserWidgetInventoryInfo> wInventoryInfo;
+
+	class USUserWidgetInventoryInfo* MyInventoryInfo;
+
 	/* Keep track of which weapon slot is currently equipped */
 	UPROPERTY()
 	int CurrentSlot;
@@ -112,6 +117,7 @@ protected:
 	void ChangeToSlotHUD(int32 NewSlot);
 
 	void Interact();
+	void ToggleInventory();
 	void EquipSlotOne();
 	void EquipSlotTwo();
 	void EquipSlotThree();

@@ -52,25 +52,12 @@ void ASInteractable::ShowItemInfo(bool bIsVisible)
 {
 	if (bIsVisible)
 	{
-		if (bIsInfoVisible) { return; }
-
-		if (InfoWidget)
-		{
-			InfoWidget->SetInfoVisible(bIsVisible);
-			bIsInfoVisible = true;
-		}
+		SetInfoVisible();
 	}
 	else
 	{
-		if (!bIsInfoVisible) { return; }
-
-		if (InfoWidget)
-		{
-			InfoWidget->SetInfoVisible(bIsVisible);
-			bIsInfoVisible = false;
-		}
+		SetInfoInvisible();
 	}
-
 }
 
 void ASInteractable::Interact(AActor* InteractedActor)
@@ -82,5 +69,27 @@ void ASInteractable::Interact(AActor* InteractedActor)
 void ASInteractable::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ASInteractable::SetInfoVisible()
+{
+	if (bIsInfoVisible) { return; }
+
+	if (InfoWidget)
+	{
+		InfoWidget->SetInfoVisible(true);
+		bIsInfoVisible = true;
+	}
+}
+
+void ASInteractable::SetInfoInvisible()
+{
+	if (!bIsInfoVisible) { return; }
+
+	if (InfoWidget)
+	{
+		InfoWidget->SetInfoVisible(false);
+		bIsInfoVisible = false;
+	}
 }
 

@@ -3,6 +3,7 @@
 
 #include "SPlayerController.h"
 #include "SUserWidgetGameInfo.h"
+#include "SUserWidgetInventoryInfo.h"
 #include "SPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "SGameState.h"
@@ -15,6 +16,7 @@
 #include "CoopGame.h"
 #include "DrawDebugHelpers.h"
 #include "SInteractable.h"
+#include "BluePrint/WidgetBlueprintLibrary.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -141,6 +143,7 @@ void ASPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
 	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
 	InputComponent->BindAction("Interact", IE_Pressed, this, &ASPlayerController::Interact);
+	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &ASPlayerController::ToggleInventory);
 }
 
 void ASPlayerController::OnPossess(APawn* aPawn)
@@ -373,7 +376,7 @@ void ASPlayerController::Interact()
 	GetActorEyesViewPoint(EyeLocation, EyeRotation);
 	FVector TraceDirection = EyeRotation.Vector();
 	FVector TraceStart = EyeLocation;
-	FVector TraceEnd = TraceStart + (TraceDirection * 500.f);
+	FVector TraceEnd = TraceStart + (TraceDirection * 450.f);
 	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Yellow, false, 2.f, 0, 5.f);
 
 	FCollisionObjectQueryParams ObjectParams; 
@@ -402,6 +405,43 @@ void ASPlayerController::Interact()
 		if (TempInteractable) 
 		{
 			TempInteractable->Interact(GetPawn());
+		}
+	}
+}
+
+void ASPlayerController::ToggleInventory()
+{
+	// If we don't have MyInventoryInfo object, try to create and display it
+	if (!MyInventoryInfo)
+	{
+		if (!wInventoryInfo) { return; }
+		MyInventoryInfo = CreateWidget<USUserWidgetInventoryInfo>(this, wInventoryInfo);
+		if (!MyInventoryInfo) { return; }
+
+		if (MyGameInfo) { MyGameInfo->SetVisibility(ESlateVisibility::Hidden); }
+
+
+		MyInventoryInfo->AddToViewport();
+		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
+		bShowMouseCursor = true;
+	}
+	// If we already have a MyInventoryInfo object, determine if it is in viewport and toggle off or on
+	else
+	{
+		if (MyInventoryInfo->IsInViewport())
+		{
+			if (MyGameInfo) { MyGameInfo->SetVisibility(ESlateVisibility::HitTestInvisible); }
+
+			MyInventoryInfo->RemoveFromViewport();
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+			bShowMouseCursor = false;
+		}
+		else
+		{
+			if (MyGameInfo) { MyGameInfo->SetVisibility(ESlateVisibility::Hidden); }
+			MyInventoryInfo->AddToViewport();
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
+			bShowMouseCursor = true;
 		}
 	}
 }

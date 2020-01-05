@@ -37,5 +37,9 @@ protected:
 
 	bool bIsInfoVisible = false;
 
+	void SetInfoVisible();
+
+	void SetInfoInvisible();
+
 
 };

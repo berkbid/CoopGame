@@ -25,12 +25,12 @@ public:
 
 	virtual void Interact(AActor* InteractedActor) override;
 
-	UPROPERTY(ReplicatedUsing = OnRep_AmmoAmount, EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 AmmoAmount;
-
 	/* Set these values in the child classes for specific weapon pickups */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	EAmmoType AmmoType;
+
+	UPROPERTY(ReplicatedUsing=OnRep_AmmoAmount, EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int32 AmmoAmount;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -42,4 +42,5 @@ protected:
 
 	UFUNCTION()
 	void OnRep_AmmoAmount();
+
 };

@@ -81,7 +81,7 @@ void ASPlayerCharacter::TraceForInteractables()
 	GetActorEyesViewPoint(EyeLocation, EyeRotation);
 	FVector TraceDirection = EyeRotation.Vector();
 	FVector TraceStart = EyeLocation;
-	FVector TraceEnd = TraceStart + (TraceDirection * 500.f);
+	FVector TraceEnd = TraceStart + (TraceDirection * 450.f);
 	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
 	
 	TArray<FHitResult> HitArray;
