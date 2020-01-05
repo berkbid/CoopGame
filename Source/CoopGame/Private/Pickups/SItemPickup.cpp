@@ -30,9 +30,9 @@ void ASItemPickup::BeginPlay()
 	}
 }
 
-void ASItemPickup::Interact(AActor* InteractedActor)
+void ASItemPickup::Interact(APlayerController* InteractedPC)
 {
-	Super::Interact(InteractedActor);
+	Super::Interact(InteractedPC);
 
 }
 

@@ -17,7 +17,7 @@ public:
 
 	virtual void ShowItemInfo(bool bIsVisible);
 
-	virtual void Interact(AActor* InteractedActor);
+	virtual void Interact(class APlayerController* InteractedPC);
 
 protected:
 

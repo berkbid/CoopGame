@@ -142,44 +142,6 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	return OldAmmoCount;
 }
 
-// Being called by server only
-void ASCharacter::PickupWeapon(const FWeaponInfo& WeaponInfo, AActor* PickupActor)
-{
-	if (!WeaponInfo.WeaponType) { return; }
-	// Quick rejection of weapon overlaps with local variable
-	if (bIsInventoryFullTemp) { return; }
-
-	// If we could get a boolean from player controller if inventory is full or not we could skip doing more work
-	// This means AI don't pickup weapons because they have different controller class
-	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
-	if (PC)
-	{
-		if (PC->GetIsInventoryFull()) 
-		{ 
-			bIsInventoryFullTemp = true;
-			return; 
-		}
-
-		// If we successfully pick up the weapon in our inventory, then destroy the weapon pickup actor
-		if (PC->PickedUpNewWeapon(WeaponInfo))
-		{
-			PickupActor->Destroy();
-		}
-	}
-}
-
-// Being called by server only
-int32 ASCharacter::PickupAmmo(EAmmoType AmmoType, int32 AmmoAmount)
-{
-	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
-	if (PC)
-	{
-		return PC->PickedUpNewAmmo(AmmoType, AmmoAmount);
-	}
-
-	return AmmoAmount;
-}
-
 // Only called on server because we only hooked this on the server
 void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {

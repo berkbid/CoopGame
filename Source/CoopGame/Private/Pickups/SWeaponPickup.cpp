@@ -2,8 +2,8 @@
 
 
 #include "SWeaponPickup.h"
-#include "SCharacter.h"
 #include "Components/SphereComponent.h"
+#include "SPlayerController.h"
 
 ASWeaponPickup::ASWeaponPickup()
 {
@@ -13,25 +13,30 @@ ASWeaponPickup::ASWeaponPickup()
 
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	RequestPickupWeapon(OtherActor);
+	APawn* OverlappedPawn = Cast<APawn>(OtherActor);
+
+	if (!OverlappedPawn) { return; }
+
+	HandlePickupWeapon(OverlappedPawn->GetController());
+
 }
 
-void ASWeaponPickup::Interact(AActor* InteractedActor)
+void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 {
-	Super::Interact(InteractedActor);
+	Super::Interact(InteractedPC);
 
-	RequestPickupWeapon(InteractedActor);
-	
+	HandlePickupWeapon(InteractedPC);
 }
 
-void ASWeaponPickup::RequestPickupWeapon(AActor* PickupActor)
+void ASWeaponPickup::HandlePickupWeapon(class AController* NewPickupController)
 {
-	if (WeaponInfo.WeaponType)
+	ASPlayerController* PC = Cast<ASPlayerController>(NewPickupController);
+	if (PC)
 	{
-		ASCharacter* OverlappedCharacter = Cast<ASCharacter>(PickupActor);
-		if (OverlappedCharacter)
+		// If we successfully pick up the weapon in our inventory, then destroy self
+		if (PC->PickedUpNewWeapon(WeaponInfo))
 		{
-			OverlappedCharacter->PickupWeapon(WeaponInfo, this);
+			Destroy();
 		}
 	}
 }

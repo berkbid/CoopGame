@@ -19,7 +19,7 @@ public:
 	virtual void ShowItemInfo(bool bIsVisible) override;
 
 	/* Method called when player character tries to interact with this container */
-	virtual void Interact(AActor* InteractedActor) override;
+	virtual void Interact(class APlayerController* InteractedPC) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

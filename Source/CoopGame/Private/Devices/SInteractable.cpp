@@ -60,9 +60,9 @@ void ASInteractable::ShowItemInfo(bool bIsVisible)
 	}
 }
 
-void ASInteractable::Interact(AActor* InteractedActor)
+void ASInteractable::Interact(APlayerController* InteractedPC)
 {
-	if (!InteractedActor) { return; }
+	if (!InteractedPC) { return; }
 }
 
 
@@ -88,4 +88,3 @@ void ASInteractable::SetInfoInvisible()
 		bIsInfoVisible = false;
 	}
 }
-

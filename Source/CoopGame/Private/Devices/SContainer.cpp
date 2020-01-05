@@ -24,9 +24,9 @@ void ASContainer::ShowItemInfo(bool bIsVisible)
 }
 
 
-void ASContainer::Interact(AActor* InteractedActor)
+void ASContainer::Interact(APlayerController* InteractedPC)
 {
-	Super::Interact(InteractedActor);
+	Super::Interact(InteractedPC);
 
 }
 

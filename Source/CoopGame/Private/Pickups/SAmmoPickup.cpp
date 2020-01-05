@@ -2,10 +2,10 @@
 
 
 #include "SAmmoPickup.h"
-#include "SCharacter.h"
 #include "SWidgetCompPickupInfo.h"
 #include "SUserWidgetInfoAmmo.h"
 #include "Net/UnrealNetwork.h"
+#include "SPlayerController.h"
 
 ASAmmoPickup::ASAmmoPickup()
 {
@@ -16,35 +16,40 @@ ASAmmoPickup::ASAmmoPickup()
 
 void ASAmmoPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	RequestPickupAmmo(OtherActor);
-}
+	if (!OtherActor) { return; }
 
-void ASAmmoPickup::Interact(AActor* InteractedActor)
-{
-	Super::Interact(InteractedActor);
-	RequestPickupAmmo(InteractedActor);
-}
-
-void ASAmmoPickup::RequestPickupAmmo(AActor* PickupActor)
-{
-	if (!PickupActor) { return; }
-	ASCharacter* OverlappedCharacter = Cast<ASCharacter>(PickupActor);
-	if (OverlappedCharacter)
+	APawn* OverlappedPawn = Cast<APawn>(OtherActor);
+	if (OverlappedPawn)
 	{
-		int32 LeftOverAmmo = OverlappedCharacter->PickupAmmo(AmmoType, AmmoAmount);
+		HandleAmmoPickup(OverlappedPawn->GetController());
+	}
+}
 
-		// If player didn't pick up any ammo, don't need to do anything
-		if (LeftOverAmmo == AmmoAmount) { return; }
+void ASAmmoPickup::Interact(APlayerController* InteractedPC)
+{
+	Super::Interact(InteractedPC);
 
-		if (LeftOverAmmo <= 0)
-		{
-			Destroy();
-		}
-		else
-		{
-			AmmoAmount = LeftOverAmmo;
-			OnRep_AmmoAmount();
-		}
+	HandleAmmoPickup(InteractedPC);
+}
+
+void ASAmmoPickup::HandleAmmoPickup(AController* NewPickupController)
+{
+	ASPlayerController* PC = Cast<ASPlayerController>(NewPickupController);
+
+	if (!PC) { return; }
+
+	int32 LeftOverAmmo = PC->PickedUpNewAmmo(AmmoType, AmmoAmount);
+	// If player didn't pick up any ammo, don't need to do anything
+	if (LeftOverAmmo == AmmoAmount) { return; }
+
+	if (LeftOverAmmo <= 0)
+	{
+		Destroy();
+	}
+	else
+	{
+		AmmoAmount = LeftOverAmmo;
+		OnRep_AmmoAmount();
 	}
 }
 

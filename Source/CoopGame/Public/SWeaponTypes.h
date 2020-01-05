@@ -14,6 +14,13 @@ enum class EAmmoType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	AssaultRifle,
+	GrenadeLauncher
+};
+
+UENUM(BlueprintType)
 enum class EWeaponRarity : uint8
 {
 	Common,
@@ -372,3 +379,26 @@ struct FWeaponInfo
 	}
 };
 
+USTRUCT(BlueprintType)
+struct FWeaponDropChance
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	uint8 DropChance;
+
+	FWeaponDropChance()
+	{
+		WeaponType = EWeaponType::AssaultRifle;
+		DropChance = 1;
+	}
+
+	FWeaponDropChance(EWeaponType NewWeaponType, uint8 NewDropChance)
+	{
+		WeaponType = NewWeaponType;
+		DropChance = NewDropChance;
+	}
+};

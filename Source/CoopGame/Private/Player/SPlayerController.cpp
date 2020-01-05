@@ -209,6 +209,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 {
 	// Only server should call this function
 	if (GetLocalRole() < ROLE_Authority) { return false; }
+	if (bIsInventoryFull) { return false; }
 
 	// WeaponClass will never be null in here, it is checked in the previous function call
 	// Loop through inventory looking for empty slot
@@ -404,7 +405,7 @@ void ASPlayerController::Interact()
 		// Controlled pawn is in charge of picking up weapons/ammo but player controller probably should be
 		if (TempInteractable) 
 		{
-			TempInteractable->Interact(GetPawn());
+			TempInteractable->Interact(this);
 		}
 	}
 }
