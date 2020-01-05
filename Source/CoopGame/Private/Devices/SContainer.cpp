@@ -14,16 +14,13 @@ ASContainer::ASContainer()
 	BoxComp->SetSimulatePhysics(false);
 }
 
+// This is client call
 void ASContainer::ShowItemInfo(bool bIsVisible)
 {
-	Super::ShowItemInfo(bIsVisible);
-}
+	// Don't show item info if container is already opened, bIsOpened is replicated
+	if (bIsOpened) { return; }
 
-// Called when the game starts or when spawned
-void ASContainer::BeginPlay()
-{
-	Super::BeginPlay();
-	
+	Super::ShowItemInfo(bIsVisible);
 }
 
 
@@ -31,6 +28,15 @@ void ASContainer::Interact(AActor* InteractedActor)
 {
 	Super::Interact(InteractedActor);
 
+}
+
+void ASContainer::OnRep_OpenContainer()
+{
+	// Only upon container changing to be opened, make sure info is invisible
+	if (bIsOpened)
+	{
+		SetInfoInvisible();
+	}
 }
 
 void ASContainer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

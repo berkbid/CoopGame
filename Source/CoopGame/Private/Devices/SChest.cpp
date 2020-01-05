@@ -18,13 +18,11 @@ void ASChest::Interact(AActor* InteractedActor)
 	// Only allow chest to be opened once
 	if (bIsOpened) { return; }
 
+	// Tell clients this chest has been opened
 	bIsOpened = true;
+	OnRep_OpenContainer();
 
 	float HorizontalOffset = -50.f;
-
-	// Decide on weapon type and rarity to spawn
-	// Choose a weighted random weapon base class from Array of weapon base classes
-	// Then choose rarity -> decide what subclass of weapon base class to spawn
 
 	//spawn items in array
 	for (TSubclassOf<ASWeaponPickup> WP : WeaponArray)
@@ -41,23 +39,14 @@ void ASChest::Interact(AActor* InteractedActor)
 			HorizontalOffset += 50.f;
 		}
 	}
-
-	// Want to call this on clients
-	// Set our info widget invisible if it is visible
-	//SetInfoInvisible();
 }
 
-// We are client in here, checking server variable
 void ASChest::ShowItemInfo(bool bIsVisible)
 {
-	// bIsOpened is replicated so clients should be able to run this
-	if (bIsOpened) 
-	{ 
-		SetInfoInvisible();
-		return; 
-	}
-
 	Super::ShowItemInfo(bIsVisible);
-
 }
 
+void ASChest::OnRep_OpenContainer()
+{
+	Super::OnRep_OpenContainer();
+}

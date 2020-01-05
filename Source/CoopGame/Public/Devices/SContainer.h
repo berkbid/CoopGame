@@ -18,15 +18,19 @@ public:
 	/* Method for line trace of players to call to show item info on widget component*/
 	virtual void ShowItemInfo(bool bIsVisible) override;
 
+	/* Method called when player character tries to interact with this container */
 	virtual void Interact(AActor* InteractedActor) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
-	UPROPERTY(Replicated)
+	/* Clients can immediately hide the info display for this container since it has been opened */
+	UFUNCTION()
+	virtual void OnRep_OpenContainer();
+
+	/* Clients need this information when requesting widget info display visibility */
+	UPROPERTY(ReplicatedUsing= OnRep_OpenContainer)
 	bool bIsOpened;
 
 };

@@ -27,6 +27,7 @@ void ASAmmoPickup::Interact(AActor* InteractedActor)
 
 void ASAmmoPickup::RequestPickupAmmo(AActor* PickupActor)
 {
+	if (!PickupActor) { return; }
 	ASCharacter* OverlappedCharacter = Cast<ASCharacter>(PickupActor);
 	if (OverlappedCharacter)
 	{
@@ -50,10 +51,9 @@ void ASAmmoPickup::RequestPickupAmmo(AActor* PickupActor)
 // Need everyone to set new ammo text for this ammo pickups widget component
 void ASAmmoPickup::OnRep_AmmoAmount()
 {
-	// Update widget component text
+	// Get InfoWidget Component, it is generalized for parent WidgetInst types, so we cast and call specific Ammo method
 	if (InfoWidget)
 	{
-		// Get specific subclass of USUserWidgetInfo so we can call USUserWidgetInfoAmmo specific functions
 		USUserWidgetInfoAmmo* WA = Cast<USUserWidgetInfoAmmo>(InfoWidget->WidgetInfoInst);
 		if (WA)
 		{
@@ -61,7 +61,6 @@ void ASAmmoPickup::OnRep_AmmoAmount()
 		}
 	}
 }
-
 
 void ASAmmoPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

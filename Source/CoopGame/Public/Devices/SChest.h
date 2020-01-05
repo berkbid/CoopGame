@@ -28,4 +28,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Items")
 	TArray<TSubclassOf<class ASWeaponPickup>> WeaponArray;
 
+	virtual void OnRep_OpenContainer() override;
+
 };

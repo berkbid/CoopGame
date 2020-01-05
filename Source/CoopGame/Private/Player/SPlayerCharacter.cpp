@@ -103,7 +103,7 @@ void ASPlayerCharacter::TraceForInteractables()
 		}
 		if (!TempInteractable) { return; }
 
-		// If we were previously interacting with an object,
+		// If we were previously interacting with an object
 		if (CurrentSelectedInteractable)
 		{
 			// And the new object is a different object, handle this

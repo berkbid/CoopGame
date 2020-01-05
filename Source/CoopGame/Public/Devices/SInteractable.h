@@ -20,8 +20,6 @@ public:
 	virtual void Interact(AActor* InteractedActor);
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* BoxComp;
@@ -40,6 +38,4 @@ protected:
 	void SetInfoVisible();
 
 	void SetInfoInvisible();
-
-
 };

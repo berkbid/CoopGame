@@ -65,11 +65,7 @@ void ASInteractable::Interact(AActor* InteractedActor)
 	if (!InteractedActor) { return; }
 }
 
-// Called when the game starts or when spawned
-void ASInteractable::BeginPlay()
-{
-	Super::BeginPlay();
-}
+
 
 void ASInteractable::SetInfoVisible()
 {
