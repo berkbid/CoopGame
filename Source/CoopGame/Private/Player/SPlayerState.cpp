@@ -30,7 +30,6 @@ void ASPlayerState::AddScore(float ScoreDelta)
 			OnRep_Score();
 		}
 	}
-
 }
 
 void ASPlayerState::AddKill()
@@ -75,7 +74,7 @@ void ASPlayerState::OnRep_PlayerKills()
 	ASPlayerController* PC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (PC)
 	{
-		PC->UpdatePlayerKills(PlayerId, PlayerKills);
+		PC->UpdatePlayerKillsHUD(PlayerId, PlayerKills);
 	}
 }
 
@@ -85,7 +84,7 @@ void ASPlayerState::OnRep_PlayerDeaths()
 	ASPlayerController* PC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (PC)
 	{
-		PC->UpdatePlayerDeaths(PlayerId, PlayerDeaths);
+		PC->UpdatePlayerDeathsHUD(PlayerId, PlayerDeaths);
 	}
 }
 
@@ -96,10 +95,10 @@ void ASPlayerState::OnRep_Score()
 	Super::OnRep_Score();
 
 	// This is each client's player controller
-	ASPlayerController* PCC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (PCC)
+	ASPlayerController* PC = Cast<ASPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PC)
 	{
-		PCC->UpdatePlayerScore(PlayerId, Score);
+		PC->UpdatePlayerScoreHUD(PlayerId, Score);
 	}
 }
 

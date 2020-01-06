@@ -58,8 +58,6 @@ protected:
 	// Helper function that handles updating widget component with PlayerName from PlayerState
 	void SetWidgetName();
 
-	bool bIsInventoryFullTemp;
-
 	int32 CurrentWeaponSlot;
 
 public:	

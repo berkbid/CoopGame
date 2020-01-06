@@ -35,7 +35,6 @@ ASCharacter::ASCharacter()
 	HealthBar->SetupAttachment(RootComponent);
 
 	bDied = false;
-	bIsInventoryFullTemp = false;
 }
 
 // Called once on client and once on server

@@ -199,7 +199,8 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 				WeaponInventory[OldSlot].CurrentAmmo = OldAmmoCount;
 			}
 		}
-		// Call client RPC to update HUD for newly equipped weapon
+
+		// Change to new HUD slot even if we don't have a pawn to equip the weapon
 		ClientChangeToSlotHUD(CurrentSlot);
 	}
 }
@@ -211,7 +212,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 	if (GetLocalRole() < ROLE_Authority) { return false; }
 	if (bIsInventoryFull) { return false; }
 
-	// WeaponClass will never be null in here, it is checked in the previous function call
 	// Loop through inventory looking for empty slot
 	int32 InventorySize = WeaponInventory.Num();
 	for (int32 i = 0; i < InventorySize; ++i)
@@ -222,7 +222,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 			// Update weapon inventory slot to new weaponclass
 			WeaponInventory[i] = WeaponInfo;
 
-			int32 ExtraAmmoAmount = GetExtraAmmoOfType(WeaponInfo.AmmoType);
 			// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
 			ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, i);
 
@@ -289,40 +288,7 @@ int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
 	return AmmoReturnAmount;
 }
 
-int32 ASPlayerController::GetExtraAmmoOfType(EAmmoType QueryAmmoType)
-{
-	int32 ReturnAmount = 0;
-
-	switch (QueryAmmoType)
-	{
-	case EAmmoType::MiniAmmo:
-		ReturnAmount = AmmoInventory.MiniCount;
-		break;
-	case EAmmoType::MediumAmmo:
-		ReturnAmount = AmmoInventory.MediumCount;
-		break;
-	case EAmmoType::HeavyAmmo:
-		ReturnAmount = AmmoInventory.HeavyCount;
-		break;
-	case EAmmoType::ShellAmmo:
-		ReturnAmount = AmmoInventory.ShellCount;
-		break;
-	case EAmmoType::RocketAmmo:
-		ReturnAmount = AmmoInventory.RocketCount;
-		break;
-	default:
-		break;
-	}
-
-	return ReturnAmount;
-}
-
-bool ASPlayerController::GetIsInventoryFull()
-{
-	return bIsInventoryFull;
-}
-
-void ASPlayerController::SetStateText(FString NewState)
+void ASPlayerController::SetStateTextHUD(FString NewState)
 {
 	if (MyGameInfo)
 	{
@@ -330,7 +296,7 @@ void ASPlayerController::SetStateText(FString NewState)
 	}
 }
 
-void ASPlayerController::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
+void ASPlayerController::UpdatePlayerScoreHUD(uint32 PlayerNumber, float NewScore)
 {
 	if (MyGameInfo)
 	{
@@ -338,7 +304,7 @@ void ASPlayerController::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
 	}
 }
 
-void ASPlayerController::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
+void ASPlayerController::UpdatePlayerKillsHUD(uint32 PlayerNumber, uint32 NewKills)
 {
 	if (MyGameInfo)
 	{
@@ -346,21 +312,12 @@ void ASPlayerController::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
 	}
 }
 
-void ASPlayerController::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
+void ASPlayerController::UpdatePlayerDeathsHUD(uint32 PlayerNumber, uint32 NewDeaths)
 {
 	if (MyGameInfo)
 	{
 		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
 	}
-}
-
-// Client only should run this method when they want to update HUD for changing inventory slot
-void ASPlayerController::ChangeToSlotHUD(int32 NewSlot)
-{
-	if (!MyGameInfo) { return; }
-
-	// Call HUD method to change slot with ammo info
-	MyGameInfo->InventoryChangeToSlot(NewSlot);
 }
 
 void ASPlayerController::Interact()
@@ -517,7 +474,10 @@ void ASPlayerController::ServerEquipWeaponFive_Implementation()
 
 void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 {
-	ChangeToSlotHUD(NewSlot);
+	if (!MyGameInfo) { return; }
+
+	// Call HUD method to change slot with ammo info
+	MyGameInfo->InventoryChangeToSlot(NewSlot);
 }
 
 void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo)
@@ -550,11 +510,6 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 				UGameplayStatics::PlaySoundAtLocation(this, PickupWeaponSound, ControlledPawn->GetActorLocation());
 			}
 		}
-	}
-	// If we pickup weapon in current slot, need to update weapon info
-	if (TempCurrentSlot == SlotToUpdate)
-	{
-
 	}
 }
 

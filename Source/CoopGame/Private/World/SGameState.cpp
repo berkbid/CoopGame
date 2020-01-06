@@ -16,7 +16,6 @@ void ASGameState::OnRep_WaveState(EWaveState OldState)
 
 }
 
-
 void ASGameState::SetWaveState(EWaveState NewState)
 {
 	if (GetLocalRole() == ROLE_Authority)
@@ -24,8 +23,6 @@ void ASGameState::SetWaveState(EWaveState NewState)
 		EWaveState OldState = WaveState;
 
 		WaveState = NewState;
-
-		// Call code manually on server
 		OnRep_WaveState(OldState);
 	}
 }
@@ -36,7 +33,7 @@ void ASGameState::UpdateWaveStateHUD()
 	if (PC)
 	{
 		FString WaveStateString = GetWaveStateString();
-		PC->SetStateText(WaveStateString);
+		PC->SetStateTextHUD(WaveStateString);
 	}
 }
 
