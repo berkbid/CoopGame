@@ -114,17 +114,15 @@ void ASRifle::Fire()
 			if (PC)
 			{
 				PC->ClientPlayCameraShake(FireCamShake);
-				// Update ammo HUD for client, no need to alter ammo inventory, only do that on reload
-				PC->ClientUpdateClipHUD(CurrentClipSize);
+
+				// Update current clip size information to player controller to update HUD
+				PC->UpdateCurrentClip(CurrentClipSize);
 			}
 		}
 	}
-
 	// This variable is set for both clients and server, thus even if a server is a player, he will have the appropiate LastFireTime
 	LastFireTime = GetWorld()->TimeSeconds;
 }
-
-
 
 void ASRifle::PlayFireEffect(FVector TracerEndPoint)
 {

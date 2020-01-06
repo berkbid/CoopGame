@@ -44,8 +44,11 @@ public:
 	 */
 	int32 ReloadAmmoClip(int32 CurrentClipSize);
 
-	/* Called by SCharacter when they die, to tell us current ammo of currently equipped weapon for storage */
+	/* Helper function to update current ammo in currently equipped slot */
 	void SetCurrentSlotAmmo(int32 NewAmmo);
+
+	/* Called by weapons every time they fire so player controller can update HUD or clip data */
+	void UpdateCurrentClip(int32 NewClipSize);
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Client called functions from OnRep variables on all PlayerStates, to update HUD scoreboard

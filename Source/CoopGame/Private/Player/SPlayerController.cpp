@@ -178,10 +178,6 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 	// Only server should call this function, this is precautionary
 	if (GetLocalRole() < ROLE_Authority) { return; }
 
-	// Store old slot to update weapon inventory on ammo count of old weapon when we receive this data
-	int OldSlot = CurrentSlot;
-	CurrentSlot = NewWeaponSlot;
-
 	// Equip new weapon slot even if it is empty and update HUD
 	if (WeaponInventory.Num() > NewWeaponSlot)
 	{
@@ -190,17 +186,11 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 		if (MyPawn)
 		{
-			// When we weapon swap, need to keep track of clip size of old weapon in our weapon inventory
-			int32 OldAmmoCount = MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot], NewWeaponSlot);
-
-			// Store ammo count of weapon that was un-equipped in its FWeaponInfo struct in our WeaponInventory array
-			if (OldAmmoCount >= 0 && WeaponInventory.Num() > OldSlot)
-			{
-				WeaponInventory[OldSlot].CurrentAmmo = OldAmmoCount;
-			}
+			// When we weapon swap, need to keep track of clip size of weapon before changing
+			SetCurrentSlotAmmo(MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot], NewWeaponSlot));
 		}
-
-		// Change to new HUD slot even if we don't have a pawn to equip the weapon
+		// Change active slot even if no pawn is possessed, do this after we SetCurrentSlotAmmo above
+		CurrentSlot = NewWeaponSlot;
 		ClientChangeToSlotHUD(CurrentSlot);
 	}
 }
@@ -288,12 +278,20 @@ int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
 	return AmmoReturnAmount;
 }
 
+// Called by server from SCharacter when they die to update this value
 void ASPlayerController::SetCurrentSlotAmmo(int32 NewAmmo)
 {
 	if (NewAmmo >= 0 && WeaponInventory.Num() > CurrentSlot)
 	{
 		WeaponInventory[CurrentSlot].CurrentAmmo = NewAmmo;
 	}
+}
+
+void ASPlayerController::UpdateCurrentClip(int32 NewClipSize)
+{
+	// We could call SetCurrentSlotAmmo(NewClipSize) here but we don't need to update this internal data every clip update
+	// Instead, we call SetCurrentSlotAmmo on EquipWeapon and when our pawn dies
+	ClientUpdateClipHUD(NewClipSize);
 }
 
 void ASPlayerController::SetStateTextHUD(FString NewState)
