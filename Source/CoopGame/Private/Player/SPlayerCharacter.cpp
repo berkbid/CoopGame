@@ -89,14 +89,32 @@ void ASPlayerCharacter::TraceForInteractables()
 	if (GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, TraceObjectQueryParams))
 	{
 		AActor* HitActor = HitArray.Last().GetActor();
-		if (!HitActor) { return; }
+		if (!HitActor) 
+		{ 
+			// If we were previously interacting with an object, stop interacting with it
+			if (CurrentSelectedInteractable)
+			{
+				CurrentSelectedInteractable->ShowItemInfo(false);
+				CurrentSelectedInteractable = nullptr;
+			}
+			return; 
+		}
 		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-		if (!HitInteractable) { return; }
+		if (!HitInteractable) 
+		{ 
+			// If we were previously interacting with an object, stop interacting with it
+			if (CurrentSelectedInteractable)
+			{
+				CurrentSelectedInteractable->ShowItemInfo(false);
+				CurrentSelectedInteractable = nullptr;
+			}
+			return; 
+		}
 
 		// If we were previously interacting with an object
 		if (CurrentSelectedInteractable)
 		{
-			// And the new object is a different object, handle this
+			// And the new object is a different object
 			if (HitInteractable != CurrentSelectedInteractable)
 			{
 				CurrentSelectedInteractable->ShowItemInfo(false);

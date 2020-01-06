@@ -28,7 +28,7 @@ void USUserWidgetInfoWeapon::SetOwningActor(AActor* NewOwner)
 				
 				break;
 			case EWeaponRarity::Uncommon:
-				TempColor = FLinearColor(1.f, .3f, 1.f, 1.f);
+				TempColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
 				TempRarityString = "UnCommon ";
 				break;
 			case EWeaponRarity::Rare:
