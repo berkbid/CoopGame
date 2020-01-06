@@ -36,7 +36,7 @@ public:
 	bool PickedUpNewWeapon(const FWeaponInfo& WeaponInfo);
 
 	// Return extra ammo if ammo inventory doesn't have room for that type of ammo
-	int32 PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount);
+	int32 PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoTotal);
 
 	/**
 	 * Called by server from owned character when trying to reload currently equipped weapon - returns 
@@ -44,7 +44,7 @@ public:
 	 */
 	int32 ReloadAmmoClip(int32 CurrentClipSize);
 
-	/* Called by weapons every time they fire so player controller can update HUD or clip data */
+	/** Called by weapons every time they fire so player controller can update HUD or clip data */
 	void UpdateCurrentClip(int32 NewClipSize);
 
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -82,11 +82,14 @@ protected:
 	virtual void OnPossess(APawn* aPawn) override;
 
 	/* Called by server - changes active inventory slot and tries to equip weapon if pawn exists */
-	void EquipWeapon(int NewWeaponSlot);
+	void EquipWeapon(uint8 NewWeaponSlot);
 
 	////////////////////////////////////////
 	// Player Input bindings
 	////////////////////////////////////////
+
+	// Input to interact with item based on line trace
+	void Interact();
 
 	/* Toggles between game play and interactable inventory UI */
 	void ToggleInventory();
@@ -98,9 +101,6 @@ protected:
 	void EquipSlotFour();
 	void EquipSlotFive();
 
-	// Input to interact with item based on line trace
-	void Interact();
-
 	////////////////////////////////////////////////////////////////////////////////
 	// Replicated functions client to server - to handle player input authoritatively
 	////////////////////////////////////////////////////////////////////////////////
@@ -109,26 +109,10 @@ protected:
 	void ServerInteract();
 	void ServerInteract_Implementation();
 
-	UFUNCTION(Reliable, Server)
-	void ServerEquipWeaponOne();
-	void ServerEquipWeaponOne_Implementation();
-
-	UFUNCTION(Reliable, Server)
-	void ServerEquipWeaponTwo();
-	void ServerEquipWeaponTwo_Implementation();
-
-	UFUNCTION(Reliable, Server)
-	void ServerEquipWeaponThree();
-	void ServerEquipWeaponThree_Implementation();
-
-	UFUNCTION(Reliable, Server)
-	void ServerEquipWeaponFour();
-	void ServerEquipWeaponFour_Implementation();
-
-	UFUNCTION(Reliable, Server)
-	void ServerEquipWeaponFive();
-	void ServerEquipWeaponFive_Implementation();
-
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerEquipWeaponSlot(uint8 SlotToEquip);
+	void ServerEquipWeaponSlot_Implementation(uint8 SlotToEquip);
+	bool ServerEquipWeaponSlot_Validate(uint8 SlotToEquip);
 
 	////////////////////////////////////////////////////////////
 	//Replicated functions server to client - handles updating HUD data/display
@@ -179,13 +163,13 @@ protected:
 
 	/* Keep track of which weapon slot is currently equipped */
 	UPROPERTY()
-	int CurrentSlot;
+	uint8 CurrentSlot;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	int InventoryMaxSize;
+	uint8 InventoryMaxSize;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	int CurrentInventorySize;
+	uint8 CurrentInventorySize;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	bool bIsInventoryFull;

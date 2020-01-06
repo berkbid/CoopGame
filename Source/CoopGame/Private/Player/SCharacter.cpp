@@ -91,15 +91,10 @@ void ASCharacter::Reload()
 void ASCharacter::EquipWeaponClass(const FWeaponInfo &NewWeaponInfo)
 {
 	// Should never be called on client
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		return;
-	}
-
-	if (CurrentWeapon)
-	{
-		CurrentWeapon->Destroy();
-	}
+	if (GetLocalRole() < ROLE_Authority) { return; }
+	
+	// Destroy currently equipped weapon so we can equip new weapon
+	if (CurrentWeapon) { CurrentWeapon->Destroy(); }
 
 	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponType;
 	// If invalid new weapon class, destroy current weapon and don't try to equip new one
@@ -108,25 +103,23 @@ void ASCharacter::EquipWeaponClass(const FWeaponInfo &NewWeaponInfo)
 	{
 		CurrentWeapon = nullptr;
 		OnRep_CurrentWeapon();
-
 		return;
 	}
 
-	// Spawn a weapon because it exists in the inventory slot, and update HUD image
+	// Spawn and attach weapon
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Must set owner so they are awarded for damage done by the weapon
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = this;
 
-	// Create On_Rep function for client to update HUD when weapon changes and play sound
 	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
 	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
 	OnRep_CurrentWeapon();
 
 	if (CurrentWeapon)
 	{
-		// Pass current clip size info to the spawned weapon
+		// Pass current clip size info to the spawned weapon, want to pass all NewWeaponInfo
 		CurrentWeapon->InitWeaponState(NewWeaponInfo.CurrentAmmo);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}

@@ -27,8 +27,9 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 
 	// Setup initial WeaponInventory with appropriate size and NULL values
 	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
+	
+	// Setup initial ammo inventory with current and max ammo amounts
 	AmmoInventory = FAmmoInfo(0, 0, 0, 0, 0, 250, 250, 250, 250, 250);
-
 }
 
 void ASPlayerController::PostInitProperties()
@@ -104,10 +105,9 @@ void ASPlayerController::ServerPostLogin()
 	ClientInitAmmoInventoryHUD(AmmoInventory);
 }
 
-// Playerstate and gamestate not valid for clients here
 void ASPlayerController::ClientPostLogin_Implementation()
 {
-	// Create and setup initial HUD state
+	// PlayerState and GameState not valid for clients here
 	// Only local controllers can add widgets
 	if (IsLocalController())
 	{
@@ -150,30 +150,26 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 
-	// PlayerState is valid at this point, but playername is not set, so PostLogin hasent been called
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// Uncomment to have players reset to current slot being 0 upon possessing new pawn
-		//CurrentSlot = 0;
-		//OnRep_SlotChange();
+	// Uncomment to have players reset to current slot being 0 upon possessing new pawn
+	//CurrentSlot = 0;
+	//OnRep_SlotChange();
 
-		// If we possess a SPlayerCharacter, equip weapon at CurrentSlot index
-		ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
-		if (MySPlayerChar)
+	// If we possess a SPlayerCharacter, equip weapon at CurrentSlot index
+	ASPlayerCharacter* MySPlayerChar = Cast<ASPlayerCharacter>(GetPawn());
+	if (MySPlayerChar)
+	{
+		// If our current slot is a valid inventory index, have player equip contents of inventory index
+		int32 WeaponInventoryLen = WeaponInventory.Num();
+		if (WeaponInventoryLen > CurrentSlot)
 		{
-			// If our current slot is a valid inventory index, have player equip contents of inventory index
-			int32 WeaponInventoryLen = WeaponInventory.Num();
-			if (WeaponInventoryLen > CurrentSlot)
-			{
-				// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
-				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot]);
-			}
+			// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
+			MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot]);
 		}
 	}
 }
 
 // Method that handles equipping a new weapon slot of the inventory, only server should ever call this function
-void ASPlayerController::EquipWeapon(int NewWeaponSlot)
+void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 {
 	// Only server should call this function, this is precautionary
 	if (GetLocalRole() < ROLE_Authority) { return; }
@@ -242,20 +238,22 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 	return false;
 }
 
-int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount)
+int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoTotal)
 {
-	int32 NewReturnedAmmo = 0;
-	int32 NewExtraAmmo = 0;
+	int32 ExcessAmmo = 0;
+	int32 AmmoTypeTotal = 0;
 
-	AmmoInventory.AddAmmo(AmmoType, AmmoAmount, NewReturnedAmmo, NewExtraAmmo);
+	// Try to add Ammo Total to ammo inventory, retrieve any excess amount that couldn't fit and new total of ammo type in inventory
+	AmmoInventory.AddAmmo(AmmoType, AmmoTotal, ExcessAmmo, AmmoTypeTotal);
 
-	// If we grabbed SOME ammo, update HUD
-	if (NewReturnedAmmo < AmmoAmount)
+	// If we picked up ammo, thus excess ammo is less than ammo total, then we update HUD
+	if (AmmoTotal > ExcessAmmo)
 	{
-		ClientPickupAmmoHUD(AmmoType, NewExtraAmmo);
+		ClientPickupAmmoHUD(AmmoType, AmmoTypeTotal);
 	}
 	
-	return NewReturnedAmmo;
+	// Return to ammo pickup item how much ammo we have left over, if we picked up all AmmoTotal, the pickup will destroy itself locally
+	return ExcessAmmo;
 }
 
 int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
@@ -282,38 +280,6 @@ void ASPlayerController::UpdateCurrentClip(int32 NewClipSize)
 	ClientUpdateClipHUD(NewClipSize);
 }
 
-void ASPlayerController::SetStateTextHUD(FString NewState)
-{
-	if (MyGameInfo)
-	{
-		MyGameInfo->SetStateText(NewState);
-	}
-}
-
-void ASPlayerController::UpdatePlayerScoreHUD(uint32 PlayerNumber, float NewScore)
-{
-	if (MyGameInfo)
-	{
-		MyGameInfo->UpdatePlayerScore(PlayerNumber, NewScore);
-	}
-}
-
-void ASPlayerController::UpdatePlayerKillsHUD(uint32 PlayerNumber, uint32 NewKills)
-{
-	if (MyGameInfo)
-	{
-		MyGameInfo->UpdatePlayerKills(PlayerNumber, NewKills);
-	}
-}
-
-void ASPlayerController::UpdatePlayerDeathsHUD(uint32 PlayerNumber, uint32 NewDeaths)
-{
-	if (MyGameInfo)
-	{
-		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
-	}
-}
-
 void ASPlayerController::Interact()
 {
 	if (GetLocalRole() < ROLE_Authority)
@@ -336,27 +302,15 @@ void ASPlayerController::Interact()
 	ObjectParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
 
 	TArray<FHitResult> HitArray;
-	bool bDidWeHit = GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, ObjectParams);
 
-	if (bDidWeHit)
+	// If any hit is found
+	if (GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, ObjectParams))
 	{
-		ASInteractable* TempInteractable = nullptr;
-
-		for (FHitResult HR : HitArray)
-		{
-			AActor* HitActor = HR.GetActor();
-			if (!HitActor) { continue; }
-			ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-			if (!HitInteractable) { continue; }
-
-			// Keep pointer to latest hit interactable in HitArray
-			TempInteractable = HitInteractable;
-		}
-		// Interact with the interactable and it will call functions like PickedUpNewWeapon or PickedUpNewAmmo on this class
-		if (TempInteractable) 
-		{
-			TempInteractable->Interact(this);
-		}
+		AActor* HitActor = HitArray.Last().GetActor();
+		if (!HitActor) { return; }
+		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
+		if (!HitInteractable) { return; }
+		HitInteractable->Interact(this);
 	}
 }
 
@@ -397,64 +351,82 @@ void ASPlayerController::ToggleInventory()
 	}
 }
 
+void ASPlayerController::SetStateTextHUD(FString NewState)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->SetStateText(NewState);
+	}
+}
+
+void ASPlayerController::UpdatePlayerScoreHUD(uint32 PlayerNumber, float NewScore)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->UpdatePlayerScore(PlayerNumber, NewScore);
+	}
+}
+
+void ASPlayerController::UpdatePlayerKillsHUD(uint32 PlayerNumber, uint32 NewKills)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->UpdatePlayerKills(PlayerNumber, NewKills);
+	}
+}
+
+void ASPlayerController::UpdatePlayerDeathsHUD(uint32 PlayerNumber, uint32 NewDeaths)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
+	}
+}
+
 void ASPlayerController::EquipSlotOne()
 {
-	ServerEquipWeaponOne();
+	ServerEquipWeaponSlot(0);
 }
 
 void ASPlayerController::EquipSlotTwo()
 {
-	ServerEquipWeaponTwo();
+	ServerEquipWeaponSlot(1);
 }
 
 void ASPlayerController::EquipSlotThree()
 {
-	ServerEquipWeaponThree();
+	ServerEquipWeaponSlot(2);
 }
 
 void ASPlayerController::EquipSlotFour()
 {
-	ServerEquipWeaponFour();
+	ServerEquipWeaponSlot(3);
 }
 
 void ASPlayerController::EquipSlotFive()
 {
-	ServerEquipWeaponFive();
+	ServerEquipWeaponSlot(4);
+}
+
+void ASPlayerController::ServerEquipWeaponSlot_Implementation(uint8 SlotToEquip)
+{
+	if (CurrentSlot == SlotToEquip) { return; }
+
+	EquipWeapon(SlotToEquip);
+}
+
+bool ASPlayerController::ServerEquipWeaponSlot_Validate(uint8 SlotToEquip)
+{
+	if (SlotToEquip < 0 || SlotToEquip > InventoryMaxSize)
+	{
+		return false;
+	}
+	return true;
 }
 
 void ASPlayerController::ServerInteract_Implementation()
 {
 	Interact();
-}
-
-void ASPlayerController::ServerEquipWeaponOne_Implementation()
-{
-	if (CurrentSlot == 0) { return; }
-	EquipWeapon(0);
-}
-
-void ASPlayerController::ServerEquipWeaponTwo_Implementation()
-{
-	if (CurrentSlot == 1) { return; }
-	EquipWeapon(1);
-}
-
-void ASPlayerController::ServerEquipWeaponThree_Implementation()
-{
-	if (CurrentSlot == 2) { return; }
-	EquipWeapon(2);
-}
-
-void ASPlayerController::ServerEquipWeaponFour_Implementation()
-{
-	if (CurrentSlot == 3) { return; }
-	EquipWeapon(3);
-}
-
-void ASPlayerController::ServerEquipWeaponFive_Implementation()
-{
-	if (CurrentSlot == 4) { return; }
-	EquipWeapon(4);
 }
 
 void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo)

@@ -25,7 +25,6 @@ ASGameMode::ASGameMode()
 	
 }
 
-
 void ASGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -113,8 +112,6 @@ void ASGameMode::CheckWaveState()
 
 void ASGameMode::CheckAnyPlayerAlive()
 {
-
-	//UE_LOG(LogTemp, Warning, TEXT("CHECKING PLAYERS ALIVE"));
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PC = It->Get();
@@ -130,7 +127,6 @@ void ASGameMode::CheckAnyPlayerAlive()
 			}
 		}
 	}
-	
 	// No player alive
 	GameOver();
 }
@@ -140,7 +136,6 @@ void ASGameMode::GameOver()
 	EndWave();
 
 	SetWaveState(EWaveState::GameOver);
-	// @TODO: Finish up the match, present 'game over' to players.
 }
 
 void ASGameMode::SetWaveState(EWaveState NewState)
@@ -151,7 +146,6 @@ void ASGameMode::SetWaveState(EWaveState NewState)
 	{
 		// This method in GS will handle replicating new wave state for server and clients
 		GS->SetWaveState(NewState);
-		
 	}
 }
 
@@ -168,7 +162,6 @@ void ASGameMode::RestartDeadPlayers()
 		}
 	}
 }
-
 
 void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, AController* KillerController)
 {
@@ -201,14 +194,12 @@ void ASGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, ACo
 void ASGameMode::HandleMatchIsWaitingToStart()
 {
 	Super::HandleMatchIsWaitingToStart();
-
 }
 
 // Only first player of PlayerArray is valid here
 void ASGameMode::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();
-
 }	
 
 // Overriden from GameStateBase, PlayerArray in GameState is not set at this point
@@ -243,7 +234,7 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 	else { NewPlayerNum = 99; }
 
 
-	// Manipulate replicated properties on the PlayerState connected to the new PlayerController
+	// Assign PlayerState a unique Player name depending on position in PlayerArray
 	ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
 	if (PS)
 	{
@@ -253,7 +244,7 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 		PS->SetPlayerName(NewPlayerName);
 	}
 		
-	// Call Client function on player controller to setup initial HUD
+	// Call function on player controller to setup initial HUD
 	ASPlayerController* PC = Cast<ASPlayerController>(NewPlayer);
 	if (PC)
 	{

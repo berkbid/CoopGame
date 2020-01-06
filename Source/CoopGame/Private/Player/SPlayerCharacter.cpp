@@ -85,40 +85,30 @@ void ASPlayerCharacter::TraceForInteractables()
 	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
 	
 	TArray<FHitResult> HitArray;
-	bool bDidWeHit = GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, TraceObjectQueryParams);
 
-	if (bDidWeHit)
+	if (GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, TraceObjectQueryParams))
 	{
-		ASInteractable* TempInteractable = nullptr;
-
-		for (FHitResult HR : HitArray)
-		{
-			AActor* HitActor = HR.GetActor();
-			if (!HitActor) { continue; }
-			ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-			if (!HitInteractable) { continue; }
-
-			// Keep pointer to latest hit interactable in HitArray
-			TempInteractable = HitInteractable;
-		}
-		if (!TempInteractable) { return; }
+		AActor* HitActor = HitArray.Last().GetActor();
+		if (!HitActor) { return; }
+		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
+		if (!HitInteractable) { return; }
 
 		// If we were previously interacting with an object
 		if (CurrentSelectedInteractable)
 		{
 			// And the new object is a different object, handle this
-			if (TempInteractable != CurrentSelectedInteractable)
+			if (HitInteractable != CurrentSelectedInteractable)
 			{
 				CurrentSelectedInteractable->ShowItemInfo(false);
-				TempInteractable->ShowItemInfo(true);
-				CurrentSelectedInteractable = TempInteractable;
+				HitInteractable->ShowItemInfo(true);
+				CurrentSelectedInteractable = HitInteractable;
 			}
 		}
 		// If we find a new interactable and were previously interacting with nothing
 		else
 		{
-			TempInteractable->ShowItemInfo(true);
-			CurrentSelectedInteractable = TempInteractable;
+			HitInteractable->ShowItemInfo(true);
+			CurrentSelectedInteractable = HitInteractable;
 		}
 	}
 	// If we didn't hit anything, update item info showing if necessary
