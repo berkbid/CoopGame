@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SWeaponTypes.h"
-#include "UI/SUserWidgetInfo.h"
+#include "UI/ItemInfoWidgets/SUserWidgetInfo.h"
 #include "SUserWidgetInfoWeapon.generated.h"
 
 /**

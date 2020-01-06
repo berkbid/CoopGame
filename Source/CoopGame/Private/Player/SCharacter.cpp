@@ -147,9 +147,17 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 	// This was previously never run on the client because bDied replicates the same time HealthChanged event triggers on the client
 	if (Health <= 0.f && !bDied)
 	{
+		// Handle retrieving important info from current weapon then destroying it
 		if (CurrentWeapon)
 		{
-			// Destroy weapon server side
+			// Tell player controller the remaining ammo in gun
+			int32 RemainingAmmo = CurrentWeapon->GetCurrentAmmo();
+			ASPlayerController* PC = Cast<ASPlayerController>(GetController());
+			if (PC)
+			{
+				PC->SetCurrentSlotAmmo(RemainingAmmo);
+			}
+
 			CurrentWeapon->Destroy();
 		}
 

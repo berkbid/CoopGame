@@ -288,6 +288,14 @@ int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
 	return AmmoReturnAmount;
 }
 
+void ASPlayerController::SetCurrentSlotAmmo(int32 NewAmmo)
+{
+	if (NewAmmo >= 0 && WeaponInventory.Num() > CurrentSlot)
+	{
+		WeaponInventory[CurrentSlot].CurrentAmmo = NewAmmo;
+	}
+}
+
 void ASPlayerController::SetStateTextHUD(FString NewState)
 {
 	if (MyGameInfo)

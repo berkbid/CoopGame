@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/SUserWidgetInfo.h"
+#include "UI/ItemInfoWidgets/SUserWidgetInfo.h"
 #include "SUserWidgetInfoContainer.generated.h"
 
 /**

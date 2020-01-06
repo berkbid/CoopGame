@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Devices/SContainer.h"
+#include "Interactables/Containers/SContainer.h"
 #include "SAmmoCrate.generated.h"
 
 /**

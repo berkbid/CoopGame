@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SWeaponTypes.h"
-#include "Devices/SContainer.h"
+#include "Interactables/Containers/SContainer.h"
 #include "SChest.generated.h"
 
 /**
