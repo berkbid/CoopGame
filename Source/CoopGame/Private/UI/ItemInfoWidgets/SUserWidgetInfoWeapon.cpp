@@ -95,12 +95,11 @@ void USUserWidgetInfoWeapon::SetAmmoImage(EAmmoType NewAmmoType)
 
 	UTexture2D** TempAmmoTexture = AmmoToTextureMap.Find(NewAmmoType);
 
-	if (TempAmmoTexture)
+	if (!TempAmmoTexture) { return; }
+	
+	if (UTexture2D* NewAmmoTexture = *TempAmmoTexture)
 	{
-		if (UTexture2D* NewAmmoTexture = *TempAmmoTexture)
-		{
-			AmmoImage->SetBrushFromTexture(NewAmmoTexture);
-		}
+		AmmoImage->SetBrushFromTexture(NewAmmoTexture);
 	}
 }
 

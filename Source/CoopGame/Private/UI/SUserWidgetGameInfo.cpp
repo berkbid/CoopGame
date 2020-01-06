@@ -59,7 +59,6 @@ void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInf
 	}
 }
 
-// shouldnt have to be given extra ammo amount
 void USUserWidgetGameInfo::HandlePickupAmmo(EAmmoType NewAmmoType, int32 ExtraAmmo)
 {
 	// Tell inventory new current ammo and extra ammo amount (current slot is assumed by inventory)
@@ -191,10 +190,8 @@ void USUserWidgetGameInfo::InitAmmoInventory(const FAmmoInfo& StartingAmmoInfo)
 // This is a special case where we picked up a weapon in an already selected slot, we just need to update weapon info
 void USUserWidgetGameInfo::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
 {
-	// be given the slot number, and get weapon info and extra ammo from the inventory by query, ALREADY DO
 	if (CurrentWeaponInfo)
 	{
-		// Setup current weapon info from weaponinfo
 		CurrentWeaponInfo->InitWeaponInfo(NewWeaponInfo, NewExtraAmmo);
 	}
 }

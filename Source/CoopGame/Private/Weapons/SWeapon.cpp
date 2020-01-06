@@ -29,23 +29,8 @@ ASWeapon::ASWeapon()
 	MinNetUpdateFrequency = 33.0f;
 }
 
-
-// MUST prefix with Server and require _Implementation
-void ASWeapon::ServerFire_Implementation()
-{
-	Fire();
-}
-
-bool ASWeapon::ServerFire_Validate()
-{
-	// This is for anti cheat stuff
-	return true;
-}
-
-void ASWeapon::Fire() {}
-
 // Server is setting these variables
-void ASWeapon::SetCurrentClipSize(int32 CurrentAmmo)
+void ASWeapon::InitWeaponState(int32 CurrentAmmo)
 {
 	// This is replicated to owner for use when firing
 	CurrentClipSize = FMath::Clamp(CurrentAmmo, 0, WeaponStats.MagazineSize);
@@ -68,6 +53,20 @@ void ASWeapon::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
+
+// MUST prefix with Server and require _Implementation
+void ASWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool ASWeapon::ServerFire_Validate()
+{
+	// This is for anti cheat stuff
+	return true;
+}
+
+void ASWeapon::Fire() {}
 
 void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

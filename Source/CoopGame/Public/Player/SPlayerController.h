@@ -44,9 +44,6 @@ public:
 	 */
 	int32 ReloadAmmoClip(int32 CurrentClipSize);
 
-	/* Helper function to update current ammo in currently equipped slot */
-	void SetCurrentSlotAmmo(int32 NewAmmo);
-
 	/* Called by weapons every time they fire so player controller can update HUD or clip data */
 	void UpdateCurrentClip(int32 NewClipSize);
 

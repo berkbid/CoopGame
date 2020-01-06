@@ -122,7 +122,7 @@ void ASPlayerController::ClientPostLogin_Implementation()
 	}
 }
 
-void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const& NewPlayerName, uint32 NewPlayerNumber)
+void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const &NewPlayerName, uint32 NewPlayerNumber)
 {
 	if (MyGameInfo)
 	{
@@ -166,7 +166,7 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 			if (WeaponInventoryLen > CurrentSlot)
 			{
 				// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
-				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot], CurrentSlot);
+				MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot]);
 			}
 		}
 	}
@@ -186,8 +186,7 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 		if (MyPawn)
 		{
-			// When we weapon swap, need to keep track of clip size of weapon before changing
-			SetCurrentSlotAmmo(MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot], NewWeaponSlot));
+			MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot]);
 		}
 		// Change active slot even if no pawn is possessed, do this after we SetCurrentSlotAmmo above
 		CurrentSlot = NewWeaponSlot;
@@ -198,7 +197,6 @@ void ASPlayerController::EquipWeapon(int NewWeaponSlot)
 // Try to pick up weapon if inventory has space, return success or failure
 bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 {
-	// Only server should call this function
 	if (GetLocalRole() < ROLE_Authority) { return false; }
 	if (bIsInventoryFull) { return false; }
 
@@ -229,7 +227,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 				if (MyPawn)
 				{
 					// This returns ammo amount of old weapon but we don't need it in this case
-					MyPawn->EquipWeaponClass(WeaponInfo, i);
+					MyPawn->EquipWeaponClass(WeaponInfo);
 				}
 			}
 			else
@@ -260,7 +258,6 @@ int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoAmount)
 	return NewReturnedAmmo;
 }
 
-// We are server in here
 int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
 {
 	int32 AmmmoNeeded = WeaponInventory[CurrentSlot].WeaponStats.MagazineSize - CurrentClipSize;
@@ -278,19 +275,10 @@ int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
 	return AmmoReturnAmount;
 }
 
-// Called by server from SCharacter when they die to update this value
-void ASPlayerController::SetCurrentSlotAmmo(int32 NewAmmo)
-{
-	if (NewAmmo >= 0 && WeaponInventory.Num() > CurrentSlot)
-	{
-		WeaponInventory[CurrentSlot].CurrentAmmo = NewAmmo;
-	}
-}
-
 void ASPlayerController::UpdateCurrentClip(int32 NewClipSize)
 {
-	// We could call SetCurrentSlotAmmo(NewClipSize) here but we don't need to update this internal data every clip update
-	// Instead, we call SetCurrentSlotAmmo on EquipWeapon and when our pawn dies
+	// Update current ammo of current slot and update HUD
+	WeaponInventory[CurrentSlot].CurrentAmmo = NewClipSize;
 	ClientUpdateClipHUD(NewClipSize);
 }
 

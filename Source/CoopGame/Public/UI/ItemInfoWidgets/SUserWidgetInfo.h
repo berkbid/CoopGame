@@ -26,6 +26,6 @@ protected:
 public:
 
 	virtual void SetOwningActor(AActor* NewOwner);
-	void SetWidgetVisibility(bool bIsVisible);
+	void SetWidgetVisibility(bool bVisible);
 	
 };

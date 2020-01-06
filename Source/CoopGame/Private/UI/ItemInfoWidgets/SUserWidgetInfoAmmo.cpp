@@ -10,20 +10,12 @@
 void USUserWidgetInfoAmmo::SetOwningActor(AActor* NewOwner)
 {
 	Super::SetOwningActor(NewOwner);
+	if (!NewOwner) { return; }
 
-	if (NewOwner)
+	if (ASAmmoPickup* AP = Cast<ASAmmoPickup>(NewOwner))
 	{
-		ASAmmoPickup* AP = Cast<ASAmmoPickup>(NewOwner);
-		if (AP)
-		{
-			SetAmmoText(AP->AmmoAmount);
-
-			UTexture2D** TempWeaponTexture = AmmoToTextureMap.Find(AP->AmmoType);
-			if (TempWeaponTexture)
-			{
-				SetAmmoImage(*TempWeaponTexture);
-			}
-		}
+		SetAmmoText(AP->AmmoAmount);
+		SetAmmoImage(AP->AmmoType);
 	}
 }
 
@@ -35,10 +27,15 @@ void USUserWidgetInfoAmmo::SetAmmoText(int32 NewAmmo)
 	}
 }
 
-void USUserWidgetInfoAmmo::SetAmmoImage(UTexture2D* NewTexture)
+void USUserWidgetInfoAmmo::SetAmmoImage(EAmmoType NewAmmoType)
 {
-	if (AmmoImage && NewTexture)
+	if (!AmmoImage) { return; }
+
+	UTexture2D** TempAmmoTexture = AmmoToTextureMap.Find(NewAmmoType);
+	if (!TempAmmoTexture) { return; }
+	
+	if (UTexture2D* NewAmmoTexture = *TempAmmoTexture)
 	{
-		AmmoImage->SetBrushFromTexture(NewTexture);
+		AmmoImage->SetBrushFromTexture(NewAmmoTexture);
 	}
 }

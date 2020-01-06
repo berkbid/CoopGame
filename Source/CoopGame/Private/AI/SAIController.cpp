@@ -28,8 +28,6 @@ void ASAIController::OnPossess(APawn* aPawn)
 	// Don't try to access invalid index
 	if (WeaponInventory.Num() > CurrentSlot)
 	{
-		MyPawn->EquipWeaponClass(WeaponInventory[CurrentSlot], CurrentSlot);
+		MyPawn->EquipWeaponClass(WeaponInventory[CurrentSlot]);
 	}
 }
-
-

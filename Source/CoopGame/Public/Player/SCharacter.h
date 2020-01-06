@@ -80,7 +80,7 @@ public:
 	void Reload();
 
 	/* Equips the new weapon and returns ammo count of last weapon */
-	int32 EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot);
+	void EquipWeaponClass(const FWeaponInfo& NewWeaponInfo);
 
 	/** PlayerState Replication Notification Callback */
 	virtual void OnRep_PlayerState() override;

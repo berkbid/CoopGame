@@ -26,7 +26,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
 
-	void SetAmmoImage(UTexture2D* NewTexture);
+	void SetAmmoImage(EAmmoType NewAmmoType);
 
 public:
 

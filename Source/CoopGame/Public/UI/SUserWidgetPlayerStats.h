@@ -16,7 +16,6 @@ class COOPGAME_API USUserWidgetPlayerStats : public UUserWidget
 	
 
 protected:
-
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* NameText;
 
@@ -39,6 +38,5 @@ public:
 	void SetKillText(FString NewKills);
 
 	void SetDeathText(FString NewDeath);
-
 
 };

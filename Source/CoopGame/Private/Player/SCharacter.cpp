@@ -88,22 +88,16 @@ void ASCharacter::Reload()
 
 // This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
 // AI could call this directly to change weapons
-int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSlot)
+void ASCharacter::EquipWeaponClass(const FWeaponInfo &NewWeaponInfo)
 {
-	int32 OldAmmoCount = -1;
-
 	// Should never be called on client
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		return OldAmmoCount;
+		return;
 	}
-	// Keep track of what slot we have equipped
-	CurrentWeaponSlot = NewWeaponSlot;
 
 	if (CurrentWeapon)
 	{
-		OldAmmoCount = CurrentWeapon->GetCurrentAmmo();
-
 		CurrentWeapon->Destroy();
 	}
 
@@ -115,7 +109,7 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 		CurrentWeapon = nullptr;
 		OnRep_CurrentWeapon();
 
-		return OldAmmoCount;
+		return;
 	}
 
 	// Spawn a weapon because it exists in the inventory slot, and update HUD image
@@ -125,7 +119,6 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = this;
 
-
 	// Create On_Rep function for client to update HUD when weapon changes and play sound
 	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
 	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
@@ -134,11 +127,9 @@ int32 ASCharacter::EquipWeaponClass(FWeaponInfo NewWeaponInfo, int32 NewWeaponSl
 	if (CurrentWeapon)
 	{
 		// Pass current clip size info to the spawned weapon
-		CurrentWeapon->SetCurrentClipSize(NewWeaponInfo.CurrentAmmo);
+		CurrentWeapon->InitWeaponState(NewWeaponInfo.CurrentAmmo);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
-
-	return OldAmmoCount;
 }
 
 // Only called on server because we only hooked this on the server
@@ -150,14 +141,6 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 		// Handle retrieving important info from current weapon then destroying it
 		if (CurrentWeapon)
 		{
-			// Tell player controller the remaining ammo in gun
-			int32 RemainingAmmo = CurrentWeapon->GetCurrentAmmo();
-			ASPlayerController* PC = Cast<ASPlayerController>(GetController());
-			if (PC)
-			{
-				PC->SetCurrentSlotAmmo(RemainingAmmo);
-			}
-
 			CurrentWeapon->Destroy();
 		}
 

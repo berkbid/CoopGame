@@ -15,11 +15,11 @@ void USUserWidgetInfo::SetOwningActor(AActor* NewOwner)
 
 }
 
-void USUserWidgetInfo::SetWidgetVisibility(bool bIsVisible)
+void USUserWidgetInfo::SetWidgetVisibility(bool bVisible)
 {
 	if (InfoBox)
 	{
-		if (bIsVisible)
+		if (bVisible)
 		{
 			InfoBox->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}

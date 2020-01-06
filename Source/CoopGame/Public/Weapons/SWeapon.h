@@ -55,7 +55,7 @@ public:
 	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
-	void SetCurrentClipSize(int32 CurrentAmmo);
+	void InitWeaponState(int32 CurrentAmmo);
 
 	int32 GetCurrentAmmo();
 
