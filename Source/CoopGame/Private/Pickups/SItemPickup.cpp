@@ -4,12 +4,8 @@
 #include "SItemPickup.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "SCharacter.h"
-#include "Components/StaticMeshComponent.h"
 #include "CoopGame.h"
-#include "SWidgetCompPickupInfo.h"
 
-// Sets default values
 ASItemPickup::ASItemPickup()
 {
 	// Set custom collision responses for item pickups
@@ -17,6 +13,12 @@ ASItemPickup::ASItemPickup()
 	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	BoxComp->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
 }
+
+void ASItemPickup::ShowItemInfo(bool bIsVisible)
+{
+	Super::ShowItemInfo(bIsVisible);
+}
+
 // Called when the game starts or when spawned
 void ASItemPickup::BeginPlay()
 {

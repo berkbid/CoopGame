@@ -39,6 +39,8 @@ public:
 	// Sets default values for this actor's properties
 	ASRifle();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	virtual void Fire() override;
 
@@ -75,8 +77,4 @@ protected:
 
 	UFUNCTION()
 	void OnRep_HitScanTrace();
-
-public:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 };

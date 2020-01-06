@@ -22,8 +22,6 @@ public:
 	// Sets default values for this actor's properties
 	ASExplosiveBarrel();
 
-	
-
 protected:
 
 	virtual void PostInitializeComponents() override;

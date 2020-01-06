@@ -65,8 +65,6 @@ void ASInteractable::Interact(APlayerController* InteractedPC)
 	if (!InteractedPC) { return; }
 }
 
-
-
 void ASInteractable::SetInfoVisible()
 {
 	if (bIsInfoVisible) { return; }

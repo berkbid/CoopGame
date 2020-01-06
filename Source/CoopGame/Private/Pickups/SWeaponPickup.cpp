@@ -14,11 +14,9 @@ ASWeaponPickup::ASWeaponPickup()
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	APawn* OverlappedPawn = Cast<APawn>(OtherActor);
-
 	if (!OverlappedPawn) { return; }
 
 	HandlePickupWeapon(OverlappedPawn->GetController());
-
 }
 
 void ASWeaponPickup::Interact(APlayerController* InteractedPC)
@@ -31,12 +29,11 @@ void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 void ASWeaponPickup::HandlePickupWeapon(class AController* NewPickupController)
 {
 	ASPlayerController* PC = Cast<ASPlayerController>(NewPickupController);
-	if (PC)
+	if (!PC) { return; }
+
+	// If requesting controller successfully picks up the weapon, destroy this pickup actor
+	if (PC->PickedUpNewWeapon(WeaponInfo))
 	{
-		// If we successfully pick up the weapon in our inventory, then destroy self
-		if (PC->PickedUpNewWeapon(WeaponInfo))
-		{
-			Destroy();
-		}
+		Destroy();
 	}
 }

@@ -20,10 +20,7 @@ ASPowerupActor::ASPowerupActor()
 	LightComp->CastShadows = false;
 	LightComp->SetupAttachment(RootComponent);
 
-
 	RotatingComp = CreateDefaultSubobject<URotatingMovementComponent>("RotatingComp");
-
-
 
 	PowerupInterval = 0.f;
 	TotalNrOfTicks = 0.f;
@@ -32,7 +29,6 @@ ASPowerupActor::ASPowerupActor()
 	bIsPowerupActive = false;
 
 	SetReplicates(true);
-	//SetReplicateMovement(true);
 }
 
 
@@ -44,9 +40,6 @@ void ASPowerupActor::OnTickPowerup()
 	if (TicksSoFar >= TotalNrOfTicks)
 	{
 		Destroy();
-
-		// Delete timer since this is our last tick of powerup
-		//GetWorldTimerManager().ClearTimer(TimerHandle_PowerupTick);
 	}
 }
 
@@ -92,5 +85,4 @@ void ASPowerupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	// Use condition b/c do not want to replicate it to client who owns this weapon
 	// do not want to play visual effects twice
 	DOREPLIFETIME(ASPowerupActor, bIsPowerupActive);
-
 }

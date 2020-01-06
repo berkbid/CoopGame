@@ -24,6 +24,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FWeaponInfo WeaponInfo;
 
+	/* Override interact functionality to call HandlePickupWeapon functionality */
 	virtual void Interact(class APlayerController* InteractedPC) override;
 
 	
@@ -31,5 +32,6 @@ protected:
 
 	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
 
+	/* Call function on controller passing WeaponInfo to pick us up, and destroy self if successful */
 	void HandlePickupWeapon(class AController* NewPickupController);
 };

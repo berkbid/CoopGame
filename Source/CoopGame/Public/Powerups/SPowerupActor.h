@@ -48,16 +48,9 @@ protected:
 
 	class AActor* PowerupTargetActor;
 
-	//UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
-	//void OnPowerupStateChanged(bool bNewIsActive);
-
 public:	
 
 	virtual void ActivatePowerup(AActor* PowerActor);
-
-	// Implement in blueprint
-	//UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
-	//void OnActivated();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
 	void OnPowerupTicked();

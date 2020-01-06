@@ -10,8 +10,6 @@
 
 class ASWeapon;
 
-
-
 /**
  * 
  */
@@ -28,8 +26,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void PostInitProperties() override;
-
-	virtual void BeginPlay() override;
 
 	virtual void OnRep_PlayerState() override;
 
@@ -76,42 +72,8 @@ public:
 	void ClientUpdateClipHUD_Implementation(int32 CurrentAmmo);
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TArray<FWeaponInfo> WeaponInventory;
+	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	FAmmoInfo AmmoInventory;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	class USoundBase* PickupWeaponSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	class USoundBase* PickupAmmoSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<class UUserWidget> wGameInfo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<class USUserWidgetInventoryInfo> wInventoryInfo;
-
-	class USUserWidgetGameInfo* MyGameInfo;
-
-	class USUserWidgetInventoryInfo* MyInventoryInfo;
-
-	/* Keep track of which weapon slot is currently equipped */
-	UPROPERTY()
-	int CurrentSlot;
-
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	int InventoryMaxSize;
-
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	int CurrentInventorySize;
-
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	bool bIsInventoryFull;
-
-protected:
 	virtual void SetupInputComponent() override;
 
 	virtual void OnPossess(APawn* aPawn) override;
@@ -188,4 +150,40 @@ protected:
 	UFUNCTION(Reliable, Client)
 	void ClientInitAmmoInventoryHUD(const FAmmoInfo &NewAmmoInfo);
 	void ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo);
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TArray<FWeaponInfo> WeaponInventory;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	FAmmoInfo AmmoInventory;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	class USoundBase* PickupWeaponSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	class USoundBase* PickupAmmoSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<class UUserWidget> wGameInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<class USUserWidgetInventoryInfo> wInventoryInfo;
+
+	class USUserWidgetGameInfo* MyGameInfo;
+
+	class USUserWidgetInventoryInfo* MyInventoryInfo;
+
+	/* Keep track of which weapon slot is currently equipped */
+	UPROPERTY()
+	int CurrentSlot;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	int InventoryMaxSize;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	int CurrentInventorySize;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	bool bIsInventoryFull;
 };

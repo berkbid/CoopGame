@@ -327,7 +327,8 @@ void ASPlayerController::Interact()
 		ServerInteract();
 		return;
 	}
-	
+
+	// Perform a line trace that mimics SPlayerCharacter's line trace on Tick()
 	FVector EyeLocation;
 	FRotator EyeRotation;
 	// We override the location return in SCharacter.cpp to return camera location instead
@@ -357,9 +358,7 @@ void ASPlayerController::Interact()
 			// Keep pointer to latest hit interactable in HitArray
 			TempInteractable = HitInteractable;
 		}
-
-		// Try to interact with interactable object, pass reference to our controlled pawn
-		// Controlled pawn is in charge of picking up weapons/ammo but player controller probably should be
+		// Interact with the interactable and it will call functions like PickedUpNewWeapon or PickedUpNewAmmo on this class
 		if (TempInteractable) 
 		{
 			TempInteractable->Interact(this);
@@ -434,14 +433,6 @@ void ASPlayerController::ServerInteract_Implementation()
 	Interact();
 }
 
-void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo)
-{
-	if (MyGameInfo)
-	{
-		MyGameInfo->InitAmmoInventory(NewAmmoInfo);
-	}
-}
-
 void ASPlayerController::ServerEquipWeaponOne_Implementation()
 {
 	if (CurrentSlot == 0) { return; }
@@ -470,6 +461,14 @@ void ASPlayerController::ServerEquipWeaponFive_Implementation()
 {
 	if (CurrentSlot == 4) { return; }
 	EquipWeapon(4);
+}
+
+void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo)
+{
+	if (MyGameInfo)
+	{
+		MyGameInfo->InitAmmoInventory(NewAmmoInfo);
+	}
 }
 
 void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)

@@ -19,15 +19,24 @@ class COOPGAME_API ASChest : public ASContainer
 public:
 	ASChest();
 
-	virtual void BeginPlay() override;
-
 	virtual void Interact(class APlayerController* InteractedPC) override;
 
 	virtual void ShowItemInfo(bool bIsVisible) override;
 
+protected:
+	virtual void BeginPlay() override;
+
+	/* Called when PlayerController interacts with us and opens chest */
+	void SpawnWeapons();
+
+	/* Helper function to spawn weapon of a class with a position offset */
+	void SpawnNewWeapon(TSubclassOf<class ASWeaponPickup> NewWeaponPickup, float HorizontalOffset);
+
+	virtual void OnRep_OpenContainer() override;
+
+	
 
 protected:
-
 	UPROPERTY(EditAnywhere, Category = "Items")
 	uint8 NumberOfWeapons;
 
@@ -43,13 +52,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Items")
 	TArray<TSubclassOf<class ASWeaponPickup>> GrenadeLauncherArray;
 
-	/* Called when PlayerController interacts with us and opens chest */
-	void SpawnWeapons();
-
-	/* Helper function to spawn weapon of a class with a position offset */
-	void SpawnNewWeapon(TSubclassOf<class ASWeaponPickup> NewWeaponPickup, float HorizontalOffset);
-
-	virtual void OnRep_OpenContainer() override;
-
 	int32 WeightSum;
+
 };
