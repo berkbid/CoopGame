@@ -19,14 +19,20 @@ void ASChest::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get weighted sum information
-	for (FWeaponPickup WeaponDrop : WeaponDrops)
+	// Only server needs to run this code because only server uses this data inside SpawnWeapons() method
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		WeightSum += WeaponDrop.DropChance;
-	}
+		// Gather initial data for SpawnWeapons() functionality
 
-	// Calculate initial weapon spawn position
-	StartingWeaponSpawnPos = (-HorizontalSpawnOffset) * (NumberOfWeapons / 2) + HorizontalSpawnOffset / 2;
+		// Get weighted sum information
+		for (FWeaponPickup WeaponDrop : WeaponDrops)
+		{
+			WeightSum += WeaponDrop.DropChance;
+		}
+
+		// Calculate initial weapon spawn position
+		StartingWeaponSpawnPos = (-HorizontalSpawnOffset) * (NumberOfWeapons / 2) + HorizontalSpawnOffset / 2;
+	}
 }
 
 // We are server in here
