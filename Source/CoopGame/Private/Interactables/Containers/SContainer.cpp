@@ -28,6 +28,8 @@ void ASContainer::Interact(APlayerController* InteractedPC)
 {
 	Super::Interact(InteractedPC);
 
+	// After a container is opened, it can now be dormant and no longer needs to be replicated
+	SetNetDormancy(DORM_DormantAll);
 }
 
 void ASContainer::OnRep_OpenContainer()

@@ -25,8 +25,9 @@ ASWeapon::ASWeapon()
 
 	SetReplicates(true);
 
-	NetUpdateFrequency = 66.f;
+	NetUpdateFrequency = 144.f;
 	MinNetUpdateFrequency = 33.0f;
+	NetPriority = 1.f;
 }
 
 // Server is setting these variables

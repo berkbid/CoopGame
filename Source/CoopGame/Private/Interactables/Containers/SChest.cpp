@@ -28,8 +28,6 @@ void ASChest::BeginPlay()
 // We are server in here
 void ASChest::Interact(APlayerController* InteractedPC)
 {
-	Super::Interact(InteractedPC);
-
 	// Only allow chest to be opened once
 	if (bIsOpened) { return; }
 
@@ -38,6 +36,9 @@ void ASChest::Interact(APlayerController* InteractedPC)
 	OnRep_OpenContainer();
 
 	SpawnWeapons();
+
+	// Call super after interacted with to set dormant
+	Super::Interact(InteractedPC);
 }
 
 void ASChest::SpawnWeapons()

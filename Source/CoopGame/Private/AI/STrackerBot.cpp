@@ -47,7 +47,6 @@ ASTrackerBot::ASTrackerBot()
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	SphereComp->SetSphereRadius(200.f);
-	// Make sure we dont get any overlaps we dont need
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -60,6 +59,10 @@ ASTrackerBot::ASTrackerBot()
 	ExplosionRadius = 350.f;
 	SelfDamageInterval = 0.25f;
 	MaxPowerLevel = 4;
+
+	NetUpdateFrequency = 60.f;
+	MinNetUpdateFrequency = 20.f;
+	NetPriority = 0.8f;
 }
 
 // Called when the game starts or when spawned

@@ -23,7 +23,11 @@ ASPickupActor::ASPickupActor()
 	CooldownDuration = 5.f;
 
 	SetReplicates(true);
-	//SetReplicateMovement(true);
+	
+	NetUpdateFrequency = 60.f;
+	MinNetUpdateFrequency = 20.f;
+	NetPriority = .7f;
+	NetCullDistanceSquared = 65000000.f;
 
 }
 

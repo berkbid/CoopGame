@@ -33,10 +33,8 @@ ASInteractable::ASInteractable()
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SphereComp->SetCollisionObjectType(COLLISION_INTERACTABLEOBJECT);
 	SphereComp->SetGenerateOverlapEvents(false);
-	SphereComp->SetCollisionObjectType(ECC_WorldStatic);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	//SphereComp->SetCollisionResponseToChannel(COLLISION_INTERACTABLE, ECR_Overlap);
 	SphereComp->SetupAttachment(RootComponent);
 
 	// Widget component to display info of interactable item to player upon line trace with sphere component
@@ -45,6 +43,11 @@ ASInteractable::ASInteractable()
 	InfoWidget->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
 
 	SetReplicates(true);
+
+	NetUpdateFrequency = 60.f;
+	MinNetUpdateFrequency = 20.f;
+	NetPriority = .7f;
+	NetCullDistanceSquared = 65000000.f;
 
 }
 

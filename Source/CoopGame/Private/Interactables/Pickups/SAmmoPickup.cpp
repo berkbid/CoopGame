@@ -6,9 +6,13 @@
 #include "SUserWidgetInfoAmmo.h"
 #include "Net/UnrealNetwork.h"
 #include "SPlayerController.h"
+#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 
 ASAmmoPickup::ASAmmoPickup()
 {
+	BoxComp->SetBoxExtent(FVector(15.f, 8.f, 8.f), false);
+	SphereComp->SetSphereRadius(40.f, false);
 
 	AmmoType = EAmmoType::MiniAmmo;
 	AmmoAmount = 30;

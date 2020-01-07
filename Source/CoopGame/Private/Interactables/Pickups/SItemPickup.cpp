@@ -12,6 +12,7 @@ ASItemPickup::ASItemPickup()
 	BoxComp->SetGenerateOverlapEvents(true);
 	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	BoxComp->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
+	
 }
 
 void ASItemPickup::ShowItemInfo(bool bIsVisible)

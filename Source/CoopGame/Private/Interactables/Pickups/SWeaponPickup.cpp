@@ -8,7 +8,7 @@
 ASWeaponPickup::ASWeaponPickup()
 {
 	WeaponInfo = FWeaponInfo();
-	SphereComp->SetSphereRadius(70.f, false);
+	SphereComp->SetSphereRadius(80.f, false);
 }
 
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)

@@ -14,4 +14,7 @@ class COOPGAME_API ASAICharacter : public ASCharacter
 {
 	GENERATED_BODY()
 	
+
+public:
+	ASAICharacter();
 };

@@ -32,6 +32,10 @@ ASPlayerCharacter::ASPlayerCharacter()
 	ZoomInterpSpeed = 20.f;
 
 	TraceObjectQueryParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
+
+	NetUpdateFrequency = 144.f;
+	MinNetUpdateFrequency = 33.f;
+	NetPriority = 1.f;
 }
 
 // Called once on client and once on server

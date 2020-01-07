@@ -29,9 +29,12 @@ ASPowerupActor::ASPowerupActor()
 	bIsPowerupActive = false;
 
 	SetReplicates(true);
+
+	NetUpdateFrequency = 60.f;
+	MinNetUpdateFrequency = 20.f;
+	NetPriority = .7f;
+	NetCullDistanceSquared = 65000000.f;
 }
-
-
 
 void ASPowerupActor::OnTickPowerup()
 {
