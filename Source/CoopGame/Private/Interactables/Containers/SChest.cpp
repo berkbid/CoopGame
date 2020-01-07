@@ -10,8 +10,9 @@
 
 ASChest::ASChest()
 {
-	//bIsOpened = false;
+	bIsOpened = false;
 	WeightSum = 0;
+	HorizontalSpawnOffset = 75.f;
 }
 
 void ASChest::BeginPlay()
@@ -19,10 +20,13 @@ void ASChest::BeginPlay()
 	Super::BeginPlay();
 
 	// Get weighted sum information
-	for (FWeaponDropChance WeaponDrop : WeaponDrops)
+	for (FWeaponPickup WeaponDrop : WeaponDrops)
 	{
 		WeightSum += WeaponDrop.DropChance;
 	}
+
+	// Calculate initial weapon spawn position
+	StartingWeaponSpawnPos = (-HorizontalSpawnOffset) * (NumberOfWeapons / 2) + HorizontalSpawnOffset / 2;
 }
 
 // We are server in here
@@ -43,57 +47,101 @@ void ASChest::Interact(APlayerController* InteractedPC)
 
 void ASChest::SpawnWeapons()
 {
+	if (WeaponDrops.Num() <= 0) { return; }
+
+	float TempHorizontalOffset = StartingWeaponSpawnPos;
+
 	// For each weapon we want to spawn
-	//for (int32 i = 0; i < NumberOfWeapons; ++i)
-	//{
+	for (int32 i = 0; i < NumberOfWeapons; ++i)
+	{
 		// Choose what type of weapon to spawn
-		//int32 RandomChoice = UKismetMathLibrary::RandomInteger(WeightSum);
-		float TempHorizontalOffset = -50.f;
+		int32 RandomChoice = UKismetMathLibrary::RandomInteger(WeightSum);
+		EWeaponType WeaponTypeToSpawn = EWeaponType::AssaultRifle;
 
-		for (FWeaponDropChance WeaponDrop : WeaponDrops)
+		// Find weapon type to spawn
+		for (const FWeaponPickup &WeaponDrop : WeaponDrops)
 		{
-			//RandomChoice -= WeaponDrop.DropChance;
-			//if (RandomChoice < 0) { break; }
-
-			switch (WeaponDrop.WeaponType)
-			{
-			case EWeaponType::AssaultRifle:
-				if (AssaultRifleArray.Num() >= 5)
-				{
-					SpawnNewWeapon(AssaultRifleArray[4], TempHorizontalOffset);
-				}
-				
-				break;
-			case EWeaponType::GrenadeLauncher:
-				if (GrenadeLauncherArray.Num() >= 5)
-				{
-					SpawnNewWeapon(GrenadeLauncherArray[4], TempHorizontalOffset);
-				}
-				break;
-			default:
-				break;
+			RandomChoice -= WeaponDrop.DropChance;
+			if (RandomChoice < 0) 
+			{ 
+				WeaponTypeToSpawn = WeaponDrop.WeaponType;
+				break; 
 			}
-
-			TempHorizontalOffset += 50.f;
 		}
-		// Choose what rarity of weapon type to spawn
-		// Spawn weapon
-	//}
+
+		// Find rarity of weapon type to spawn
+		uint8 RarityIndex = ChooseRarity();
+
+		// Get pickup class to spawn using weapon type and rarity
+		TSubclassOf<ASWeaponPickup> PickupClassToSpawn;
+		switch (WeaponTypeToSpawn)
+		{
+		case EWeaponType::AssaultRifle:
+			if (RifleArray.Num() > RarityIndex)
+			{
+				PickupClassToSpawn = RifleArray[RarityIndex];
+			}
+			break;
+		case EWeaponType::GrenadeLauncher:
+			if (GLArray.Num() > RarityIndex)
+			{
+				PickupClassToSpawn = GLArray[RarityIndex];
+			}
+			break;
+		default:
+			break;
+		}
+
+		SpawnItemFromClass(PickupClassToSpawn, 100.f, TempHorizontalOffset);
+		TempHorizontalOffset += HorizontalSpawnOffset;
+	}
 }
 
-void ASChest::SpawnNewWeapon(TSubclassOf<ASWeaponPickup> NewWeaponPickup, float HorizontalOffset)
+void ASChest::SpawnItemFromClass(UClass* NewWeaponPickup, float ForwardOffset, float HorizontalOffset)
 {
 	if (!NewWeaponPickup) { return; }
+
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Owner = this;
 
-	FVector SpawnLocation = GetActorLocation() - FVector(100.f, HorizontalOffset, 0.f);
-	GetWorld()->SpawnActor<ASWeaponPickup>(NewWeaponPickup, SpawnLocation, FRotator(0.f, 90.f, 0.f), SpawnParams);
 
-	HorizontalOffset += 50.f;
+	FVector SpawnLocation = GetActorLocation() - FVector(ForwardOffset, HorizontalOffset, 0.f);
+	GetWorld()->SpawnActor<AActor>(NewWeaponPickup, SpawnLocation, FRotator(0.f, 90.f, 0.f), SpawnParams);
 }
 
+uint8 ASChest::ChooseRarity()
+{
+	int32 RandomRarity = UKismetMathLibrary::RandomInteger(25);
+
+	// Common index - 32% chance
+	if (RandomRarity < 8)
+	{
+		return 0;
+	}
+	// UnCommon index - 28% chance
+	else if (RandomRarity < 15)
+	{
+		return 1;
+	}
+	// Rare index - 20% chance
+	else if (RandomRarity < 20)
+	{
+		return 2;
+	}
+	// Epic index - 12% chance
+	else if (RandomRarity < 23)
+	{
+		return 3;
+	}
+	// Legendary index - 8% chance
+	else 
+	{
+		return 4;
+	}
+
+	return 0;
+}
 
 void ASChest::ShowItemInfo(bool bIsVisible)
 {

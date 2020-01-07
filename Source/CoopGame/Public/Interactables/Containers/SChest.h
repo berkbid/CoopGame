@@ -30,32 +30,39 @@ protected:
 	void SpawnWeapons();
 
 	/* Helper function to spawn weapon of a class with a position offset */
-	void SpawnNewWeapon(TSubclassOf<class ASWeaponPickup> NewWeaponPickup, float HorizontalOffset);
+	void SpawnItemFromClass(UClass* NewWeaponPickup, float ForwardOffset, float HorizontalOffset);
+
+	uint8 ChooseRarity();
 
 	virtual void OnRep_OpenContainer() override;
 
 	
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Items")
+	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0, ClampMax = 10))
 	uint8 NumberOfWeapons;
 
-	UPROPERTY(EditAnywhere, Category = "Items")
+	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0, ClampMax = 10))
 	uint8 NumberOfAmmo;
 
-	UPROPERTY(EditAnywhere, Category = "Items")
-	TArray<FWeaponDropChance> WeaponDrops;
-
-	UPROPERTY(EditAnywhere, Category="Items")
-	TArray<TSubclassOf<class ASWeaponPickup>> AssaultRifleArray;
+	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0.f, ClampMax = 200.f))
+	float HorizontalSpawnOffset;
 
 	UPROPERTY(EditAnywhere, Category = "Items")
-	TArray<TSubclassOf<class ASWeaponPickup>> GrenadeLauncherArray;
+	TArray<FWeaponPickup> WeaponDrops;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	TArray<TSubclassOf<class ASWeaponPickup>> RifleArray;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	TArray<TSubclassOf<class ASWeaponPickup>> GLArray;
 
 	class UMaterialInstanceDynamic* MatInst;
 	
 	class UMaterialInstanceDynamic* MatInst2;
 
 	int32 WeightSum;
+
+	float StartingWeaponSpawnPos;
 
 };

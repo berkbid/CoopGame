@@ -380,7 +380,7 @@ struct FWeaponInfo
 };
 
 USTRUCT(BlueprintType)
-struct FWeaponDropChance
+struct FWeaponPickup
 {
 	GENERATED_BODY()
 
@@ -390,13 +390,13 @@ struct FWeaponDropChance
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	uint8 DropChance;
 
-	FWeaponDropChance()
+	FWeaponPickup()
 	{
 		WeaponType = EWeaponType::AssaultRifle;
 		DropChance = 1;
 	}
 
-	FWeaponDropChance(EWeaponType NewWeaponType, uint8 NewDropChance)
+	FWeaponPickup(EWeaponType NewWeaponType, uint8 NewDropChance)
 	{
 		WeaponType = NewWeaponType;
 		DropChance = NewDropChance;

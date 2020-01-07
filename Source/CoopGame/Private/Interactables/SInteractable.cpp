@@ -48,7 +48,6 @@ ASInteractable::ASInteractable()
 	MinNetUpdateFrequency = 20.f;
 	NetPriority = .7f;
 	NetCullDistanceSquared = 65000000.f;
-
 }
 
 void ASInteractable::ShowItemInfo(bool bIsVisible)
