@@ -33,6 +33,7 @@ void ASContainer::Interact(APlayerController* InteractedPC)
 void ASContainer::OnRep_OpenContainer()
 {
 	// Only upon container changing to be opened, make sure info is invisible
+	// Only clients who have info showing need to run this code, no easy way to determine this
 	if (bIsOpened)
 	{
 		SetInfoInvisible();

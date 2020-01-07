@@ -52,6 +52,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Items")
 	TArray<TSubclassOf<class ASWeaponPickup>> GrenadeLauncherArray;
 
+	class UMaterialInstanceDynamic* MatInst;
+	
+	class UMaterialInstanceDynamic* MatInst2;
+
 	int32 WeightSum;
 
 };

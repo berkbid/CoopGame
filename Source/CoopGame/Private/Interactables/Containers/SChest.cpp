@@ -5,10 +5,12 @@
 #include "SWeaponPickup.h"
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Components/StaticMeshComponent.h"
 
 ASChest::ASChest()
 {
-	bIsOpened = false;
+	//bIsOpened = false;
 	WeightSum = 0;
 }
 
@@ -100,4 +102,26 @@ void ASChest::ShowItemInfo(bool bIsVisible)
 void ASChest::OnRep_OpenContainer()
 {
 	Super::OnRep_OpenContainer();
+
+	// Change color of chest material when it is opened
+
+	if (!MatInst)
+	{
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
+	}
+	if (!MatInst2)
+	{
+		MatInst2 = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(1, MeshComp->GetMaterial(1));
+	}
+
+	if (MatInst)
+	{
+		// This variable "LastTimeDamageTaken" is set in the editor in the graph for the material
+		MatInst->SetVectorParameterValue("Color", FLinearColor(0.3f, 0.3f, 0.3f, 1.f));
+	}
+	if (MatInst2)
+	{
+		// This variable "LastTimeDamageTaken" is set in the editor in the graph for the material
+		MatInst2->SetVectorParameterValue("Color", FLinearColor(0.3f, 0.3f, 0.3f, 1.f));
+	}
 }
