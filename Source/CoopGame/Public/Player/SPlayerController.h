@@ -82,6 +82,7 @@ protected:
 	// Helper method for tracing on Tick() method
 	void TraceForInteractables();
 
+	/* Helper method for both Tick() function and Interact() function to use for the same line trace parameters */
 	bool FindTraceArray(TArray<FHitResult>& OutHits);
 
 	virtual void SetupInputComponent() override;

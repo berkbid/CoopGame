@@ -78,7 +78,7 @@ void ASPlayerController::Tick(float DeltaTime)
 
 	if (IsLocalController())
 	{
-		// Always trace, even if dead or no pawn
+		// Always trace, even if dead or no pawn, this is just to display item info
 		TraceForInteractables();
 	}
 }
@@ -258,11 +258,14 @@ void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 
 void ASPlayerController::Interact()
 {
+	// We can only interact with items if we possess a pawn
+	if (!GetPawn()) { return; }
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerInteract();
 		return;
 	}
+
 	TArray<FHitResult> HitArray;
 	// If any hit is found
 	if (FindTraceArray(HitArray))
@@ -281,6 +284,10 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 {
 	if (GetLocalRole() < ROLE_Authority) { return false; }
 	if (!bDidInteract && bIsInventoryFull) { return false; }
+	ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
+	// Only pick up weapons if we have a pawn, even though we could without a pawn
+	if (!MyPawn) { return false; }
+	
 
 	// Loop through inventory looking for empty slot
 	int32 InventorySize = WeaponInventory.Num();
@@ -305,11 +312,9 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 			// If we pick up a weapon into our current selected EMPTY slot, equip the weapon!
 			if (CurrentSlot == i)
 			{
-				ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-				if (MyPawn)
-				{
-					MyPawn->EquipWeaponClass(WeaponInfo);
-				}
+
+				MyPawn->EquipWeaponClass(WeaponInfo);
+				
 			}
 			else
 			{
@@ -323,25 +328,8 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 	// If we don't have inventory space, BUT we interacted with weapon through E keybind, swap with current weapon slot
 	if (bDidInteract)
 	{
-		FVector NewSpawnLocation;
+		MyPawn->EquipWeaponClass(WeaponInfo);
 
-		// Only swap weapons if we have a pawn
-		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-		if (MyPawn) 
-		{  
-			MyPawn->EquipWeaponClass(WeaponInfo);
-			NewSpawnLocation = MyPawn->GetActorLocation() + MyPawn->GetActorForwardVector() * 100.f;
-		}
-		else
-		{
-			FVector EyeLocation;
-			FRotator EyeRotation;
-			// We override the location return in SCharacter.cpp to return camera location instead
-			GetActorEyesViewPoint(EyeLocation, EyeRotation);
-			NewSpawnLocation = EyeLocation + EyeRotation.Vector() * 300.f;
-			NewSpawnLocation.Z += 50.f;
-		}
-		
 		FWeaponInfo OldWeaponInfo = WeaponInventory[CurrentSlot];
 
 		// Update weapon inventory slot to new weaponclass
@@ -353,9 +341,8 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 		// Spawn old weapon and pass it the OldWeaponInfo
 		if (OldWeaponInfo.WeaponPickupClass)
 		{
-
 			FTransform SpawnTransform;
-			SpawnTransform.SetLocation(NewSpawnLocation);
+			SpawnTransform.SetLocation(MyPawn->GetActorLocation() + MyPawn->GetActorForwardVector() * 100.f);
 
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -369,7 +356,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 				UGameplayStatics::FinishSpawningActor(WP, WP->GetTransform());
 			}
 		}
-
 		return true;
 	}
 
