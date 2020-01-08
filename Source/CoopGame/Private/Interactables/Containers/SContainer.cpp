@@ -11,7 +11,12 @@
 // Sets default values
 ASContainer::ASContainer()
 {
+	bIsOpened = false;
+
 	BoxComp->SetSimulatePhysics(false);
+	BoxComp->SetGenerateOverlapEvents(false);
+	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	
 }
 
 // This is client call
@@ -26,7 +31,10 @@ void ASContainer::ShowItemInfo(bool bIsVisible)
 
 void ASContainer::Interact(APlayerController* InteractedPC)
 {
-	Super::Interact(InteractedPC);
+
+	// Tell clients this chest has been opened
+	bIsOpened = true;
+	OnRep_OpenContainer();
 
 	// After a container is opened, it can now be dormant and no longer needs to be replicated
 	SetNetDormancy(DORM_DormantAll);
@@ -35,7 +43,6 @@ void ASContainer::Interact(APlayerController* InteractedPC)
 void ASContainer::OnRep_OpenContainer()
 {
 	// Only upon container changing to be opened, make sure info is invisible
-	// Only clients who have info showing need to run this code, no easy way to determine this
 	if (bIsOpened)
 	{
 		SetInfoInvisible();

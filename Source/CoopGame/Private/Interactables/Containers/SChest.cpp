@@ -43,16 +43,12 @@ void ASChest::BeginPlay()
 // We are server in here
 void ASChest::Interact(APlayerController* InteractedPC)
 {
-	// Only allow chest to be opened once
 	if (bIsOpened) { return; }
+	if (!InteractedPC) { return; }
 
-	// Tell clients this chest has been opened
-	bIsOpened = true;
-	OnRep_OpenContainer();
-
+	// If we open chest, then spawn weapons and call parent Interact()
 	SpawnWeapons();
 
-	// Call super after interacted with to set dormant
 	Super::Interact(InteractedPC);
 }
 
@@ -112,7 +108,7 @@ void ASChest::SpawnWeapons()
 		}
 		if (AmmoPickupClassToSpawn)
 		{
-			GetWorld()->SpawnActor<ASAmmoPickup>(AmmoPickupClassToSpawn, StartingSpawnLocation + FVector(0.f, -50.f, 10.f), FRotator(0.f, 180.f, 0.f), SpawnParams);
+			GetWorld()->SpawnActor<ASAmmoPickup>(AmmoPickupClassToSpawn, StartingSpawnLocation + FVector(0.f, -50.f, 5.f), FRotator(0.f, 180.f, 0.f), SpawnParams);
 		}
 
 		// Update spawn location for next weapon/ammo spawn

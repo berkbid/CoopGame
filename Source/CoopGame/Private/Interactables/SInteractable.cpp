@@ -44,9 +44,9 @@ ASInteractable::ASInteractable()
 
 	SetReplicates(true);
 
-	NetUpdateFrequency = 60.f;
-	MinNetUpdateFrequency = 20.f;
-	NetPriority = .7f;
+	NetUpdateFrequency = 100.f;
+	MinNetUpdateFrequency = 30.f;
+	NetPriority = .8f;
 	NetCullDistanceSquared = 65000000.f;
 }
 

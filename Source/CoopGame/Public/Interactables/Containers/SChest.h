@@ -38,11 +38,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0, ClampMax = 10))
 	uint8 NumberOfWeapons;
 
-	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0.f, ClampMax = 200.f))
-	float HorizontalSpawnOffset;
-
 	UPROPERTY(EditAnywhere, Category = "Items")
 	TArray<FWeaponPickup> WeaponDrops;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items", meta = (ClampMin = 0.f, ClampMax = 200.f))
+	float HorizontalSpawnOffset;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Items")
 	TArray<TSubclassOf<class ASWeaponPickup>> RifleArray;
