@@ -168,7 +168,7 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 	}
 }
 
-// Method that handles equipping a new weapon slot of the inventory, only server should ever call this function
+// Method that handles equipping a new weapon slot of the inventory
 void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 {
 	// Only server should call this function, this is precautionary
@@ -222,7 +222,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 				ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 				if (MyPawn)
 				{
-					// This returns ammo amount of old weapon but we don't need it in this case
 					MyPawn->EquipWeaponClass(WeaponInfo);
 				}
 			}
@@ -256,19 +255,26 @@ int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoTotal)
 	return ExcessAmmo;
 }
 
-int32 ASPlayerController::ReloadAmmoClip(int32 CurrentClipSize)
+int32 ASPlayerController::ReloadAmmoClip()
 {
-	int32 AmmmoNeeded = WeaponInventory[CurrentSlot].WeaponStats.MagazineSize - CurrentClipSize;
+	// Reference to current weapon information
+	const FWeaponInfo& CurrentWeaponInfo = WeaponInventory[CurrentSlot];
+
+	// Retrieve current clip size of current weapon
+	int32 CurrentWeaponClipSize = CurrentWeaponInfo.CurrentAmmo;
+	
+	// Calculate ammo needed based on magazine size and current clip size
+	int32 AmmmoNeeded = CurrentWeaponInfo.WeaponStats.MagazineSize - CurrentWeaponClipSize;
 	if (AmmmoNeeded <= 0) { return 0; }
 
 	// Retrieve ammo from ammo inventory
 	int32 AmmoReturnAmount = 0;
 	int32 ExtraAmmoTemp = 0;
-	EAmmoType AmmoTypeNeeded = WeaponInventory[CurrentSlot].AmmoType;
+	EAmmoType AmmoTypeNeeded = CurrentWeaponInfo.AmmoType;
 	AmmoInventory.RequestAmmo(AmmoTypeNeeded, AmmmoNeeded, AmmoReturnAmount, ExtraAmmoTemp);
 
 	// Update HUD with new ammo inventory change
-	ClientHandleReloadHUD(AmmoTypeNeeded, CurrentClipSize + AmmoReturnAmount, ExtraAmmoTemp);
+	ClientHandleReloadHUD(AmmoTypeNeeded, CurrentWeaponClipSize + AmmoReturnAmount, ExtraAmmoTemp);
 
 	return AmmoReturnAmount;
 }

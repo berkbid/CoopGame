@@ -79,10 +79,11 @@ void ASCharacter::Reload()
 
 	if (!CurrentWeapon) { return; }
 
+	// PlayerController is in charge of ammo inventory, so retrieve ammo by requesting from PC
 	ASPlayerController* PC = Cast<ASPlayerController>(GetController());
 	if (PC)
 	{
-		CurrentWeapon->CurrentClipSize += PC->ReloadAmmoClip(CurrentWeapon->CurrentClipSize);
+		CurrentWeapon->CurrentClipSize += PC->ReloadAmmoClip();
 	}
 }
 

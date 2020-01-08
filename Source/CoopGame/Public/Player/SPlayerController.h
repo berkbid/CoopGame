@@ -42,7 +42,7 @@ public:
 	 * Called by server from owned character when trying to reload currently equipped weapon - returns 
 	 * amount of ammo based on current clip size, max clip size, and available ammo 
 	 */
-	int32 ReloadAmmoClip(int32 CurrentClipSize);
+	int32 ReloadAmmoClip();
 
 	/** Called by weapons every time they fire so player controller can update HUD or clip data */
 	void UpdateCurrentClip(int32 NewClipSize);
