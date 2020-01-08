@@ -333,7 +333,10 @@ struct FWeaponInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	UClass* WeaponType;
+	UClass* WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	UClass* WeaponPickupClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FName WeaponName;
@@ -353,13 +356,15 @@ struct FWeaponInfo
 	// For Garbage Cleanup
 	void Destroy()
 	{
-		WeaponType = NULL;
+		WeaponClass = NULL;
+		WeaponPickupClass = NULL;
 	}
 
 	// Default constructor
 	FWeaponInfo()
 	{
-		WeaponType = NULL;
+		WeaponClass = NULL;
+		WeaponPickupClass = NULL;
 		WeaponName = FName();
 		WeaponRarity = EWeaponRarity::Common;
 		AmmoType = EAmmoType::MiniAmmo;
@@ -368,9 +373,10 @@ struct FWeaponInfo
 	}
 
 	// Constructor with parameters for properties
-	FWeaponInfo(UClass* NewWeaponClass, FName NewWeaponName, EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 NewCurrentAmmo, const FWeaponStats &NewWeaponStats)
+	FWeaponInfo(UClass* NewWeaponClass, UClass* NewWeaponPickupClass, FName NewWeaponName, EWeaponRarity NewWeaponRarity, EAmmoType NewAmmoType, int32 NewCurrentAmmo, const FWeaponStats &NewWeaponStats)
 	{
-		WeaponType = NewWeaponClass;
+		WeaponClass = NewWeaponClass;
+		WeaponPickupClass = NewWeaponPickupClass;
 		WeaponName = NewWeaponName;
 		WeaponRarity = NewWeaponRarity;
 		AmmoType = NewAmmoType;

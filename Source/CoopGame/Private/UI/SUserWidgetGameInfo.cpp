@@ -39,7 +39,7 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo)
 {
 	// Find texture associated with weapon class we picked up
-	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(NewWeaponInfo.WeaponType);
+	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(NewWeaponInfo.WeaponClass);
 
 	if (InventoryContainer && TempWeaponTexture)
 	{

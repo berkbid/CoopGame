@@ -112,7 +112,7 @@ void USOverlayInventorySlot::UpdateCurrentAmmo(int32 NewCurrentAmmo)
 void USOverlayInventorySlot::UpdateExtraAmmo(int32 NewExtraAmmo)
 {
 	// only update ammo if we have a valid weapon type meaning a valid item in this slot
-	if (CurrentWeaponInfo.WeaponType)
+	if (CurrentWeaponInfo.WeaponClass)
 	{
 		CurrentExtraAmmo = NewExtraAmmo;
 		CurrentSlotAmmo = CurrentWeaponInfo.CurrentAmmo + CurrentExtraAmmo;

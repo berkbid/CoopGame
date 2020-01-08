@@ -33,7 +33,7 @@ public:
 	virtual void InitPlayerState() override;
 
 	// Return success or failure for picking up weapon, based on inventory space
-	bool PickedUpNewWeapon(const FWeaponInfo& WeaponInfo);
+	bool PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool bDidInteract);
 
 	// Return extra ammo if ammo inventory doesn't have room for that type of ammo
 	int32 PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoTotal);

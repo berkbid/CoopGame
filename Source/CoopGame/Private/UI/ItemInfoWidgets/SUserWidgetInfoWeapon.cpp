@@ -49,7 +49,7 @@ void USUserWidgetInfoWeapon::SetOwningActor(AActor* NewOwner)
 
 			SetBorderColors(TempColor);
 			SetWeaponText(TempRarityString + WP->WeaponInfo.WeaponName.ToString());
-			SetClipText(WP->WeaponInfo.CurrentAmmo);
+			SetClipText(WP->WeaponCurrentAmmo);
 			SetAmmoImage(WP->WeaponInfo.AmmoType);
 			SetStarImage(WP->WeaponInfo.WeaponRarity);
 		}

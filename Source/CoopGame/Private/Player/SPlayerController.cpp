@@ -17,6 +17,7 @@
 #include "DrawDebugHelpers.h"
 #include "SInteractable.h"
 #include "BluePrint/WidgetBlueprintLibrary.h"
+#include "SWeaponPickup.h"
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -39,7 +40,7 @@ void ASPlayerController::PostInitProperties()
 	// Count current inventory size
 	for (int32 i = 0; i != WeaponInventory.Num(); ++i)
 	{
-		if (WeaponInventory[i].WeaponType)
+		if (WeaponInventory[i].WeaponClass)
 		{
 			CurrentInventorySize++;
 			if (CurrentInventorySize >= InventoryMaxSize)
@@ -191,17 +192,17 @@ void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 }
 
 // Try to pick up weapon if inventory has space, return success or failure
-bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
+bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool bDidInteract)
 {
 	if (GetLocalRole() < ROLE_Authority) { return false; }
-	if (bIsInventoryFull) { return false; }
+	if (!bDidInteract && bIsInventoryFull) { return false; }
 
 	// Loop through inventory looking for empty slot
 	int32 InventorySize = WeaponInventory.Num();
 	for (int32 i = 0; i < InventorySize; ++i)
 	{
 		// If we find an empty slot, give new weapon type and update HUD image for slot
-		if (!WeaponInventory[i].WeaponType)
+		if (!WeaponInventory[i].WeaponClass)
 		{
 			// Update weapon inventory slot to new weaponclass
 			WeaponInventory[i] = WeaponInfo;
@@ -233,6 +234,42 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo)
 			return true;
 		}
 	}
+
+	// If we don't have inventory space, BUT we interacted with weapon through E keybind, swap with current weapon slot
+	if (bDidInteract)
+	{
+		// If there was no free spaces in inventory, replace current weapon
+		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
+		if (MyPawn)
+		{
+			FWeaponInfo OldWeaponInfo = WeaponInventory[CurrentSlot];
+
+			// Update weapon inventory slot to new weaponclass
+			WeaponInventory[CurrentSlot] = WeaponInfo;
+
+			// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
+			ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, CurrentSlot);
+
+			MyPawn->EquipWeaponClass(WeaponInfo);
+
+			// Spawn old weapon and pass it the OldWeaponInfo
+			if (OldWeaponInfo.WeaponPickupClass)
+			{
+				FTransform SpawnTransform;
+				SpawnTransform.SetLocation(MyPawn->GetActorLocation() + MyPawn->GetActorForwardVector() * 100.f);
+			
+				ASWeaponPickup* WP = GetWorld()->SpawnActorDeferred<ASWeaponPickup>(OldWeaponInfo.WeaponPickupClass, SpawnTransform, GetOwner(), GetInstigator(), ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+
+				if (WP)
+				{
+					WP->SetWeaponInfo(OldWeaponInfo);
+					UGameplayStatics::FinishSpawningActor(WP, WP->GetTransform());
+				}
+			}
+			return true;
+		}
+	}
+
 	// Return failure because we didn't find empty slot for weapon
 	return false;
 }
@@ -272,6 +309,9 @@ int32 ASPlayerController::ReloadAmmoClip()
 	int32 ExtraAmmoTemp = 0;
 	EAmmoType AmmoTypeNeeded = CurrentWeaponInfo.AmmoType;
 	AmmoInventory.RequestAmmo(AmmoTypeNeeded, AmmmoNeeded, AmmoReturnAmount, ExtraAmmoTemp);
+
+	// Update our current ammo internally
+	WeaponInventory[CurrentSlot].CurrentAmmo = CurrentWeaponClipSize + AmmoReturnAmount;
 
 	// Update HUD with new ammo inventory change
 	ClientHandleReloadHUD(AmmoTypeNeeded, CurrentWeaponClipSize + AmmoReturnAmount, ExtraAmmoTemp);

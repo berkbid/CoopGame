@@ -88,7 +88,7 @@ void USVerticalBoxCurrentWeapon::SetWeaponText()
 		if (WeaponText)
 		{
 			// If we have weapon in slot use its name, else set it blank
-			if (CurrentWeaponInfo.WeaponType)
+			if (CurrentWeaponInfo.WeaponClass)
 			{
 				WeaponText->SetText(FText::FromString(CurrentWeaponInfo.WeaponName.ToString()));
 			}

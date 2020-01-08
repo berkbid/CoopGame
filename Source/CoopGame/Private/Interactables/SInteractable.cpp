@@ -50,6 +50,7 @@ ASInteractable::ASInteractable()
 	NetCullDistanceSquared = 65000000.f;
 }
 
+// Client called function
 void ASInteractable::ShowItemInfo(bool bIsVisible)
 {
 	if (bIsVisible)
@@ -64,7 +65,6 @@ void ASInteractable::ShowItemInfo(bool bIsVisible)
 
 void ASInteractable::Interact(APlayerController* InteractedPC)
 {
-	if (!InteractedPC) { return; }
 }
 
 void ASInteractable::SetInfoVisible()

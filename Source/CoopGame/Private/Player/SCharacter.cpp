@@ -57,7 +57,7 @@ void ASCharacter::EquipWeaponClass(const FWeaponInfo& NewWeaponInfo)
 	// Destroy currently equipped weapon so we can equip new weapon
 	if (CurrentWeapon) { CurrentWeapon->Destroy(); }
 
-	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponType;
+	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponClass;
 	// If invalid new weapon class, destroy current weapon and don't try to equip new one
 	// This is completely valid, we allow for this, this is swapping to empty inventory slot
 	if (!NewWeaponClass)
