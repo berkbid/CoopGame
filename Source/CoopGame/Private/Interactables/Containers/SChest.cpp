@@ -36,7 +36,6 @@ void ASChest::BeginPlay()
 
 		// Calculate initial weapon spawn position
 		float StartingWeaponOffset = (-HorizontalSpawnOffset) * (NumberOfWeapons / 2) + HorizontalSpawnOffset / 2;
-
 		StartingSpawnLocation = GetActorLocation() - FVector(100.f, StartingWeaponOffset, 0.f);
 	}
 }
@@ -68,7 +67,7 @@ void ASChest::SpawnWeapons()
 		int32 RandomChoice = UKismetMathLibrary::RandomInteger(WeightSum);
 		EWeaponType WeaponTypeToSpawn = EWeaponType::AssaultRifle;
 
-		// Find weapon type to spawn
+		// Find weapon type to spawn using weighted random algorithm
 		for (const FWeaponPickup &WeaponDrop : WeaponDrops)
 		{
 			RandomChoice -= WeaponDrop.DropChance;
@@ -113,7 +112,7 @@ void ASChest::SpawnWeapons()
 		}
 		if (AmmoPickupClassToSpawn)
 		{
-			GetWorld()->SpawnActor<ASAmmoPickup>(AmmoPickupClassToSpawn, StartingSpawnLocation + FVector(0.f, 50.f, 0.f), FRotator::ZeroRotator, SpawnParams);
+			GetWorld()->SpawnActor<ASAmmoPickup>(AmmoPickupClassToSpawn, StartingSpawnLocation + FVector(0.f, -50.f, 0.f), FRotator::ZeroRotator, SpawnParams);
 		}
 
 		// Update spawn location for next weapon/ammo spawn
