@@ -14,16 +14,6 @@ ASWeaponPickup::ASWeaponPickup()
 	SphereComp->SetSphereRadius(80.f, false);
 }
 
-// Server and clients run this code
-void ASWeaponPickup::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	// Need server and all clients to run this code for weapon pickups placed in world
-	// If we try to set this as only server, it won't replicate in time for clients to update widget on init
-	WeaponCurrentAmmo = WeaponInfo.CurrentAmmo;
-
-}
 
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
@@ -56,8 +46,9 @@ void ASWeaponPickup::SetWeaponInfo(const FWeaponInfo& NewWeaponInfo)
 	WeaponCurrentAmmo = WeaponInfo.CurrentAmmo;
 }
 
-void ASWeaponPickup::HandlePickupWeapon(class AController* NewPickupController, bool bDidInteract)
+void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool bDidInteract)
 {
+	if (!NewPickupController) { return; }
 	ASPlayerController* PC = Cast<ASPlayerController>(NewPickupController);
 	if (!PC) { return; }
 
@@ -67,6 +58,7 @@ void ASWeaponPickup::HandlePickupWeapon(class AController* NewPickupController, 
 		Destroy();
 	}
 }
+
 
 void ASWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

@@ -15,7 +15,8 @@ ASContainer::ASContainer()
 
 	BoxComp->SetSimulatePhysics(false);
 	BoxComp->SetGenerateOverlapEvents(false);
-	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
 	
 }
 

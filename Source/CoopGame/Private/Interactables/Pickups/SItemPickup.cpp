@@ -8,11 +8,15 @@
 
 ASItemPickup::ASItemPickup()
 {
+	BoxComp->SetSimulatePhysics(true);
+	BoxComp->SetCollisionObjectType(ECC_PhysicsBody);
 	// Set custom collision responses for item pickups
 	BoxComp->SetGenerateOverlapEvents(true);
 	BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	BoxComp->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
 	
+	SetReplicateMovement(true);
+
 }
 
 void ASItemPickup::ShowItemInfo(bool bIsVisible)

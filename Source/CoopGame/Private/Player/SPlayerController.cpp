@@ -258,10 +258,14 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 				FTransform SpawnTransform;
 				SpawnTransform.SetLocation(MyPawn->GetActorLocation() + MyPawn->GetActorForwardVector() * 100.f);
 			
-				ASWeaponPickup* WP = GetWorld()->SpawnActorDeferred<ASWeaponPickup>(OldWeaponInfo.WeaponPickupClass, SpawnTransform, GetOwner(), GetInstigator(), ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				SpawnParams.Owner = this;
 
+				ASWeaponPickup* WP = GetWorld()->SpawnActorDeferred<ASWeaponPickup>(OldWeaponInfo.WeaponPickupClass, SpawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 				if (WP)
 				{
+					// Need to set this while actor spawn is deferred so that listen server receives this update
 					WP->SetWeaponInfo(OldWeaponInfo);
 					UGameplayStatics::FinishSpawningActor(WP, WP->GetTransform());
 				}
@@ -269,7 +273,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 			return true;
 		}
 	}
-
 	// Return failure because we didn't find empty slot for weapon
 	return false;
 }
@@ -356,6 +359,7 @@ void ASPlayerController::Interact()
 		if (!HitActor) { return; }
 		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
 		if (!HitInteractable) { return; }
+
 		HitInteractable->Interact(this);
 	}
 }
