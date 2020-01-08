@@ -18,33 +18,21 @@ public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnHealthChanged(class USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	// Helper function that handles updating widget component with PlayerName from PlayerState
+	void SetWidgetName();
+
 	// Allows client to run functionality when weapon is changed
 	UFUNCTION()
 	virtual void OnRep_CurrentWeapon();
-
-	// Replicate this variable for owning client to have access as well
-	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Player")
-	class ASWeapon* CurrentWeapon;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
-	FName WeaponAttachSocketName;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class USHealthComponent* HealthComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class USWidgetCompHealthBar* HealthBar;
-
-	UFUNCTION()
-	void OnHealthChanged(class USHealthComponent* HealthCompNew, float Health, float HealthDelt, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
-	
-	// We replicate this boolean so when player dies on server, all clients get updated thus playing replicated death animation
-	UPROPERTY(ReplicatedUsing=OnRep_Death, BlueprintReadOnly, Category = "Player")
-	bool bDied;
 
 	UFUNCTION()
 	void OnRep_Death();
@@ -55,20 +43,27 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
 
-	// Helper function that handles updating widget component with PlayerName from PlayerState
-	void SetWidgetName();
+protected:
+	// Replicate this variable for owning client to have access as well
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Player")
+	class ASWeapon* CurrentWeapon;
 
-	int32 CurrentWeaponSlot;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class USHealthComponent* HealthComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class USWidgetCompHealthBar* HealthBar;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
+	FName WeaponAttachSocketName;
+
+	// We replicate this boolean so when player dies on server, all clients get updated thus playing replicated death animation
+	UPROPERTY(ReplicatedUsing=OnRep_Death, BlueprintReadOnly, Category = "Player")
+	bool bDied;
 
 public:	
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	/**
-	* Called when this Pawn is possessed. Only called on the server (or in standalone).
-	* @param NewController The controller possessing this pawn
-	*/
-	virtual void PossessedBy(AController* NewController) override;
+	/* Equips the new weapon and returns ammo count of last weapon */
+	void EquipWeaponClass(const FWeaponInfo& NewWeaponInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StartFire();
@@ -79,10 +74,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void Reload();
 
-	/* Equips the new weapon and returns ammo count of last weapon */
-	void EquipWeaponClass(const FWeaponInfo& NewWeaponInfo);
+	virtual void PossessedBy(AController* NewController) override;
 
 	/** PlayerState Replication Notification Callback */
 	virtual void OnRep_PlayerState() override;
-
 };

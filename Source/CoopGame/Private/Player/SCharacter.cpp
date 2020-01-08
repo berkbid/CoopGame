@@ -37,8 +37,6 @@ ASCharacter::ASCharacter()
 	bDied = false;
 }
 
-// Called once on client and once on server
-// Called when the game starts or when spawned
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -49,8 +47,43 @@ void ASCharacter::BeginPlay()
 	}
 }
 
-void ASCharacter::OnRep_CurrentWeapon()
+// This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
+// AI could call this directly to change weapons
+void ASCharacter::EquipWeaponClass(const FWeaponInfo& NewWeaponInfo)
 {
+	// Should never be called on client
+	if (GetLocalRole() < ROLE_Authority) { return; }
+
+	// Destroy currently equipped weapon so we can equip new weapon
+	if (CurrentWeapon) { CurrentWeapon->Destroy(); }
+
+	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponType;
+	// If invalid new weapon class, destroy current weapon and don't try to equip new one
+	// This is completely valid, we allow for this, this is swapping to empty inventory slot
+	if (!NewWeaponClass)
+	{
+		CurrentWeapon = nullptr;
+		OnRep_CurrentWeapon();
+		return;
+	}
+
+	// Spawn and attach weapon
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Must set owner so they are awarded for damage done by the weapon
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+
+	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
+	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+	OnRep_CurrentWeapon();
+
+	if (CurrentWeapon)
+	{
+		// Pass current clip size info to the spawned weapon, want to pass all NewWeaponInfo
+		CurrentWeapon->InitWeaponState(NewWeaponInfo.CurrentAmmo);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+	}
 }
 
 void ASCharacter::StartFire()
@@ -84,45 +117,6 @@ void ASCharacter::Reload()
 	if (PC)
 	{
 		CurrentWeapon->CurrentClipSize += PC->ReloadAmmoClip();
-	}
-}
-
-// This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
-// AI could call this directly to change weapons
-void ASCharacter::EquipWeaponClass(const FWeaponInfo &NewWeaponInfo)
-{
-	// Should never be called on client
-	if (GetLocalRole() < ROLE_Authority) { return; }
-	
-	// Destroy currently equipped weapon so we can equip new weapon
-	if (CurrentWeapon) { CurrentWeapon->Destroy(); }
-
-	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponType;
-	// If invalid new weapon class, destroy current weapon and don't try to equip new one
-	// This is completely valid, we allow for this, this is swapping to empty inventory slot
-	if (!NewWeaponClass)
-	{
-		CurrentWeapon = nullptr;
-		OnRep_CurrentWeapon();
-		return;
-	}
-
-	// Spawn and attach weapon
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	// Must set owner so they are awarded for damage done by the weapon
-	SpawnParams.Owner = this;
-	SpawnParams.Instigator = this;
-
-	// Need client to have this "CurrentWeapon" variable set also to call StartFire() and StopFire()
-	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-	OnRep_CurrentWeapon();
-
-	if (CurrentWeapon)
-	{
-		// Pass current clip size info to the spawned weapon, want to pass all NewWeaponInfo
-		CurrentWeapon->InitWeaponState(NewWeaponInfo.CurrentAmmo);
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 }
 
@@ -167,16 +161,20 @@ void ASCharacter::OnRep_Death()
 	SetLifeSpan(10.f);
 }
 
-// This is so we can run listen server functionality for OnRep_PlayerState
-void ASCharacter::ServerSetWidgetName_Implementation()
+void ASCharacter::OnRep_PlayerState()
 {
-	// Only listen server needs to update widget name
-	ENetMode NetMode = GetNetMode();
-	if (NetMode == NM_ListenServer)
+	Super::OnRep_PlayerState();
+
+	SetWidgetName();
+
+	// If we are the client who owns this pawn, call server function for listen server to update name as well
+	if (IsLocallyControlled())
 	{
-		SetWidgetName();
+		ServerSetWidgetName();
 	}
 }
+
+void ASCharacter::OnRep_CurrentWeapon() {}
 
 void ASCharacter::ServerReload_Implementation()
 {
@@ -193,17 +191,14 @@ void ASCharacter::SetWidgetName()
 	}
 }
 
-// Widget Component is always valid here, but WidgetInst is not
-void ASCharacter::OnRep_PlayerState()
+// This is so we can run listen server functionality for OnRep_PlayerState
+void ASCharacter::ServerSetWidgetName_Implementation()
 {
-	Super::OnRep_PlayerState();
-
-	SetWidgetName();
-
-	// If we are the client who owns this pawn, call server function for listen server to update name as well
-	if (IsLocallyControlled())
+	// Only listen server needs to update widget name
+	ENetMode NetMode = GetNetMode();
+	if (NetMode == NM_ListenServer)
 	{
-		ServerSetWidgetName();
+		SetWidgetName();
 	}
 }
 

@@ -3,6 +3,7 @@
 
 #include "SChest.h"
 #include "SWeaponPickup.h"
+#include "SAmmoPickup.h"
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -12,7 +13,10 @@ ASChest::ASChest()
 {
 	bIsOpened = false;
 	WeightSum = 0;
-	HorizontalSpawnOffset = 75.f;
+	HorizontalSpawnOffset = 100.f;
+
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Owner = this;
 }
 
 void ASChest::BeginPlay()
@@ -31,7 +35,9 @@ void ASChest::BeginPlay()
 		}
 
 		// Calculate initial weapon spawn position
-		StartingWeaponSpawnPos = (-HorizontalSpawnOffset) * (NumberOfWeapons / 2) + HorizontalSpawnOffset / 2;
+		float StartingWeaponOffset = (-HorizontalSpawnOffset) * (NumberOfWeapons / 2) + HorizontalSpawnOffset / 2;
+
+		StartingSpawnLocation = GetActorLocation() - FVector(100.f, StartingWeaponOffset, 0.f);
 	}
 }
 
@@ -55,8 +61,6 @@ void ASChest::SpawnWeapons()
 {
 	if (WeaponDrops.Num() <= 0) { return; }
 
-	float TempHorizontalOffset = StartingWeaponSpawnPos;
-
 	// For each weapon we want to spawn
 	for (int32 i = 0; i < NumberOfWeapons; ++i)
 	{
@@ -78,42 +82,43 @@ void ASChest::SpawnWeapons()
 		// Find rarity of weapon type to spawn
 		uint8 RarityIndex = ChooseRarity();
 
-		// Get pickup class to spawn using weapon type and rarity
-		TSubclassOf<ASWeaponPickup> PickupClassToSpawn;
+		// Get weapon and ammo pickup class to spawn using weapon type and rarity
+		TSubclassOf<ASWeaponPickup> WeaponPickupClassToSpawn;
+		TSubclassOf<ASAmmoPickup> AmmoPickupClassToSpawn;
 		switch (WeaponTypeToSpawn)
 		{
 		case EWeaponType::AssaultRifle:
 			if (RifleArray.Num() > RarityIndex)
 			{
-				PickupClassToSpawn = RifleArray[RarityIndex];
+				WeaponPickupClassToSpawn = RifleArray[RarityIndex];
+				AmmoPickupClassToSpawn = MediumAmmoPickupClass;
 			}
 			break;
 		case EWeaponType::GrenadeLauncher:
 			if (GLArray.Num() > RarityIndex)
 			{
-				PickupClassToSpawn = GLArray[RarityIndex];
+				WeaponPickupClassToSpawn = GLArray[RarityIndex];
+				AmmoPickupClassToSpawn = RocketAmmoPickupClass;
 			}
 			break;
 		default:
 			break;
 		}
 
-		SpawnItemFromClass(PickupClassToSpawn, 100.f, TempHorizontalOffset);
-		TempHorizontalOffset += HorizontalSpawnOffset;
+		// Spawn weapon with matching ammo
+		if (WeaponPickupClassToSpawn)
+		{
+			
+			GetWorld()->SpawnActor<ASWeaponPickup>(WeaponPickupClassToSpawn, StartingSpawnLocation, FRotator(0.f, 90.f, 0.f), SpawnParams);
+		}
+		if (AmmoPickupClassToSpawn)
+		{
+			GetWorld()->SpawnActor<ASAmmoPickup>(AmmoPickupClassToSpawn, StartingSpawnLocation + FVector(0.f, 50.f, 0.f), FRotator::ZeroRotator, SpawnParams);
+		}
+
+		// Update spawn location for next weapon/ammo spawn
+		StartingSpawnLocation.Y -= HorizontalSpawnOffset;
 	}
-}
-
-void ASChest::SpawnItemFromClass(UClass* NewWeaponPickup, float ForwardOffset, float HorizontalOffset)
-{
-	if (!NewWeaponPickup) { return; }
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Owner = this;
-
-
-	FVector SpawnLocation = GetActorLocation() - FVector(ForwardOffset, HorizontalOffset, 0.f);
-	GetWorld()->SpawnActor<AActor>(NewWeaponPickup, SpawnLocation, FRotator(0.f, 90.f, 0.f), SpawnParams);
 }
 
 uint8 ASChest::ChooseRarity()

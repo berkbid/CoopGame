@@ -29,21 +29,14 @@ protected:
 	/* Called when PlayerController interacts with us and opens chest */
 	void SpawnWeapons();
 
-	/* Helper function to spawn weapon of a class with a position offset */
-	void SpawnItemFromClass(UClass* NewWeaponPickup, float ForwardOffset, float HorizontalOffset);
-
 	uint8 ChooseRarity();
 
 	virtual void OnRep_OpenContainer() override;
 
 	
-
 protected:
 	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0, ClampMax = 10))
 	uint8 NumberOfWeapons;
-
-	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0, ClampMax = 10))
-	uint8 NumberOfAmmo;
 
 	UPROPERTY(EditAnywhere, Category = "Items", meta = (ClampMin = 0.f, ClampMax = 200.f))
 	float HorizontalSpawnOffset;
@@ -57,12 +50,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Items")
 	TArray<TSubclassOf<class ASWeaponPickup>> GLArray;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	TSubclassOf<class ASAmmoPickup> MediumAmmoPickupClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	TSubclassOf<class ASAmmoPickup> RocketAmmoPickupClass;
+
 	class UMaterialInstanceDynamic* MatInst;
 	
 	class UMaterialInstanceDynamic* MatInst2;
 
 	int32 WeightSum;
 
-	float StartingWeaponSpawnPos;
+	FVector StartingSpawnLocation;
 
+	FActorSpawnParameters SpawnParams;
 };
