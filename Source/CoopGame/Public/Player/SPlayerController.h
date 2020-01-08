@@ -25,6 +25,8 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual void Tick(float DeltaTime) override;
+
 	virtual void PostInitProperties() override;
 
 	virtual void OnRep_PlayerState() override;
@@ -77,9 +79,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	// Helper method for tracing on Tick() method
+	void TraceForInteractables();
+
+	bool FindTraceArray(TArray<FHitResult>& OutHits);
+
 	virtual void SetupInputComponent() override;
 
 	virtual void OnPossess(APawn* aPawn) override;
+
+	virtual void OnUnPossess() override;
 
 	/* Called by server - changes active inventory slot and tries to equip weapon if pawn exists */
 	void EquipWeapon(uint8 NewWeaponSlot);
@@ -87,7 +96,6 @@ protected:
 	////////////////////////////////////////
 	// Player Input bindings
 	////////////////////////////////////////
-
 	// Input to interact with item based on line trace
 	void Interact();
 
@@ -157,6 +165,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class USUserWidgetInventoryInfo> wInventoryInfo;
 
+	class ASInteractable* CurrentSelectedInteractable;
+
+	FCollisionObjectQueryParams TraceObjectQueryParams;
+
 	class USUserWidgetGameInfo* MyGameInfo;
 
 	class USUserWidgetInventoryInfo* MyInventoryInfo;
@@ -173,4 +185,5 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	bool bIsInventoryFull;
+
 };

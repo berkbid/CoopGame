@@ -34,6 +34,7 @@ void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 void ASWeaponPickup::ShowItemInfo(bool bIsVisible)
 {
 	Super::ShowItemInfo(bIsVisible);
+	// want to take in player controller as argument and use it to determine if inventory is full!
 
 }
 
@@ -48,7 +49,6 @@ void ASWeaponPickup::SetWeaponInfo(const FWeaponInfo& NewWeaponInfo)
 
 void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool bDidInteract)
 {
-	if (!NewPickupController) { return; }
 	ASPlayerController* PC = Cast<ASPlayerController>(NewPickupController);
 	if (!PC) { return; }
 

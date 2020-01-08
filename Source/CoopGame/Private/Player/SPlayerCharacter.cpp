@@ -31,8 +31,6 @@ ASPlayerCharacter::ASPlayerCharacter()
 	ZoomedFOV = 65.f;
 	ZoomInterpSpeed = 20.f;
 
-	TraceObjectQueryParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
-
 	NetUpdateFrequency = 144.f;
 	MinNetUpdateFrequency = 33.f;
 	NetPriority = 1.f;
@@ -73,75 +71,6 @@ void ASPlayerCharacter::Tick(float DeltaTime)
 	if (IsLocallyControlled())
 	{
 		HandleZoom(DeltaTime);
-		TraceForInteractables();
-	}
-}
-
-void ASPlayerCharacter::TraceForInteractables()
-{
-	FVector EyeLocation;
-	FRotator EyeRotation;
-	// We override the location return in SCharacter.cpp to return camera location instead
-	GetActorEyesViewPoint(EyeLocation, EyeRotation);
-	FVector TraceDirection = EyeRotation.Vector();
-	FVector TraceStart = EyeLocation;
-	FVector TraceEnd = TraceStart + (TraceDirection * 450.f);
-	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
-	
-	TArray<FHitResult> HitArray;
-
-	if (GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, TraceObjectQueryParams))
-	{
-		AActor* HitActor = HitArray.Last().GetActor();
-		if (!HitActor) 
-		{ 
-			// If we were previously interacting with an object, stop interacting with it
-			if (CurrentSelectedInteractable)
-			{
-				CurrentSelectedInteractable->ShowItemInfo(false);
-				CurrentSelectedInteractable = nullptr;
-			}
-			return; 
-		}
-		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-		if (!HitInteractable) 
-		{ 
-			// If we were previously interacting with an object, stop interacting with it
-			if (CurrentSelectedInteractable)
-			{
-				CurrentSelectedInteractable->ShowItemInfo(false);
-				CurrentSelectedInteractable = nullptr;
-			}
-			return; 
-		}
-
-		// If we were previously interacting with an object
-		if (CurrentSelectedInteractable)
-		{
-			// And the new object is a different object
-			if (HitInteractable != CurrentSelectedInteractable)
-			{
-				CurrentSelectedInteractable->ShowItemInfo(false);
-				HitInteractable->ShowItemInfo(true);
-				CurrentSelectedInteractable = HitInteractable;
-			}
-		}
-		// If we find a new interactable and were previously interacting with nothing
-		else
-		{
-			HitInteractable->ShowItemInfo(true);
-			CurrentSelectedInteractable = HitInteractable;
-		}
-	}
-	// If we didn't hit anything, update item info showing if necessary
-	else
-	{
-		// If we were previously interacting with an object, stop interacting with it
-		if (CurrentSelectedInteractable)
-		{
-			CurrentSelectedInteractable->ShowItemInfo(false);
-			CurrentSelectedInteractable = nullptr;
-		}
 	}
 }
 

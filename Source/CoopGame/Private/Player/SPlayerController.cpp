@@ -31,6 +31,8 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 	
 	// Setup initial ammo inventory with current and max ammo amounts
 	AmmoInventory = FAmmoInfo(0, 0, 0, 0, 0, 250, 250, 250, 250, 250);
+
+	TraceObjectQueryParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
 }
 
 void ASPlayerController::PostInitProperties()
@@ -55,15 +57,76 @@ void ASPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Update some HUD info manually here for clients since they might load in late
-	if (MyGameInfo)
+	if (IsLocalController())
 	{
-		ASGameState* GS = GetWorld()->GetGameState<ASGameState>();
-		if (GS)
+		// Update some HUD info manually here for clients since they might load in late
+		if (MyGameInfo)
 		{
-			MyGameInfo->SetStateText(GS->GetWaveStateString());
+			ASGameState* GS = GetWorld()->GetGameState<ASGameState>();
+			if (GS)
+			{
+				MyGameInfo->SetStateText(GS->GetWaveStateString());
+			}
 		}
 	}
+
+}
+
+void ASPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (IsLocalController())
+	{
+		// Always trace, even if dead or no pawn
+		TraceForInteractables();
+	}
+}
+
+void ASPlayerController::TraceForInteractables()
+{
+	TArray<FHitResult> HitArray;
+	if (FindTraceArray(HitArray))
+	{
+		AActor* HitActor = HitArray.Last().GetActor();
+		if (!HitActor) { return; }
+		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
+		if (!HitInteractable) { return; }
+
+		// If we were previously interacting with an object, and the new object is a different object
+		if (CurrentSelectedInteractable && HitInteractable != CurrentSelectedInteractable)
+		{
+			CurrentSelectedInteractable->ShowItemInfo(false);
+			HitInteractable->ShowItemInfo(true);
+			CurrentSelectedInteractable = HitInteractable;
+		}
+		// If we find a new interactable and were previously interacting with nothing
+		else
+		{
+			HitInteractable->ShowItemInfo(true);
+			CurrentSelectedInteractable = HitInteractable;
+		}
+	}
+	// If we didn't hit anything AND we have a current selected interactable, de-select it
+	else if(CurrentSelectedInteractable)
+	{
+		CurrentSelectedInteractable->ShowItemInfo(false);
+		CurrentSelectedInteractable = nullptr;
+	}
+}
+
+bool ASPlayerController::FindTraceArray(TArray<FHitResult>& OutHits)
+{
+	FVector EyeLocation;
+	FRotator EyeRotation;
+	// We override the location return in SCharacter.cpp to return camera location instead
+	GetActorEyesViewPoint(EyeLocation, EyeRotation);
+	FVector TraceDirection = EyeRotation.Vector();
+	FVector TraceStart = EyeLocation;
+	FVector TraceEnd = TraceStart + (TraceDirection * 450.f);
+	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
+
+	return GetWorld()->LineTraceMultiByObjectType(OutHits, TraceStart, TraceEnd, TraceObjectQueryParams);
 }
 
 // This gets replicated when PlayerState is assigned to this controller and is valid for the first time
@@ -169,6 +232,8 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 	}
 }
 
+void ASPlayerController::OnUnPossess() { Super::OnUnPossess(); }
+
 // Method that handles equipping a new weapon slot of the inventory
 void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 {
@@ -188,6 +253,26 @@ void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 		// Change active slot even if no pawn is possessed, do this after we SetCurrentSlotAmmo above
 		CurrentSlot = NewWeaponSlot;
 		ClientChangeToSlotHUD(CurrentSlot);
+	}
+}
+
+void ASPlayerController::Interact()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		ServerInteract();
+		return;
+	}
+	TArray<FHitResult> HitArray;
+	// If any hit is found
+	if (FindTraceArray(HitArray))
+	{
+		AActor* HitActor = HitArray.Last().GetActor();
+		if (!HitActor) { return; }
+		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
+		if (!HitInteractable) { return; }
+
+		HitInteractable->Interact(this);
 	}
 }
 
@@ -238,41 +323,56 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 	// If we don't have inventory space, BUT we interacted with weapon through E keybind, swap with current weapon slot
 	if (bDidInteract)
 	{
-		// If there was no free spaces in inventory, replace current weapon
+		FVector NewSpawnLocation;
+
+		// Only swap weapons if we have a pawn
 		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
-		if (MyPawn)
-		{
-			FWeaponInfo OldWeaponInfo = WeaponInventory[CurrentSlot];
-
-			// Update weapon inventory slot to new weaponclass
-			WeaponInventory[CurrentSlot] = WeaponInfo;
-
-			// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
-			ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, CurrentSlot);
-
+		if (MyPawn) 
+		{  
 			MyPawn->EquipWeaponClass(WeaponInfo);
-
-			// Spawn old weapon and pass it the OldWeaponInfo
-			if (OldWeaponInfo.WeaponPickupClass)
-			{
-				FTransform SpawnTransform;
-				SpawnTransform.SetLocation(MyPawn->GetActorLocation() + MyPawn->GetActorForwardVector() * 100.f);
-			
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-				SpawnParams.Owner = this;
-
-				ASWeaponPickup* WP = GetWorld()->SpawnActorDeferred<ASWeaponPickup>(OldWeaponInfo.WeaponPickupClass, SpawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-				if (WP)
-				{
-					// Need to set this while actor spawn is deferred so that listen server receives this update
-					WP->SetWeaponInfo(OldWeaponInfo);
-					UGameplayStatics::FinishSpawningActor(WP, WP->GetTransform());
-				}
-			}
-			return true;
+			NewSpawnLocation = MyPawn->GetActorLocation() + MyPawn->GetActorForwardVector() * 100.f;
 		}
+		else
+		{
+			FVector EyeLocation;
+			FRotator EyeRotation;
+			// We override the location return in SCharacter.cpp to return camera location instead
+			GetActorEyesViewPoint(EyeLocation, EyeRotation);
+			NewSpawnLocation = EyeLocation + EyeRotation.Vector() * 300.f;
+			NewSpawnLocation.Z += 50.f;
+		}
+		
+		FWeaponInfo OldWeaponInfo = WeaponInventory[CurrentSlot];
+
+		// Update weapon inventory slot to new weaponclass
+		WeaponInventory[CurrentSlot] = WeaponInfo;
+
+		// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
+		ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, CurrentSlot);
+
+		// Spawn old weapon and pass it the OldWeaponInfo
+		if (OldWeaponInfo.WeaponPickupClass)
+		{
+
+			FTransform SpawnTransform;
+			SpawnTransform.SetLocation(NewSpawnLocation);
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			SpawnParams.Owner = this;
+
+			ASWeaponPickup* WP = GetWorld()->SpawnActorDeferred<ASWeaponPickup>(OldWeaponInfo.WeaponPickupClass, SpawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+			if (WP)
+			{
+				// Need to set this while actor spawn is deferred so that listen server receives this update
+				WP->SetWeaponInfo(OldWeaponInfo);
+				UGameplayStatics::FinishSpawningActor(WP, WP->GetTransform());
+			}
+		}
+
+		return true;
 	}
+
 	// Return failure because we didn't find empty slot for weapon
 	return false;
 }
@@ -327,41 +427,6 @@ void ASPlayerController::UpdateCurrentClip(int32 NewClipSize)
 	// Update current ammo of current slot and update HUD
 	WeaponInventory[CurrentSlot].CurrentAmmo = NewClipSize;
 	ClientUpdateClipHUD(NewClipSize);
-}
-
-void ASPlayerController::Interact()
-{
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		ServerInteract();
-		return;
-	}
-
-	// Perform a line trace that mimics SPlayerCharacter's line trace on Tick()
-	FVector EyeLocation;
-	FRotator EyeRotation;
-	// We override the location return in SCharacter.cpp to return camera location instead
-	GetActorEyesViewPoint(EyeLocation, EyeRotation);
-	FVector TraceDirection = EyeRotation.Vector();
-	FVector TraceStart = EyeLocation;
-	FVector TraceEnd = TraceStart + (TraceDirection * 450.f);
-	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Yellow, false, 2.f, 0, 5.f);
-
-	FCollisionObjectQueryParams ObjectParams; 
-	ObjectParams.AddObjectTypesToQuery(COLLISION_INTERACTABLEOBJECT);
-
-	TArray<FHitResult> HitArray;
-
-	// If any hit is found
-	if (GetWorld()->LineTraceMultiByObjectType(HitArray, TraceStart, TraceEnd, ObjectParams))
-	{
-		AActor* HitActor = HitArray.Last().GetActor();
-		if (!HitActor) { return; }
-		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-		if (!HitInteractable) { return; }
-
-		HitInteractable->Interact(this);
-	}
 }
 
 void ASPlayerController::ToggleInventory()

@@ -34,14 +34,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USpringArmComponent* SpringArmComp;
 
-	class ASInteractable* CurrentSelectedInteractable;
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void OnRep_CurrentWeapon() override;
-
-	void TraceForInteractables();
 
 	void MoveForward(float Amount);
 
@@ -56,8 +52,6 @@ protected:
 	void BeginZoom();
 
 	void EndZoom();
-
-	FCollisionObjectQueryParams TraceObjectQueryParams;
 
 	bool bIsZooming;
 	bool bIsZoomingIn;
