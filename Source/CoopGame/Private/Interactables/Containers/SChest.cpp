@@ -112,7 +112,7 @@ void ASChest::SpawnWeapons()
 		}
 		if (AmmoPickupClassToSpawn)
 		{
-			GetWorld()->SpawnActor<ASAmmoPickup>(AmmoPickupClassToSpawn, StartingSpawnLocation + FVector(0.f, -50.f, 0.f), FRotator::ZeroRotator, SpawnParams);
+			GetWorld()->SpawnActor<ASAmmoPickup>(AmmoPickupClassToSpawn, StartingSpawnLocation + FVector(0.f, -50.f, 10.f), FRotator(0.f, 180.f, 0.f), SpawnParams);
 		}
 
 		// Update spawn location for next weapon/ammo spawn
