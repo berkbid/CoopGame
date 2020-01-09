@@ -14,7 +14,6 @@ ASWeaponPickup::ASWeaponPickup()
 	SphereComp->SetSphereRadius(80.f, false);
 }
 
-
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	APawn* OverlappedPawn = Cast<APawn>(OtherActor);
@@ -29,7 +28,6 @@ void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 
 	HandlePickupWeapon(InteractedPC, true);
 }
-
 
 void ASWeaponPickup::ShowItemInfo(bool bIsVisible)
 {
@@ -58,7 +56,6 @@ void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool b
 		Destroy();
 	}
 }
-
 
 void ASWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

@@ -17,14 +17,19 @@ ASGrenadeProjectile::ASGrenadeProjectile()
 {
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	Cast<UPrimitiveComponent>(MeshComp)->SetSimulatePhysics(true);
+	MeshComp->SetSimulatePhysics(true);
 	// Set to physics body to let radial component affect us (eg. when a nearby barrel explodes)
-	Cast<UPrimitiveComponent>(MeshComp)->SetCollisionObjectType(ECC_PhysicsBody);
-	RootComponent = Cast<USceneComponent>(MeshComp);
+	MeshComp->SetCollisionObjectType(ECC_WorldDynamic);
+	MeshComp->SetGenerateOverlapEvents(false);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	RootComponent = MeshComp;
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	SphereComp->SetGenerateOverlapEvents(true);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	SphereComp->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Overlap);
 
 	SphereComp->SetupAttachment(RootComponent);
 

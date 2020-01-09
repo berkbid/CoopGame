@@ -17,7 +17,6 @@ ASContainer::ASContainer()
 	BoxComp->SetGenerateOverlapEvents(false);
 	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
-	
 }
 
 // This is client call
@@ -28,7 +27,6 @@ void ASContainer::ShowItemInfo(bool bIsVisible)
 
 	Super::ShowItemInfo(bIsVisible);
 }
-
 
 void ASContainer::Interact(APlayerController* InteractedPC)
 {
@@ -56,4 +54,3 @@ void ASContainer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 	DOREPLIFETIME(ASContainer, bIsOpened);
 }
-

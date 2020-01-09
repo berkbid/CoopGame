@@ -23,6 +23,7 @@ ASInteractable::ASInteractable()
 	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
 	BoxComp->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Ignore);
+	BoxComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	RootComponent = BoxComp;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
