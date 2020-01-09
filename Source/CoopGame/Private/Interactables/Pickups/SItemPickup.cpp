@@ -19,11 +19,6 @@ ASItemPickup::ASItemPickup()
 
 }
 
-void ASItemPickup::ShowItemInfo(bool bIsVisible)
-{
-	Super::ShowItemInfo(bIsVisible);
-}
-
 // Called when the game starts or when spawned
 void ASItemPickup::BeginPlay()
 {

@@ -58,6 +58,14 @@ void USUserWidgetInfoWeapon::SetOwningActor(AActor* NewOwner)
 	}
 }
 
+void USUserWidgetInfoWeapon::SetPickupText(FString NewText)
+{
+	if (PickupText)
+	{
+		PickupText->SetText(FText::FromString(NewText));
+	}
+}
+
 void USUserWidgetInfoWeapon::SetWeaponText(FString PlayerName)
 {
 	if (WeaponNameText)

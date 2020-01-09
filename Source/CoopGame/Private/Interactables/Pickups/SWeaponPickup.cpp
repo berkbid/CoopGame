@@ -7,6 +7,7 @@
 #include "SUserWidgetInfoWeapon.h"
 #include "SWidgetCompPickupInfo.h"
 #include "Net/UnrealNetwork.h"
+#include "SPlayerController.h"
 
 ASWeaponPickup::ASWeaponPickup()
 {
@@ -27,13 +28,6 @@ void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 	Super::Interact(InteractedPC);
 
 	HandlePickupWeapon(InteractedPC, true);
-}
-
-void ASWeaponPickup::ShowItemInfo(bool bIsVisible)
-{
-	Super::ShowItemInfo(bIsVisible);
-	// want to take in player controller as argument and use it to determine if inventory is full!
-
 }
 
 // Called by server on player controller when dropping weapons
@@ -57,6 +51,36 @@ void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool b
 	}
 }
 
+void ASWeaponPickup::InitItemInfo(ASPlayerController* ClientController)
+{
+	// check inventory space and change widget text if need
+	bool bFull = ClientController->GetIsInventoryFull();
+
+	// This will prevent setting the widget text every time and only when value has changed by keeping temp value client side
+	if (bFull != bIsClientFullTemp) {
+		if (InfoWidget)
+		{
+			USUserWidgetInfoWeapon* UW = Cast<USUserWidgetInfoWeapon>(InfoWidget->WidgetInfoInst);
+			if (UW)
+			{
+				if (bFull)
+				{
+					UW->SetPickupText("Swap");
+				}
+				else
+				{
+					UW->SetPickupText("Pick Up");
+				}
+				// If we successfully changed the text, then we update our local client variable
+				bIsClientFullTemp = bFull;
+			}
+		}
+	}
+
+	// Always call super to handle general item info display behavior, after setting values above
+	Super::InitItemInfo(ClientController);
+}
+
 void ASWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -64,3 +88,5 @@ void ASWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	// Clients need this data which is set by server to display current ammo on widget
 	DOREPLIFETIME(ASWeaponPickup, WeaponCurrentAmmo);
 }
+
+

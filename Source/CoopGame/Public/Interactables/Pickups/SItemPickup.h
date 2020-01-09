@@ -17,9 +17,6 @@ public:
 	// Sets default values for this actor's properties
 	ASItemPickup();
 
-	/* Method for line trace of players to call to show item info on widget component*/
-	virtual void ShowItemInfo(bool bIsVisible) override;
-
 	virtual void Interact(class APlayerController* InteractedPC) override;
 
 protected:

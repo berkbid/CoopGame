@@ -7,6 +7,7 @@
 #include "CoopGame.h"
 #include "SWidgetCompPickupInfo.h"
 #include "Net/UnrealNetwork.h"
+#include "SPlayerController.h"
 
 // Sets default values
 ASContainer::ASContainer()
@@ -20,17 +21,16 @@ ASContainer::ASContainer()
 }
 
 // This is client call
-void ASContainer::ShowItemInfo(bool bIsVisible)
+void ASContainer::InitItemInfo(ASPlayerController* ClientController)
 {
 	// Don't show item info if container is already opened, bIsOpened is replicated
 	if (bIsOpened) { return; }
 
-	Super::ShowItemInfo(bIsVisible);
+	Super::InitItemInfo(ClientController);
 }
 
 void ASContainer::Interact(APlayerController* InteractedPC)
 {
-
 	// Tell clients this chest has been opened
 	bIsOpened = true;
 	OnRep_OpenContainer();

@@ -49,6 +49,9 @@ public:
 	/** Called by weapons every time they fire so player controller can update HUD or clip data */
 	void UpdateCurrentClip(int32 NewClipSize);
 
+	/* Getter function for weapon pickups to display different information */
+	bool GetIsInventoryFull();
+
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Client called functions from OnRep variables on all PlayerStates, to update HUD scoreboard
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +86,7 @@ protected:
 	void TraceForInteractables();
 
 	/* Helper method for both Tick() function and Interact() function to use for the same line trace parameters */
-	bool FindTraceArray(TArray<FHitResult>& OutHits);
+	bool FindTraceHitArray(TArray<FHitResult>& OutHits);
 
 	virtual void SetupInputComponent() override;
 
@@ -136,8 +139,8 @@ protected:
 	void ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo);
 
 	UFUNCTION(Reliable, Client)
-	void ClientPickupWeaponHUD(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate);
-	void ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate);
+	void ClientPickupWeaponHUD(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, bool bAreWeFull);
+	void ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, bool bAreWeFull);
 
 	UFUNCTION(Reliable, Client)
 	void ClientPickupAmmoHUD(EAmmoType NewAmmoType, int32 NewExtraAmmo);

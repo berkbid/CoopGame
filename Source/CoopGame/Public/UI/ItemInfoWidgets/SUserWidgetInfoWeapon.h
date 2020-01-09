@@ -24,6 +24,9 @@ protected:
 	class UTextBlock* ClipText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* PickupText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UBorder* WeaponNameBorder;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -54,5 +57,7 @@ protected:
 public:
 
 	virtual void SetOwningActor(AActor* NewOwner) override;
+
+	void SetPickupText(FString NewText);
 	
 };

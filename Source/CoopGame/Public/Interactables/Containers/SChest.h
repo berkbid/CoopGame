@@ -21,8 +21,6 @@ public:
 
 	virtual void Interact(class APlayerController* InteractedPC) override;
 
-	virtual void ShowItemInfo(bool bIsVisible) override;
-
 protected:
 	virtual void BeginPlay() override;
 

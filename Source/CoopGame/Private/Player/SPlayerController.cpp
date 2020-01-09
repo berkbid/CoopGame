@@ -86,7 +86,7 @@ void ASPlayerController::Tick(float DeltaTime)
 void ASPlayerController::TraceForInteractables()
 {
 	TArray<FHitResult> HitArray;
-	if (FindTraceArray(HitArray))
+	if (FindTraceHitArray(HitArray))
 	{
 		AActor* HitActor = HitArray.Last().GetActor();
 		if (!HitActor) { return; }
@@ -96,26 +96,26 @@ void ASPlayerController::TraceForInteractables()
 		// If we were previously interacting with an object, and the new object is a different object
 		if (CurrentSelectedInteractable && HitInteractable != CurrentSelectedInteractable)
 		{
-			CurrentSelectedInteractable->ShowItemInfo(false);
-			HitInteractable->ShowItemInfo(true);
+			CurrentSelectedInteractable->HideItemInfo();
+			HitInteractable->InitItemInfo(this);
 			CurrentSelectedInteractable = HitInteractable;
 		}
 		// If we find a new interactable and were previously interacting with nothing
 		else
 		{
-			HitInteractable->ShowItemInfo(true);
+			HitInteractable->InitItemInfo(this);
 			CurrentSelectedInteractable = HitInteractable;
 		}
 	}
 	// If we didn't hit anything AND we have a current selected interactable, de-select it
 	else if(CurrentSelectedInteractable)
 	{
-		CurrentSelectedInteractable->ShowItemInfo(false);
+		CurrentSelectedInteractable->HideItemInfo();
 		CurrentSelectedInteractable = nullptr;
 	}
 }
 
-bool ASPlayerController::FindTraceArray(TArray<FHitResult>& OutHits)
+bool ASPlayerController::FindTraceHitArray(TArray<FHitResult>& OutHits)
 {
 	FVector EyeLocation;
 	FRotator EyeRotation;
@@ -156,7 +156,7 @@ void ASPlayerController::ServerPostLogin()
 	for (int32 i = 0; i != WeaponInventoryLen; ++i)
 	{
 		// Handle HUD picking up new weapon
-		ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i);
+		ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i, bIsInventoryFull);
 
 		// Handle HUD changing to slot
 		if (i == CurrentSlot)
@@ -268,7 +268,7 @@ void ASPlayerController::Interact()
 
 	TArray<FHitResult> HitArray;
 	// If any hit is found
-	if (FindTraceArray(HitArray))
+	if (FindTraceHitArray(HitArray))
 	{
 		AActor* HitActor = HitArray.Last().GetActor();
 		if (!HitActor) { return; }
@@ -287,7 +287,6 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 	ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 	// Only pick up weapons if we have a pawn, even though we could without a pawn
 	if (!MyPawn) { return false; }
-	
 
 	// Loop through inventory looking for empty slot
 	int32 InventorySize = WeaponInventory.Num();
@@ -299,15 +298,15 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 			// Update weapon inventory slot to new weaponclass
 			WeaponInventory[i] = WeaponInfo;
 
-			// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
-			ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, i);
-
 			// Update inventory size variable and set bIsInventoryFull
 			CurrentInventorySize++;
 			if (CurrentInventorySize >= InventoryMaxSize)
 			{
 				bIsInventoryFull = true;
 			}
+
+			// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
+			ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, i, bIsInventoryFull);
 
 			// If we pick up a weapon into our current selected EMPTY slot, equip the weapon!
 			if (CurrentSlot == i)
@@ -336,7 +335,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 		WeaponInventory[CurrentSlot] = WeaponInfo;
 
 		// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
-		ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, CurrentSlot);
+		ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, CurrentSlot, bIsInventoryFull);
 
 		// Spawn old weapon and pass it the OldWeaponInfo
 		if (OldWeaponInfo.WeaponPickupClass)
@@ -413,6 +412,11 @@ void ASPlayerController::UpdateCurrentClip(int32 NewClipSize)
 	// Update current ammo of current slot and update HUD
 	WeaponInventory[CurrentSlot].CurrentAmmo = NewClipSize;
 	ClientUpdateClipHUD(NewClipSize);
+}
+
+bool ASPlayerController::GetIsInventoryFull()
+{
+	return bIsInventoryFull;
 }
 
 void ASPlayerController::ToggleInventory()
@@ -555,8 +559,11 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 }
 
 // This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
-void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate)
+void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, bool bAreWeFull)
 {
+	// Update this boolean ourself as we get it passed from server
+	bIsInventoryFull = bAreWeFull;
+
 	// Handle HUD for picking up new weapon
 	if (!MyGameInfo) { return; }
 

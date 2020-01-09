@@ -20,26 +20,24 @@ class COOPGAME_API ASWeaponPickup : public ASItemPickup
 public:
 	ASWeaponPickup();
 
-
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-
-	/* Set these values in the child classes for specific weapon pickups */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FWeaponInfo WeaponInfo;
+	virtual void InitItemInfo(class ASPlayerController* ClientController) override;
 
 	/* Override interact functionality to call HandlePickupWeapon functionality */
 	virtual void Interact(class APlayerController* InteractedPC) override;
 
-	/* Method for line trace of players to call to show item info on widget component */
-	virtual void ShowItemInfo(bool bIsVisible) override;
-
 	void SetWeaponInfo(const FWeaponInfo& NewWeaponInfo);
+
+
+public:
+	/* Set these values in the child classes for specific weapon pickups */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FWeaponInfo WeaponInfo;
 
 	// Replicate this value so clients can see current ammo in gun on widget display
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 WeaponCurrentAmmo;
-
 	
 protected:
 	virtual void HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
@@ -47,5 +45,7 @@ protected:
 	/* Call function on controller passing WeaponInfo to pick us up, and destroy self if successful */
 	void HandlePickupWeapon(class AController* NewPickupController, bool bDidInteract);
 
+	// Client owned value, kept track of in InitItemInfo in order to shortcut future calls
+	bool bIsClientFullTemp;
 
 };

@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "SWidgetCompPickupInfo.h"
 #include "CoopGame.h"
+#include "SPlayerController.h"
 
 // Sets default values
 ASInteractable::ASInteractable()
@@ -52,17 +53,14 @@ ASInteractable::ASInteractable()
 	NetCullDistanceSquared = 65000000.f;
 }
 
-// Client called function
-void ASInteractable::ShowItemInfo(bool bIsVisible)
+void ASInteractable::InitItemInfo(ASPlayerController* ClientController)
 {
-	if (bIsVisible)
-	{
-		SetInfoVisible();
-	}
-	else
-	{
-		SetInfoInvisible();
-	}
+	SetInfoVisible();
+}
+
+void ASInteractable::HideItemInfo()
+{
+	SetInfoInvisible();
 }
 
 void ASInteractable::Interact(APlayerController* InteractedPC)

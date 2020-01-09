@@ -15,8 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ASContainer();
 
-	/* Method for line trace of players to call to show item info on widget component*/
-	virtual void ShowItemInfo(bool bIsVisible) override;
+	virtual void InitItemInfo(class ASPlayerController* ClientController) override;
 
 	/* Method called when player character tries to interact with this container */
 	virtual void Interact(class APlayerController* InteractedPC) override;

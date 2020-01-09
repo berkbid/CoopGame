@@ -149,10 +149,6 @@ uint8 ASChest::ChooseRarity()
 	return 0;
 }
 
-void ASChest::ShowItemInfo(bool bIsVisible)
-{
-	Super::ShowItemInfo(bIsVisible);
-}
 
 void ASChest::OnRep_OpenContainer()
 {
