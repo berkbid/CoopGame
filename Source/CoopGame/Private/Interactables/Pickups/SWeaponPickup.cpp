@@ -33,6 +33,8 @@ void ASWeaponPickup::SetClipSize(int32 NewClipSize)
 {
 	// Update replicated variable for everyone to use on widget creation to display WeaponCurrentAmmo
 	WeaponCurrentAmmo = NewClipSize;
+
+	// Update our WeaponInfo struct so when player picks us up he will get correct information
 	WeaponInfo.CurrentAmmo = NewClipSize;
 }
 

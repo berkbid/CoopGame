@@ -51,7 +51,14 @@ protected:
 	UTextBlock* RocketAmmoText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UHorizontalBox* WeaponHUD;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UVerticalBox* CurrentInventoryInfo;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class USHorizontalBoxInventory* InventoryContainer;
+
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class USVerticalBoxCurrentWeapon* CurrentWeaponInfo;
@@ -93,6 +100,10 @@ public:
 
 	/* When we only need to update weapon info and not change to slot */
 	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
+
+	class UVerticalBox* GiveInventoryWidget();
+
+	void RestoreInventoryWidget();
 
 	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 

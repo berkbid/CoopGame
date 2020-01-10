@@ -14,4 +14,13 @@ class COOPGAME_API USUserWidgetInventoryInfo : public UUserWidget
 {
 	GENERATED_BODY()
 	
+
+protected:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* InventoryBorder;
+
+public:
+
+	void AddInventoryWidget(class UVerticalBox* InventoryWidget);
+
 };

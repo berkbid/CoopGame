@@ -421,6 +421,8 @@ bool ASPlayerController::GetIsInventoryFull() const
 
 void ASPlayerController::ToggleInventory()
 {
+	if (!MyGameInfo) { return; }
+
 	// If we don't have MyInventoryInfo object, try to create and display it
 	if (!MyInventoryInfo)
 	{
@@ -428,28 +430,32 @@ void ASPlayerController::ToggleInventory()
 		MyInventoryInfo = CreateWidget<USUserWidgetInventoryInfo>(this, wInventoryInfo);
 		if (!MyInventoryInfo) { return; }
 
-		if (MyGameInfo) { MyGameInfo->SetVisibility(ESlateVisibility::Hidden); }
-
-
+		MyGameInfo->SetVisibility(ESlateVisibility::Hidden); 
+		//MyInventoryInfo->AddInventoryWidget(MyGameInfo->GiveInventoryWidget());
+		
 		MyInventoryInfo->AddToViewport();
 		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
 		bShowMouseCursor = true;
 	}
-	// If we already have a MyInventoryInfo object, determine if it is in viewport and toggle off or on
+	// If we already have a MyInventoryInfo object, check it's visibility and toggle on or off
 	else
 	{
-		if (MyInventoryInfo->IsInViewport())
+		// If our Inventory widget is visible, set it to hidden and set MyGameInfo to visible
+		if (MyInventoryInfo->Visibility != ESlateVisibility::Hidden)
 		{
-			if (MyGameInfo) { MyGameInfo->SetVisibility(ESlateVisibility::HitTestInvisible); }
-
-			MyInventoryInfo->RemoveFromViewport();
+			//MyGameInfo->RestoreInventoryWidget();
+			MyGameInfo->SetVisibility(ESlateVisibility::HitTestInvisible); 
+			
+			MyInventoryInfo->SetVisibility(ESlateVisibility::Hidden);
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
 			bShowMouseCursor = false;
 		}
 		else
 		{
-			if (MyGameInfo) { MyGameInfo->SetVisibility(ESlateVisibility::Hidden); }
-			MyInventoryInfo->AddToViewport();
+			MyGameInfo->SetVisibility(ESlateVisibility::Hidden); 
+			//MyInventoryInfo->AddInventoryWidget(MyGameInfo->GiveInventoryWidget());
+
+			MyInventoryInfo->SetVisibility(ESlateVisibility::HitTestInvisible);
 			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
 			bShowMouseCursor = true;
 		}

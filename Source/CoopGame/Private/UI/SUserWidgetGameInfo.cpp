@@ -196,6 +196,19 @@ void USUserWidgetGameInfo::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, in
 	}
 }
 
+UVerticalBox* USUserWidgetGameInfo::GiveInventoryWidget()
+{
+	return CurrentInventoryInfo;
+}
+
+void USUserWidgetGameInfo::RestoreInventoryWidget()
+{
+	if (WeaponHUD && CurrentInventoryInfo)
+	{
+		WeaponHUD->AddChildToHorizontalBox(CurrentInventoryInfo);
+	}
+}
+
 void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
 {
 	if (wPlayerStats)
