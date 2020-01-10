@@ -50,7 +50,7 @@ public:
 	void UpdateCurrentClip(int32 NewClipSize);
 
 	/* Getter function for weapon pickups to display different information */
-	bool GetIsInventoryFull();
+	bool GetIsInventoryFull() const;
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Client called functions from OnRep variables on all PlayerStates, to update HUD scoreboard

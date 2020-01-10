@@ -43,6 +43,12 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
 
+	UFUNCTION(Server, Reliable)
+	void ServerStartFire();
+
+	UFUNCTION(Server, Reliable)
+	void ServerStopFire();
+
 protected:
 	// Replicate this variable for owning client to have access as well
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Player")

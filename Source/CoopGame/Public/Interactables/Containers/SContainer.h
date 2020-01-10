@@ -15,7 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ASContainer();
 
-	virtual void InitItemInfo(class ASPlayerController* ClientController) override;
+	virtual void InitItemInfo(const class ASPlayerController* ClientController) override;
 
 	/* Method called when player character tries to interact with this container */
 	virtual void Interact(class APlayerController* InteractedPC) override;

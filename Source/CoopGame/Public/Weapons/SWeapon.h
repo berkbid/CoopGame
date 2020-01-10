@@ -35,10 +35,6 @@ protected:
 
 	virtual void Fire();
 
-	// This will only run on server instead of client, and reliable so will eventually get to server, need reliable since gameplay critical component
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerFire();
-
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
 	float LastFireTime;
@@ -57,9 +53,11 @@ public:
 
 	void InitWeaponState(int32 CurrentAmmo);
 
-	int32 GetCurrentAmmo();
+	int32 GetCurrentAmmo() const;
 
+	/* Called by server from SCharacter */
 	void StartFire();
 
+	/* Called by server from SCharacter */
 	void StopFire();
 };

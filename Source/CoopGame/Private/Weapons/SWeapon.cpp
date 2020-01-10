@@ -16,7 +16,6 @@ ASWeapon::ASWeapon()
 	RootComponent = MeshComp;
 
 	MuzzleSocketName = "MuzzleSocket";
-
 	WeaponStats = FWeaponStats();
 
 	// Setup weapon stats
@@ -33,11 +32,10 @@ ASWeapon::ASWeapon()
 // Server is setting these variables
 void ASWeapon::InitWeaponState(int32 CurrentAmmo)
 {
-	// This is replicated to owner for use when firing
-	CurrentClipSize = FMath::Clamp(CurrentAmmo, 0, WeaponStats.MagazineSize);
+	CurrentClipSize = CurrentAmmo;
 }
 
-int32 ASWeapon::GetCurrentAmmo()
+int32 ASWeapon::GetCurrentAmmo() const
 {
 	return CurrentClipSize;
 }
@@ -55,23 +53,10 @@ void ASWeapon::StopFire()
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
-// MUST prefix with Server and require _Implementation
-void ASWeapon::ServerFire_Implementation()
-{
-	Fire();
-}
-
-bool ASWeapon::ServerFire_Validate()
-{
-	// This is for anti cheat stuff
-	return true;
-}
-
 void ASWeapon::Fire() {}
 
 void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ASWeapon, CurrentClipSize, COND_OwnerOnly);
 }

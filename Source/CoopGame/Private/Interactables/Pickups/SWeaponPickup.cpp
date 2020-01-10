@@ -19,7 +19,6 @@ void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherAc
 {
 	APawn* OverlappedPawn = Cast<APawn>(OtherActor);
 	if (!OverlappedPawn) { return; }
-
 	HandlePickupWeapon(OverlappedPawn->GetController(), false);
 }
 
@@ -51,13 +50,13 @@ void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool b
 	}
 }
 
-void ASWeaponPickup::InitItemInfo(ASPlayerController* ClientController)
+void ASWeaponPickup::InitItemInfo(const ASPlayerController* ClientController)
 {
 	// check inventory space and change widget text if need
 	bool bFull = ClientController->GetIsInventoryFull();
 
 	// This will prevent setting the widget text every time and only when value has changed by keeping temp value client side
-	if (bFull != bIsClientFullTemp) {
+	if (bFull != bIsInventoryFullTemp) {
 		if (InfoWidget)
 		{
 			USUserWidgetInfoWeapon* UW = Cast<USUserWidgetInfoWeapon>(InfoWidget->WidgetInfoInst);
@@ -72,7 +71,7 @@ void ASWeaponPickup::InitItemInfo(ASPlayerController* ClientController)
 					UW->SetPickupText("Pick Up");
 				}
 				// If we successfully changed the text, then we update our local client variable
-				bIsClientFullTemp = bFull;
+				bIsInventoryFullTemp = bFull;
 			}
 		}
 	}
@@ -88,5 +87,3 @@ void ASWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	// Clients need this data which is set by server to display current ammo on widget
 	DOREPLIFETIME(ASWeaponPickup, WeaponCurrentAmmo);
 }
-
-

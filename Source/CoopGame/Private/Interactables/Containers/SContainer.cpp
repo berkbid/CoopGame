@@ -16,12 +16,13 @@ ASContainer::ASContainer()
 
 	BoxComp->SetSimulatePhysics(false);
 	BoxComp->SetGenerateOverlapEvents(false);
+	BoxComp->SetCanEverAffectNavigation(true);
 	BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BoxComp->SetCollisionResponseToAllChannels(ECR_Block);
 }
 
 // This is client call
-void ASContainer::InitItemInfo(ASPlayerController* ClientController)
+void ASContainer::InitItemInfo(const ASPlayerController* ClientController)
 {
 	// Don't show item info if container is already opened, bIsOpened is replicated
 	if (bIsOpened) { return; }

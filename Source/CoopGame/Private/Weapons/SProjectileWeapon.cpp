@@ -17,16 +17,6 @@ ASProjectileWeapon::ASProjectileWeapon()
 
 void ASProjectileWeapon::Fire()
 {
-	// So if we are a client, we run ServerFire() to run this Fire function for us
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		ServerFire();
-		// Set this on client side in case he needs this information
-		LastFireTime = GetWorld()->TimeSeconds;
-
-		return;
-	}
-
 	// This code only gets run on server
 	// Owner is player pawn
 	AActor* MyOwner = GetOwner();
@@ -58,14 +48,12 @@ void ASProjectileWeapon::Fire()
 
 		CurrentClipSize--;
 		// Update ammo count in player controller as server
-		APawn* MyPawnOwner = Cast<APawn>(MyOwner);
-		if (MyPawnOwner)
+
+		ASPlayerController* PC = Cast<ASPlayerController>(GetInstigatorController());
+		if (PC)
 		{
-			ASPlayerController* PC = Cast<ASPlayerController>(MyPawnOwner->GetController());
-			if (PC)
-			{
-				PC->UpdateCurrentClip(CurrentClipSize);
-			}
+			PC->UpdateCurrentClip(CurrentClipSize);
 		}
+		
 	}
 }

@@ -88,6 +88,11 @@ void ASCharacter::EquipWeaponClass(const FWeaponInfo& NewWeaponInfo)
 
 void ASCharacter::StartFire()
 {
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		ServerStartFire();
+		return;
+	}
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StartFire();
@@ -96,6 +101,11 @@ void ASCharacter::StartFire()
 
 void ASCharacter::StopFire()
 {
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		ServerStopFire();
+		return;
+	}
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StopFire();
@@ -159,6 +169,16 @@ void ASCharacter::OnRep_Death()
 	// Detaches player from the actor, then actor destroys in 10 seconds
 	DetachFromControllerPendingDestroy();
 	SetLifeSpan(10.f);
+}
+
+void ASCharacter::ServerStartFire_Implementation()
+{
+	StartFire();
+}
+
+void ASCharacter::ServerStopFire_Implementation()
+{
+	StopFire();
 }
 
 void ASCharacter::OnRep_PlayerState()

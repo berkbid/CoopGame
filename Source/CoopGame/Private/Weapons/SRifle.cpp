@@ -32,12 +32,6 @@ ASRifle::ASRifle()
 
 void ASRifle::Fire()
 {
-	// So if we are a client, we run ServerFire() instead of this Fire() function
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		ServerFire();
-	}
-
 	// If we don't have an owner, don't try to process Fire request
 	AActor* MyOwner = GetOwner();
 	if (!MyOwner) { return; }
@@ -87,39 +81,32 @@ void ASRifle::Fire()
 
 		UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), MyOwner, DamageType);
 
-		PlayImpactEffects(SurfaceType, Hit.ImpactPoint);
-
 		TracerEndPoint = Hit.ImpactPoint;
 
+		//PlayImpactEffects(SurfaceType, TracerEndPoint);
+
 	}
 
-	PlayFireEffect(TracerEndPoint);
+	//PlayFireEffect(TracerEndPoint);
 
 	// This will replicate the struct HitScanTrace to all clients triggering OnRep function
-	if (GetLocalRole() == ROLE_Authority)
+
+	HitScanTrace.TraceTo = TracerEndPoint;
+	// Only overriden from default if we hit something
+	HitScanTrace.SurfaceType = SurfaceType;
+	HitScanTrace.ReplicationCount++;
+	OnRep_HitScanTrace();
+
+	// Update CurrentClipSize
+	CurrentClipSize--;
+
+	ASPlayerController* PC = Cast<ASPlayerController>(GetInstigatorController());
+	if (PC)
 	{
-		HitScanTrace.TraceTo = TracerEndPoint;
-		// Only overriden from default if we hit something
-		HitScanTrace.SurfaceType = SurfaceType;
-		HitScanTrace.ReplicationCount++;
-
-		// Update CurrentClipSize for Server, it is replicated
-		CurrentClipSize--;
-		// Update ammo count in player controller as server
-
-		APawn* MyPawnOwner = Cast<APawn>(MyOwner);
-		if (MyPawnOwner)
-		{
-			ASPlayerController* PC = Cast<ASPlayerController>(MyPawnOwner->GetController());
-			if (PC)
-			{
-				PC->ClientPlayCameraShake(FireCamShake);
-
-				// Update current clip size information to player controller to update HUD
-				PC->UpdateCurrentClip(CurrentClipSize);
-			}
-		}
+		// Update current clip size information to player controller to update HUD
+		PC->UpdateCurrentClip(CurrentClipSize);
 	}
+	
 	// This variable is set for both clients and server, thus even if a server is a player, he will have the appropiate LastFireTime
 	LastFireTime = GetWorld()->TimeSeconds;
 }
@@ -178,6 +165,12 @@ void ASRifle::OnRep_HitScanTrace()
 	PlayFireEffect(HitScanTrace.TraceTo);
 
 	PlayImpactEffects(HitScanTrace.SurfaceType, HitScanTrace.TraceTo);
+
+	ASPlayerController* PC = Cast<ASPlayerController>(GetInstigatorController());
+	if (PC)
+	{
+		PC->ClientPlayCameraShake(FireCamShake);
+	}
 }
 
 void ASRifle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -189,5 +182,5 @@ void ASRifle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	// This replicates to any client connected to us
 	// Use condition b/c do not want to replicate it to client who owns this weapon
 	// do not want to play visual effects twice
-	DOREPLIFETIME_CONDITION(ASRifle, HitScanTrace, COND_SkipOwner);
+	DOREPLIFETIME(ASRifle, HitScanTrace);
 }

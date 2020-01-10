@@ -155,16 +155,16 @@ void ASPlayerController::ServerPostLogin()
 	// Loop through our weapon inventory and populate HUD with the data
 	for (int32 i = 0; i != WeaponInventoryLen; ++i)
 	{
-		// Handle HUD picking up new weapon
-		ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i, bIsInventoryFull);
-
-		// Handle HUD changing to slot
-		if (i == CurrentSlot)
+		// If there is an actual weapon in the inventory slot
+		if (WeaponInventory[i].WeaponClass)
 		{
-			ClientChangeToSlotHUD(i);
+			// Handle HUD picking up new weapon
+			ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i, bIsInventoryFull);
 		}
 	}
 
+	// Handle HUD changing to slot
+	ClientChangeToSlotHUD(CurrentSlot);
 	// Initialize ammo info for HUD
 	ClientInitAmmoInventoryHUD(AmmoInventory);
 }
@@ -250,7 +250,7 @@ void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 		{
 			MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot]);
 		}
-		// Change active slot even if no pawn is possessed, do this after we SetCurrentSlotAmmo above
+		// Change active slot even if no pawn is possessed
 		CurrentSlot = NewWeaponSlot;
 		ClientChangeToSlotHUD(CurrentSlot);
 	}
@@ -414,7 +414,7 @@ void ASPlayerController::UpdateCurrentClip(int32 NewClipSize)
 	ClientUpdateClipHUD(NewClipSize);
 }
 
-bool ASPlayerController::GetIsInventoryFull()
+bool ASPlayerController::GetIsInventoryFull() const
 {
 	return bIsInventoryFull;
 }
@@ -577,11 +577,8 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 		// Play pickup sound also
 		if (PickupWeaponSound)
 		{
-			APawn* ControlledPawn = GetPawn();
-			if (ControlledPawn)
-			{
-				UGameplayStatics::PlaySoundAtLocation(this, PickupWeaponSound, ControlledPawn->GetActorLocation());
-			}
+			UGameplayStatics::PlaySound2D(this, PickupWeaponSound);
+			
 		}
 	}
 }

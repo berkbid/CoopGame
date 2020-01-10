@@ -53,14 +53,14 @@ void ASPlayerCharacter::OnRep_CurrentWeapon()
 	Super::OnRep_CurrentWeapon();
 
 	// This checks if we changed to an actual weapon
-	if (CurrentWeapon)
+	if (!CurrentWeapon) { return; }
+	
+	USoundBase* SB = CurrentWeapon->WeaponSwapSound;
+	if (SB)
 	{
-		USoundBase* SB = CurrentWeapon->WeaponSwapSound;
-		if (SB)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, SB, GetActorLocation());
-		}
+		UGameplayStatics::PlaySound2D(this, SB);
 	}
+	
 }
 
 void ASPlayerCharacter::Tick(float DeltaTime)

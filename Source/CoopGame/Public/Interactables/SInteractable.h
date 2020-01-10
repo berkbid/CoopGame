@@ -15,7 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ASInteractable();
 
-	virtual void InitItemInfo(class ASPlayerController* ClientController);
+	virtual void InitItemInfo(const class ASPlayerController* ClientController);
 
 	virtual void HideItemInfo();
 

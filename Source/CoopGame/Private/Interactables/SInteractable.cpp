@@ -53,7 +53,7 @@ ASInteractable::ASInteractable()
 	NetCullDistanceSquared = 65000000.f;
 }
 
-void ASInteractable::InitItemInfo(ASPlayerController* ClientController)
+void ASInteractable::InitItemInfo(const ASPlayerController* ClientController)
 {
 	SetInfoVisible();
 }

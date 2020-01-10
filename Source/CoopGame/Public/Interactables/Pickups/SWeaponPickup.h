@@ -22,7 +22,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual void InitItemInfo(class ASPlayerController* ClientController) override;
+	virtual void InitItemInfo(const class ASPlayerController* ClientController) override;
 
 	/* Override interact functionality to call HandlePickupWeapon functionality */
 	virtual void Interact(class APlayerController* InteractedPC) override;
@@ -46,6 +46,6 @@ protected:
 	void HandlePickupWeapon(class AController* NewPickupController, bool bDidInteract);
 
 	// Client owned value, kept track of in InitItemInfo in order to shortcut future calls
-	bool bIsClientFullTemp;
+	bool bIsInventoryFullTemp;
 
 };
