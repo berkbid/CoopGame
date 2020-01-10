@@ -60,7 +60,6 @@ void ASPlayerCharacter::OnRep_CurrentWeapon()
 	{
 		UGameplayStatics::PlaySound2D(this, SB);
 	}
-	
 }
 
 void ASPlayerCharacter::Tick(float DeltaTime)

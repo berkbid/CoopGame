@@ -53,8 +53,6 @@ public:
 
 	void InitWeaponState(int32 CurrentAmmo);
 
-	int32 GetCurrentAmmo() const;
-
 	/* Called by server from SCharacter */
 	void StartFire();
 

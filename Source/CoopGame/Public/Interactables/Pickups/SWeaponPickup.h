@@ -27,7 +27,8 @@ public:
 	/* Override interact functionality to call HandlePickupWeapon functionality */
 	virtual void Interact(class APlayerController* InteractedPC) override;
 
-	void SetWeaponInfo(const FWeaponInfo& NewWeaponInfo);
+	/* Sets current clip size of weapon pickup, called by player controller when spawning pickup */
+	void SetClipSize(int32 NewClipSize);
 
 
 public:

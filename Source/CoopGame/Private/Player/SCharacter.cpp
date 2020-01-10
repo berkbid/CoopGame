@@ -49,7 +49,7 @@ void ASCharacter::BeginPlay()
 
 // This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
 // AI could call this directly to change weapons
-void ASCharacter::EquipWeaponClass(const FWeaponInfo& NewWeaponInfo)
+void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass, int32 NewWeaponClipSize)
 {
 	// Should never be called on client
 	if (GetLocalRole() < ROLE_Authority) { return; }
@@ -57,7 +57,6 @@ void ASCharacter::EquipWeaponClass(const FWeaponInfo& NewWeaponInfo)
 	// Destroy currently equipped weapon so we can equip new weapon
 	if (CurrentWeapon) { CurrentWeapon->Destroy(); }
 
-	TSubclassOf<ASWeapon> NewWeaponClass = NewWeaponInfo.WeaponClass;
 	// If invalid new weapon class, destroy current weapon and don't try to equip new one
 	// This is completely valid, we allow for this, this is swapping to empty inventory slot
 	if (!NewWeaponClass)
@@ -81,7 +80,7 @@ void ASCharacter::EquipWeaponClass(const FWeaponInfo& NewWeaponInfo)
 	if (CurrentWeapon)
 	{
 		// Pass current clip size info to the spawned weapon, want to pass all NewWeaponInfo
-		CurrentWeapon->InitWeaponState(NewWeaponInfo.CurrentAmmo);
+		CurrentWeapon->InitWeaponState(NewWeaponClipSize);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 }

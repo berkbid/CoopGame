@@ -35,11 +35,6 @@ void ASWeapon::InitWeaponState(int32 CurrentAmmo)
 	CurrentClipSize = CurrentAmmo;
 }
 
-int32 ASWeapon::GetCurrentAmmo() const
-{
-	return CurrentClipSize;
-}
-
 // Call this on server instead of client
 void ASWeapon::StartFire()
 {

@@ -30,12 +30,10 @@ void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 }
 
 // Called by server on player controller when dropping weapons
-void ASWeaponPickup::SetWeaponInfo(const FWeaponInfo& NewWeaponInfo)
+void ASWeaponPickup::SetClipSize(int32 NewClipSize)
 {
-	WeaponInfo = NewWeaponInfo;
-
 	// Update replicated variable for everyone to use on widget creation to display WeaponCurrentAmmo
-	WeaponCurrentAmmo = WeaponInfo.CurrentAmmo;
+	WeaponCurrentAmmo = NewClipSize;
 }
 
 void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool bDidInteract)
