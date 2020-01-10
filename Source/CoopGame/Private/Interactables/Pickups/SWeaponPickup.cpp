@@ -25,7 +25,6 @@ void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherAc
 void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 {
 	Super::Interact(InteractedPC);
-
 	HandlePickupWeapon(InteractedPC, true);
 }
 
@@ -34,6 +33,7 @@ void ASWeaponPickup::SetClipSize(int32 NewClipSize)
 {
 	// Update replicated variable for everyone to use on widget creation to display WeaponCurrentAmmo
 	WeaponCurrentAmmo = NewClipSize;
+	WeaponInfo.CurrentAmmo = NewClipSize;
 }
 
 void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool bDidInteract)
