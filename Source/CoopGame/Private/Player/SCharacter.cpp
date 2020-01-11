@@ -49,7 +49,7 @@ void ASCharacter::BeginPlay()
 
 // This is called through ServerChangeWeapons() in SPlayerCharacter so server runs this code for players
 // AI could call this directly to change weapons
-void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass, int32 NewWeaponClipSize)
+void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass, const FWeaponStats &NewWeaponStats, int32 NewWeaponClipSize)
 {
 	// Should never be called on client
 	if (GetLocalRole() < ROLE_Authority) { return; }
@@ -80,7 +80,7 @@ void ASCharacter::EquipWeaponClass(TSubclassOf<ASWeapon> NewWeaponClass, int32 N
 	if (CurrentWeapon)
 	{
 		// Pass current clip size info to the spawned weapon, want to pass all NewWeaponInfo
-		CurrentWeapon->InitWeaponState(NewWeaponClipSize);
+		CurrentWeapon->InitWeaponState(NewWeaponStats, NewWeaponClipSize);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
 }

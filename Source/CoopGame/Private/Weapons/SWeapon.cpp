@@ -30,9 +30,10 @@ ASWeapon::ASWeapon()
 }
 
 // Server is setting these variables
-void ASWeapon::InitWeaponState(int32 CurrentAmmo)
+void ASWeapon::InitWeaponState(const FWeaponStats& NewWeaponStats, int32 CurrentAmmo)
 {
 	CurrentClipSize = CurrentAmmo;
+	WeaponStats = NewWeaponStats;
 }
 
 // Call this on server instead of client

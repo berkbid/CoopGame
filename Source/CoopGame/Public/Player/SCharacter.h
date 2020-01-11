@@ -69,7 +69,7 @@ protected:
 
 public:	
 	/* Equips the new weapon and returns ammo count of last weapon */
-	void EquipWeaponClass(TSubclassOf<class ASWeapon> NewWeaponClass, int32 NewWeaponClipSize);
+	void EquipWeaponClass(TSubclassOf<class ASWeapon> NewWeaponClass, const FWeaponStats& NewWeaponStats, int32 NewWeaponClipSize);
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StartFire();

@@ -242,7 +242,7 @@ void ASPlayerController::OnPossess(APawn* aPawn)
 		if (WeaponInventoryLen > CurrentSlot)
 		{
 			// Equip whatever weapon is in the current slot if we are a SPlayerCharacter
-			MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot].WeaponClass, WeaponInventory[CurrentSlot].CurrentAmmo);
+			MySPlayerChar->EquipWeaponClass(WeaponInventory[CurrentSlot].WeaponClass, WeaponInventory[CurrentSlot].WeaponStats, WeaponInventory[CurrentSlot].CurrentAmmo);
 		}
 	}
 }
@@ -263,7 +263,7 @@ void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 		ASCharacter* MyPawn = Cast<ASCharacter>(GetPawn());
 		if (MyPawn)
 		{
-			MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot].WeaponClass, WeaponInventory[NewWeaponSlot].CurrentAmmo);
+			MyPawn->EquipWeaponClass(WeaponInventory[NewWeaponSlot].WeaponClass,WeaponInventory[NewWeaponSlot].WeaponStats, WeaponInventory[NewWeaponSlot].CurrentAmmo);
 		}
 		// Change active slot even if no pawn is possessed
 		CurrentSlot = NewWeaponSlot;
@@ -327,7 +327,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 			if (CurrentSlot == i)
 			{
 
-				MyPawn->EquipWeaponClass(WeaponInfo.WeaponClass, WeaponInfo.CurrentAmmo);
+				MyPawn->EquipWeaponClass(WeaponInfo.WeaponClass, WeaponInfo.WeaponStats, WeaponInfo.CurrentAmmo);
 				
 			}
 			else
@@ -342,7 +342,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 	// If we don't have inventory space, BUT we interacted with weapon through E keybind, swap with current weapon slot
 	if (bDidInteract)
 	{
-		MyPawn->EquipWeaponClass(WeaponInfo.WeaponClass, WeaponInfo.CurrentAmmo);
+		MyPawn->EquipWeaponClass(WeaponInfo.WeaponClass, WeaponInfo.WeaponStats, WeaponInfo.CurrentAmmo);
 
 		FWeaponInfo OldWeaponInfo = WeaponInventory[CurrentSlot];
 
@@ -366,7 +366,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 			if (WP)
 			{
 				// Need to set this while actor spawn is deferred so that listen server receives this update
-				WP->SetClipSize(OldWeaponInfo.CurrentAmmo);
+				WP->SetWeaponInfo(OldWeaponInfo);
 				UGameplayStatics::FinishSpawningActor(WP, WP->GetTransform());
 			}
 		}

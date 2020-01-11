@@ -28,7 +28,7 @@ public:
 	virtual void Interact(class APlayerController* InteractedPC) override;
 
 	/* Sets current clip size of weapon pickup, called by player controller when spawning pickup */
-	void SetClipSize(int32 NewClipSize);
+	void SetWeaponInfo(const FWeaponInfo& NewWeaponInfo);
 
 
 public:

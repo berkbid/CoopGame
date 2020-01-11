@@ -51,7 +51,7 @@ public:
 	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
-	void InitWeaponState(int32 CurrentAmmo);
+	void InitWeaponState(const FWeaponStats& NewWeaponStats, int32 CurrentAmmo);
 
 	/* Called by server from SCharacter */
 	void StartFire();

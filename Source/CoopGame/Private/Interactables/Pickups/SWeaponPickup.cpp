@@ -28,14 +28,13 @@ void ASWeaponPickup::Interact(APlayerController* InteractedPC)
 	HandlePickupWeapon(InteractedPC, true);
 }
 
-// Called by server on player controller when dropping weapons
-void ASWeaponPickup::SetClipSize(int32 NewClipSize)
+// Called by server from player controller when dropping weapons
+void ASWeaponPickup::SetWeaponInfo(const FWeaponInfo &NewWeaponInfo)
 {
 	// Update replicated variable for everyone to use on widget creation to display WeaponCurrentAmmo
-	WeaponCurrentAmmo = NewClipSize;
+	WeaponCurrentAmmo = NewWeaponInfo.CurrentAmmo;
 
-	// Update our WeaponInfo struct so when player picks us up he will get correct information
-	WeaponInfo.CurrentAmmo = NewClipSize;
+	WeaponInfo = NewWeaponInfo;
 }
 
 void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool bDidInteract)
@@ -86,4 +85,5 @@ void ASWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 	// Clients need this data which is set by server to display current ammo on widget
 	DOREPLIFETIME(ASWeaponPickup, WeaponCurrentAmmo);
+
 }
