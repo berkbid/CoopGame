@@ -112,6 +112,7 @@ protected:
 	void EquipSlotThree();
 	void EquipSlotFour();
 	void EquipSlotFive();
+	void EquipSlotSix();
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Replicated functions client to server - to handle player input authoritatively

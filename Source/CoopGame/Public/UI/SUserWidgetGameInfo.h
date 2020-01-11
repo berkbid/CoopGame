@@ -9,7 +9,6 @@
 
 class UTextBlock;
 class UBorder;
-class USOverlayInventorySlot;
 class USUserWidgetPlayerStats;
 class ASWeapon;
 
@@ -33,35 +32,10 @@ protected:
 	class UVerticalBox* ScoreboardEntryBox;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWidgetInventoryHUD* InventoryHUD;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* StateText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* MiniAmmoText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* MediumAmmoText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* HeavyAmmoText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* ShellAmmoText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* RocketAmmoText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UHorizontalBox* WeaponHUD;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UVerticalBox* CurrentInventoryInfo;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class USHorizontalBoxInventory* InventoryContainer;
-
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class USVerticalBoxCurrentWeapon* CurrentWeaponInfo;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scoreboard")
 	TSubclassOf<USUserWidgetPlayerStats> wPlayerStats;
@@ -72,8 +46,6 @@ protected:
 	/* Mapping from Weapon class type to textures */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TMap<TSubclassOf<ASWeapon>, class UTexture2D*> WeaponToTextureMap;
-
-	FAmmoInfo CurrentAmmoInfo;
 
 public:
 
@@ -98,13 +70,6 @@ public:
 
 	void InitAmmoInventory(const FAmmoInfo& StartingAmmoInfo);
 
-	/* When we only need to update weapon info and not change to slot */
-	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
-
-	class UVerticalBox* GiveInventoryWidget();
-
-	void RestoreInventoryWidget();
-
 	void AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber);
 
 	void UpdatePlayerScore(uint32 PlayerNumber, float NewScore);
@@ -114,15 +79,4 @@ public:
 	void UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths);
 
 	void SetStateText(FString NewState);
-
-	void SetMiniAmmoText(FString NewText);
-
-	void SetMediumAmmoText(FString NewText);
-
-	void SetHeavyAmmoText(FString NewText);
-
-	void SetShellAmmoText(FString NewText);
-
-	void SetRocketAmmoText(FString NewText);
-	
 };

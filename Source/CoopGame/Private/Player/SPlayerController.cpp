@@ -23,7 +23,7 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 {
 	CurrentSlot = 0;
 	CurrentInventorySize = 0;
-	InventoryMaxSize = 5;
+	InventoryMaxSize = 6;
 	bIsInventoryFull = false;
 
 	// Setup initial WeaponInventory with appropriate size and NULL values
@@ -176,13 +176,27 @@ void ASPlayerController::ClientPostLogin_Implementation()
 	if (IsLocalController())
 	{
 		// Add Game Info widget to viewport
-		if (!wGameInfo) { return; }
-		MyGameInfo = CreateWidget<USUserWidgetGameInfo>(this, wGameInfo);
-		if (!MyGameInfo) { return; }
+		if (wGameInfo) 
+		{ 
+			MyGameInfo = CreateWidget<USUserWidgetGameInfo>(this, wGameInfo);
+			if (MyGameInfo) 
+			{
+				// Pass reference of ourself to widget while calling setup logic on widget
+				MyGameInfo->SetOwningController(this);
+				MyGameInfo->AddToViewport();
+			}
 
-		// Pass reference of ourself to widget while calling setup logic on widget
-		MyGameInfo->SetOwningController(this);
-		MyGameInfo->AddToViewport();
+		}
+		
+		if (wInventoryInfo) 
+		{
+			MyInventoryInfo = CreateWidget<USUserWidgetInventoryInfo>(this, wInventoryInfo);
+			if (MyInventoryInfo)
+			{
+				MyInventoryInfo->AddToViewport();
+				MyInventoryInfo->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
 	}
 }
 
@@ -206,6 +220,7 @@ void ASPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Weapon4", IE_Pressed, this, &ASPlayerController::EquipSlotFour);
 	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
 	InputComponent->BindAction("Weapon5", IE_Pressed, this, &ASPlayerController::EquipSlotFive);
+	InputComponent->BindAction("Weapon6", IE_Pressed, this, &ASPlayerController::EquipSlotSix);
 	InputComponent->BindAction("Interact", IE_Pressed, this, &ASPlayerController::Interact);
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &ASPlayerController::ToggleInventory);
 }
@@ -424,42 +439,30 @@ void ASPlayerController::ToggleInventory()
 	if (!MyGameInfo) { return; }
 
 	// If we don't have MyInventoryInfo object, try to create and display it
-	if (!MyInventoryInfo)
-	{
-		if (!wInventoryInfo) { return; }
-		MyInventoryInfo = CreateWidget<USUserWidgetInventoryInfo>(this, wInventoryInfo);
-		if (!MyInventoryInfo) { return; }
+	if (!MyInventoryInfo) { return; }
 
+	// If we already have a MyInventoryInfo object, check it's visibility and toggle on or off
+
+	// If our Inventory widget is visible, set it to hidden and set MyGameInfo to visible
+	if (MyInventoryInfo->Visibility != ESlateVisibility::Hidden)
+	{
+		//MyGameInfo->RestoreInventoryWidget();
+		MyGameInfo->SetVisibility(ESlateVisibility::HitTestInvisible); 
+			
+		MyInventoryInfo->SetVisibility(ESlateVisibility::Hidden);
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+		bShowMouseCursor = false;
+	}
+	else
+	{
 		MyGameInfo->SetVisibility(ESlateVisibility::Hidden); 
 		//MyInventoryInfo->AddInventoryWidget(MyGameInfo->GiveInventoryWidget());
-		
-		MyInventoryInfo->AddToViewport();
+
+		MyInventoryInfo->SetVisibility(ESlateVisibility::HitTestInvisible);
 		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
 		bShowMouseCursor = true;
 	}
-	// If we already have a MyInventoryInfo object, check it's visibility and toggle on or off
-	else
-	{
-		// If our Inventory widget is visible, set it to hidden and set MyGameInfo to visible
-		if (MyInventoryInfo->Visibility != ESlateVisibility::Hidden)
-		{
-			//MyGameInfo->RestoreInventoryWidget();
-			MyGameInfo->SetVisibility(ESlateVisibility::HitTestInvisible); 
-			
-			MyInventoryInfo->SetVisibility(ESlateVisibility::Hidden);
-			UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
-			bShowMouseCursor = false;
-		}
-		else
-		{
-			MyGameInfo->SetVisibility(ESlateVisibility::Hidden); 
-			//MyInventoryInfo->AddInventoryWidget(MyGameInfo->GiveInventoryWidget());
-
-			MyInventoryInfo->SetVisibility(ESlateVisibility::HitTestInvisible);
-			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
-			bShowMouseCursor = true;
-		}
-	}
+	
 }
 
 void ASPlayerController::SetStateTextHUD(FString NewState)
@@ -517,6 +520,11 @@ void ASPlayerController::EquipSlotFour()
 void ASPlayerController::EquipSlotFive()
 {
 	ServerEquipWeaponSlot(4);
+}
+
+void ASPlayerController::EquipSlotSix()
+{
+	ServerEquipWeaponSlot(5);
 }
 
 void ASPlayerController::ServerEquipWeaponSlot_Implementation(uint8 SlotToEquip)
