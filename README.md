@@ -14,3 +14,4 @@ Multiplayer Game in Unreal Engine using C++, originally started from a course on
 - Scoreboard on screen, dynamically adds new players
 - Scoreboard updates replicated PlayerState data from all players
 - Ammo functionality for weapons with HUD updates
+- Widget components for weapon and ammo pickups with advanced updating
