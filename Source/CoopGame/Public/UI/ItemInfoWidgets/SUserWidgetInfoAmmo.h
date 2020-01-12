@@ -21,6 +21,12 @@ protected:
 	class UTextBlock* AmmoAmountText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* AmmoFullText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* PickupText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UImage* AmmoImage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
@@ -33,5 +39,9 @@ public:
 	virtual void SetOwningActor(AActor* NewOwner) override;
 
 	void SetAmmoText(int32 NewAmmo);
+
+	void SetFullState();
+
+	void SetNotFullState();
 	
 };

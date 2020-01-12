@@ -71,6 +71,35 @@ void ASAmmoPickup::OnRep_AmmoAmount()
 	}
 }
 
+void ASAmmoPickup::InitItemInfo(const ASPlayerController* ClientController)
+{
+	bool bFull = ClientController->GetIsAmmoTypeFull(AmmoType);
+
+	// This will prevent setting the widget text every time and only when value has changed by keeping temp value client side
+	if (bFull != bIsInventoryFullTemp) {
+		if (InfoWidget)
+		{
+			USUserWidgetInfoAmmo* UW = Cast<USUserWidgetInfoAmmo>(InfoWidget->WidgetInfoInst);
+			if (UW)
+			{
+				if (bFull)
+				{
+					UW->SetFullState();
+				}
+				else
+				{
+					UW->SetNotFullState();
+				}
+				// If we successfully changed the text, then we update our local client variable
+				bIsInventoryFullTemp = bFull;
+			}
+		}
+	}
+
+	// Always call super to handle general item info display behavior, after setting values above
+	Super::InitItemInfo(ClientController);
+}
+
 void ASAmmoPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

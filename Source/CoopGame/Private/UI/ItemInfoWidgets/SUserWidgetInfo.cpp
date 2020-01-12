@@ -3,7 +3,7 @@
 
 #include "SUserWidgetInfo.h"
 #include "Components/TextBlock.h"
-#include "Components/HorizontalBox.h"
+#include "Components/Border.h"
 
 void USUserWidgetInfo::SetOwningActor(AActor* NewOwner)
 {
@@ -17,15 +17,15 @@ void USUserWidgetInfo::SetOwningActor(AActor* NewOwner)
 
 void USUserWidgetInfo::SetWidgetVisibility(bool bVisible)
 {
-	if (InfoBox)
+	if (InfoBorder)
 	{
 		if (bVisible)
 		{
-			InfoBox->SetVisibility(ESlateVisibility::HitTestInvisible);
+			InfoBorder->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		else
 		{
-			InfoBox->SetVisibility(ESlateVisibility::Hidden);
+			InfoBorder->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }

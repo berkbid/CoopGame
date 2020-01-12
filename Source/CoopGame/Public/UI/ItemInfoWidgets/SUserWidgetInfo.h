@@ -18,7 +18,7 @@ class COOPGAME_API USUserWidgetInfo : public UUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UHorizontalBox* InfoBox;
+	class UBorder* InfoBorder;
 
 	AActor* OwningActor;
 

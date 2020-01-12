@@ -19,11 +19,36 @@ void USUserWidgetInfoAmmo::SetOwningActor(AActor* NewOwner)
 	}
 }
 
+
 void USUserWidgetInfoAmmo::SetAmmoText(int32 NewAmmo)
 {
 	if (AmmoAmountText)
 	{
 		AmmoAmountText->SetText(FText::FromString("x" + FString::FromInt(NewAmmo)));
+	}
+}
+
+void USUserWidgetInfoAmmo::SetFullState()
+{
+	if (AmmoFullText)
+	{
+		AmmoFullText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	if (PickupText)
+	{
+		PickupText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void USUserWidgetInfoAmmo::SetNotFullState()
+{
+	if (AmmoFullText)
+	{
+		AmmoFullText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (PickupText)
+	{
+		PickupText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
 }
 

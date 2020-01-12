@@ -94,11 +94,14 @@ void ASPlayerController::TraceForInteractables()
 		if (!HitInteractable) { return; }
 
 		// If we were previously interacting with an object, and the new object is a different object
-		if (CurrentSelectedInteractable && HitInteractable != CurrentSelectedInteractable)
+		if (CurrentSelectedInteractable)
 		{
-			CurrentSelectedInteractable->HideItemInfo();
-			HitInteractable->InitItemInfo(this);
-			CurrentSelectedInteractable = HitInteractable;
+			if (HitInteractable != CurrentSelectedInteractable)
+			{
+				CurrentSelectedInteractable->HideItemInfo();
+				HitInteractable->InitItemInfo(this);
+				CurrentSelectedInteractable = HitInteractable;
+			}
 		}
 		// If we find a new interactable and were previously interacting with nothing
 		else
@@ -108,10 +111,13 @@ void ASPlayerController::TraceForInteractables()
 		}
 	}
 	// If we didn't hit anything AND we have a current selected interactable, de-select it
-	else if(CurrentSelectedInteractable)
+	else
 	{
-		CurrentSelectedInteractable->HideItemInfo();
-		CurrentSelectedInteractable = nullptr;
+		if (CurrentSelectedInteractable)
+		{
+			CurrentSelectedInteractable->HideItemInfo();
+			CurrentSelectedInteractable = nullptr;
+		}
 	}
 }
 
@@ -390,7 +396,7 @@ int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoTotal)
 	{
 		ClientPickupAmmoHUD(AmmoType, AmmoTypeTotal);
 	}
-	
+
 	// Return to ammo pickup item how much ammo we have left over, if we picked up all AmmoTotal, the pickup will destroy itself locally
 	return ExcessAmmo;
 }
@@ -432,6 +438,12 @@ void ASPlayerController::UpdateCurrentClip(int32 NewClipSize)
 bool ASPlayerController::GetIsInventoryFull() const
 {
 	return bIsInventoryFull;
+}
+
+bool ASPlayerController::GetIsAmmoTypeFull(EAmmoType AmmoTypeToCheck) const
+{
+	//If our ammo inventory has <= 0 of the ammo type, then it is full of that ammo type and returns true
+	return AmmoInventory.QueryExtraOfType(AmmoTypeToCheck) <= 0;
 }
 
 void ASPlayerController::ToggleInventory()
@@ -561,6 +573,12 @@ void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 
 void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo)
 {
+	// Update ammo inventory manually for client for correct display on CurrentSelectedInteractable, thus we reset pointer below to re-initiate contact with it
+	AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
+
+	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
+	CurrentSelectedInteractable = nullptr;
+
 	if (!MyGameInfo) { return; }
 
 	MyGameInfo->HandleReloadAmmoType(NewAmmoType, NewClipAmmo, NewExtraAmmo);
@@ -572,6 +590,9 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 {
 	// Update this boolean ourself as we get it passed from server
 	bIsInventoryFull = bAreWeFull;
+
+	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
+	CurrentSelectedInteractable = nullptr;
 
 	// Handle HUD for picking up new weapon
 	if (!MyGameInfo) { return; }
@@ -593,6 +614,12 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 
 void ASPlayerController::ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoType, int32 NewExtraAmmo)
 {
+	// Keep track of ammo inventory type amounts here manually for client since we are already receiving the data from the server
+	AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
+
+	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
+	CurrentSelectedInteractable = nullptr;
+
 	if (MyGameInfo)
 	{
 		MyGameInfo->HandlePickupAmmo(NewAmmoType, NewExtraAmmo);

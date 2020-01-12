@@ -52,6 +52,8 @@ public:
 	/* Getter function for weapon pickups to display different information */
 	bool GetIsInventoryFull() const;
 
+	bool GetIsAmmoTypeFull(EAmmoType AmmoTypeToCheck) const;
+
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Client called functions from OnRep variables on all PlayerStates, to update HUD scoreboard
 	///////////////////////////////////////////////////////////////////////////////////////////

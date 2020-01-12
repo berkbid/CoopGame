@@ -206,6 +206,7 @@ struct FAmmoInfo
 		}
 	}
 
+	/* Sets ammo amount for ammo type */
 	void SetAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewAmmoAmount)
 	{
 		switch (NewAmmoType)
@@ -230,29 +231,43 @@ struct FAmmoInfo
 		}
 	}
 
-	int32 GetAmmoTypeAmount(EAmmoType NewAmmoType)
+	/* Returns ammo amount for ammo type */
+	int32 GetAmmoTypeAmount(EAmmoType NewAmmoType) const
 	{
 		switch (NewAmmoType)
 		{
 		case EAmmoType::MiniAmmo:
 			return MiniCount;
-			break;
 		case EAmmoType::MediumAmmo:
 			return MediumCount;
-			break;
 		case EAmmoType::HeavyAmmo:
 			return HeavyCount;
-			break;
 		case EAmmoType::ShellAmmo:
 			return ShellCount;
-			break;
 		case EAmmoType::RocketAmmo:
 			return RocketCount;
-			break;
 		default:
-			break;
+			return 0;
 		}
-		return 0;
+	}
+
+	int32 QueryExtraOfType(EAmmoType NewAmmoType) const
+	{
+		switch (NewAmmoType)
+		{
+		case EAmmoType::MiniAmmo:
+			return MaxMiniAmmo - MiniCount;
+		case EAmmoType::MediumAmmo:
+			return MaxMediumAmmo - MediumCount;
+		case EAmmoType::HeavyAmmo:
+			return MaxHeavyAmmo - HeavyCount;
+		case EAmmoType::ShellAmmo:
+			return MaxShellAmmo - ShellCount;
+		case EAmmoType::RocketAmmo:
+			return MaxRocketAmmo - RocketCount;
+		default:
+			return 0;
+		}
 	}
 
 	// For Garbage Cleanup
