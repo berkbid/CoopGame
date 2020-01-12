@@ -385,7 +385,7 @@ int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoTotal)
 	// Try to add Ammo Total to ammo inventory, retrieve any excess amount that couldn't fit and new total of ammo type in inventory
 	AmmoInventory.AddAmmo(AmmoType, AmmoTotal, ExcessAmmo, AmmoTypeTotal);
 
-	// If we picked up ammo, thus excess ammo is less than ammo total, then we update HUD
+	// If we picked up ammo, excess ammo is less than ammo total, then we update HUD
 	if (AmmoTotal > ExcessAmmo)
 	{
 		ClientPickupAmmoHUD(AmmoType, AmmoTypeTotal);
@@ -437,13 +437,9 @@ bool ASPlayerController::GetIsInventoryFull() const
 void ASPlayerController::ToggleInventory()
 {
 	if (!MyGameInfo) { return; }
-
-	// If we don't have MyInventoryInfo object, try to create and display it
 	if (!MyInventoryInfo) { return; }
 
-	// If we already have a MyInventoryInfo object, check it's visibility and toggle on or off
-
-	// If our Inventory widget is visible, set it to hidden and set MyGameInfo to visible
+	// If inventory info is visible, then hide it and show game info
 	if (MyInventoryInfo->Visibility != ESlateVisibility::Hidden)
 	{
 		//MyGameInfo->RestoreInventoryWidget();
@@ -462,7 +458,6 @@ void ASPlayerController::ToggleInventory()
 		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
 		bShowMouseCursor = true;
 	}
-	
 }
 
 void ASPlayerController::SetStateTextHUD(FString NewState)

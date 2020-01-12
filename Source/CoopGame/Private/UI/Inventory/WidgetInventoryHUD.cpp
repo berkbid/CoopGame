@@ -50,7 +50,7 @@ void UWidgetInventoryHUD::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo
 		if (NewSlot == CurrentSlot)
 		{
 			// Query for extra ammo for current slot and update weapon info
-			int32 NewExtraAmmo = GetExtraAmmoOfType(NewWeaponInfo.AmmoType);
+			int32 NewExtraAmmo = CurrentAmmoInfo.GetAmmoTypeAmount(NewWeaponInfo.AmmoType);
 			UpdateWeaponInfo(NewWeaponInfo, NewExtraAmmo);
 		}
 	}
@@ -66,13 +66,13 @@ void UWidgetInventoryHUD::HandleSlotChange(int32 WeaponSlot)
 		{
 			UpdateWeaponInfo(NewSlot->CurrentWeaponInfo, NewSlot->CurrentExtraAmmo);
 
-			//// If we have a current slot selected, reset that slot
+			// If we have a current slot selected, reset that slot
 			if (CurrentSlot)
 			{
 				CurrentSlot->ResetSlot();
 			}
 
-			//// Activate new slot and set current slot to new slot
+			// Activate new slot and set current slot to new slot
 			NewSlot->ActivateSlot();
 			CurrentSlot = NewSlot;
 		}
@@ -81,14 +81,16 @@ void UWidgetInventoryHUD::HandleSlotChange(int32 WeaponSlot)
 
 void UWidgetInventoryHUD::UpdateCurrentSlotAmmo(int32 CurrentAmmo)
 {
+	// Update current ammo data for current slot display
 	if (CurrentSlot)
 	{
 		CurrentSlot->UpdateCurrentAmmo(CurrentAmmo);
 	}
 
+	// Update current ammo data for weapon display
 	if (WeaponDisplay)
 	{
-		WeaponDisplay->SetWeaponCurrentAmmo(CurrentAmmo);
+		WeaponDisplay->SetAmmoText(CurrentAmmo);
 	}
 }
 
@@ -102,11 +104,6 @@ void UWidgetInventoryHUD::InitAmmoInventory(const FAmmoInfo& StartingAmmoInfo)
 	UpdateAmmoTypeAmount(EAmmoType::ShellAmmo, StartingAmmoInfo.ShellCount);
 	UpdateAmmoTypeAmount(EAmmoType::RocketAmmo, StartingAmmoInfo.RocketCount);
 
-}
-
-int32 UWidgetInventoryHUD::GetExtraAmmoOfType(EAmmoType NewAmmoType)
-{
-	return CurrentAmmoInfo.GetAmmoTypeAmount(NewAmmoType);
 }
 
 void UWidgetInventoryHUD::UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewExtraAmmo)
@@ -123,6 +120,8 @@ void UWidgetInventoryHUD::UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewE
 
 	if (WeaponDisplay)
 	{
+		
+		// shouldn't need to query weapon display, instead query current slot weapon info object
 		WeaponDisplay->QueryToSetExtraAmmo(NewAmmoType, NewExtraAmmo);
 	}
 

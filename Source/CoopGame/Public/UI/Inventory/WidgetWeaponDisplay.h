@@ -19,13 +19,13 @@ class COOPGAME_API UWidgetWeaponDisplay : public UUserWidget
 public:
 	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
 
-	void SetWeaponCurrentAmmo(int32 NewCurrentAmmo);
-
-	void SetWeaponExtraAmmo(int32 NewExtraAmmo);
-
-	void SetBothAmmo(int32 NewCurrentAmmo, int32 NewExtraAmmo);
-
 	void QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo);
+
+	void SetAmmoText(int32 NewCurrentAmmo);
+
+	void SetWeaponText(FName NewWeaponName);
+
+	void SetAmmoImage(EAmmoType NewAmmoType);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -44,10 +44,8 @@ protected:
 
 	int32 ExtraClipSize;
 
-	void SetAmmoText();
+	int32 TempCurrentAmmo;
 
-	void SetWeaponText();
 
-	void SetAmmoImage();
 
 };

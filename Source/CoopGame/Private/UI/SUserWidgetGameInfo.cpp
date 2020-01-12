@@ -3,17 +3,15 @@
 
 #include "SUserWidgetGameInfo.h"
 #include "Components/TextBlock.h"
-#include "Components/Border.h"
-#include "Components/VerticalBox.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerState.h"
-#include "SUserWidgetPlayerStats.h"
 #include "Engine/World.h"
 #include "SGameState.h"
 #include "GameFramework/PlayerState.h"
 #include "Engine/Texture2D.h"
 #include "SWeapon.h"
 #include "WidgetInventoryHUD.h"
+#include "Scoreboard/WidgetScoreboardHUD.h"
 
 bool USUserWidgetGameInfo::Initialize()
 {
@@ -70,7 +68,6 @@ void USUserWidgetGameInfo::UpdateCurrentClipAmmo(int32 NewCurrentAmmo)
 {
 	if (InventoryHUD)
 	{
-		// Auto does currentweaponinfo call bove in new method
 		InventoryHUD->UpdateCurrentSlotAmmo(NewCurrentAmmo);
 	}
 }
@@ -94,47 +91,33 @@ void USUserWidgetGameInfo::InitAmmoInventory(const FAmmoInfo& StartingAmmoInfo)
 
 void USUserWidgetGameInfo::AddPlayerToScoreboard(FString NewPlayerName, uint32 NewPlayerNumber)
 {
-	if (wPlayerStats)
+	if (ScoreboardHUD)
 	{
-		USUserWidgetPlayerStats* NewPlayerStats = CreateWidget<USUserWidgetPlayerStats>(this, wPlayerStats);
-		if (NewPlayerStats && ScoreboardEntryBox)
-		{
-			NewPlayerStats->SetAllText(NewPlayerName, FString("0"), FString("0"), FString("0"));
-			ScoreboardEntryBox->AddChild(NewPlayerStats);
-
-			// Add reference to PlayerStats to ScoreboardDictionary for updating in the future
-			ScoreboardDictionary.Add(NewPlayerNumber, NewPlayerStats);
-		}
+		ScoreboardHUD->AddPlayerToScoreboard(NewPlayerName, NewPlayerNumber);
 	}
 }
 
 void USUserWidgetGameInfo::UpdatePlayerScore(uint32 PlayerNumber, float NewScore)
 {
-	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
-
-	if (PlayerStats)
+	if (ScoreboardHUD)
 	{
-		(*PlayerStats)->SetScoreText(FString::SanitizeFloat(NewScore));
+		ScoreboardHUD->UpdatePlayerScore(PlayerNumber, NewScore);
 	}
 }
 
 void USUserWidgetGameInfo::UpdatePlayerKills(uint32 PlayerNumber, uint32 NewKills)
 {
-	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
-
-	if (PlayerStats)
+	if (ScoreboardHUD)
 	{
-		(*PlayerStats)->SetKillText(FString::FromInt(NewKills));
+		ScoreboardHUD->UpdatePlayerKills(PlayerNumber, NewKills);
 	}
 }
 
 void USUserWidgetGameInfo::UpdatePlayerDeaths(uint32 PlayerNumber, uint32 NewDeaths)
 {
-	USUserWidgetPlayerStats** PlayerStats = ScoreboardDictionary.Find(PlayerNumber);
-
-	if (PlayerStats)
+	if (ScoreboardHUD)
 	{
-		(*PlayerStats)->SetDeathText(FString::FromInt(NewDeaths));
+		ScoreboardHUD->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
 	}
 }
 

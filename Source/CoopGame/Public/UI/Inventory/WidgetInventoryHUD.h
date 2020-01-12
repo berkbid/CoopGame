@@ -32,8 +32,6 @@ public:
 
 	void InitAmmoInventory(const FAmmoInfo& StartingAmmoInfo);
 
-	int32 GetExtraAmmoOfType(EAmmoType NewAmmoType);
-
 	void UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
 	/* When we only need to update weapon info and not change to slot */

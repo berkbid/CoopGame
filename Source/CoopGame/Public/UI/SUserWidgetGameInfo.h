@@ -9,7 +9,6 @@
 
 class UTextBlock;
 class UBorder;
-class USUserWidgetPlayerStats;
 class ASWeapon;
 
 /**
@@ -26,22 +25,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "ActorWidget")
 	APlayerController* OwningController;
 
-	//you can make the binding optional with BindWidgetOptional instead. But don’t forget to null check!
-/* Reference to HealthBar ProgressBar in Widget*/
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UVerticalBox* ScoreboardEntryBox;
-
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UWidgetInventoryHUD* InventoryHUD;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWidgetScoreboardHUD* ScoreboardHUD;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* StateText;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Scoreboard")
-	TSubclassOf<USUserWidgetPlayerStats> wPlayerStats;
-
-	/* Mapping from unique PlayerID to their scoreboard PlayerStats object reference */
-	TMap<uint32, USUserWidgetPlayerStats*> ScoreboardDictionary;
 
 	/* Mapping from Weapon class type to textures */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")

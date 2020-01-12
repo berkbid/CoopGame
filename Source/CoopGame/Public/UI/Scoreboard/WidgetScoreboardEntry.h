@@ -4,32 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "SUserWidgetPlayerStats.generated.h"
+#include "WidgetScoreboardEntry.generated.h"
+
+
+class UTextBlock;
 
 /**
  * 
  */
 UCLASS()
-class COOPGAME_API USUserWidgetPlayerStats : public UUserWidget
+class COOPGAME_API UWidgetScoreboardEntry : public UUserWidget
 {
 	GENERATED_BODY()
 	
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* NameText;
+	UTextBlock* NameText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* KillsText;
+	UTextBlock* KillsText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* DeathText;
+	UTextBlock* DeathText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* ScoreText;
+	UTextBlock* ScoreText;
 
 public:
-	void SetAllText(FString NewName, FString NewKills, FString NewDeath, FString NewScore);
+	void InitEntry(FString NewPlayerName);
 
 	void SetNameText(FString NewName);
 
@@ -38,5 +41,4 @@ public:
 	void SetKillText(FString NewKills);
 
 	void SetDeathText(FString NewDeath);
-
 };
