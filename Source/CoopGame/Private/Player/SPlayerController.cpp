@@ -502,6 +502,16 @@ void ASPlayerController::UpdatePlayerDeathsHUD(uint32 PlayerNumber, uint32 NewDe
 	{
 		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
 	}
+
+	// Client handle death situation on player controller
+	ASPlayerState* PS = GetPlayerState<ASPlayerState>();
+	if (PS)
+	{
+		if (PS->PlayerNumber == PlayerNumber)
+		{
+			CurrentSelectedInteractable = nullptr;
+		}
+	}
 }
 
 void ASPlayerController::EquipSlotOne()
