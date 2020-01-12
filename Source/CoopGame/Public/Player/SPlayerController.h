@@ -142,8 +142,8 @@ protected:
 	void ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo);
 
 	UFUNCTION(Reliable, Client)
-	void ClientPickupWeaponHUD(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, bool bAreWeFull);
-	void ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, bool bAreWeFull);
+	void ClientPickupWeaponHUD(const FWeaponInfo& WeaponInfo, int32 SlotToUpdate);
+	void ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 SlotToUpdate);
 
 	UFUNCTION(Reliable, Client)
 	void ClientPickupAmmoHUD(EAmmoType NewAmmoType, int32 NewExtraAmmo);

@@ -165,7 +165,7 @@ void ASPlayerController::ServerPostLogin()
 		if (WeaponInventory[i].WeaponClass)
 		{
 			// Handle HUD picking up new weapon
-			ClientPickupWeaponHUD(WeaponInventory[i], CurrentSlot, i, bIsInventoryFull);
+			ClientPickupWeaponHUD(WeaponInventory[i], i);
 		}
 	}
 
@@ -327,7 +327,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 			}
 
 			// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
-			ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, i, bIsInventoryFull);
+			ClientPickupWeaponHUD(WeaponInfo, i);
 
 			// If we pick up a weapon into our current selected EMPTY slot, equip the weapon!
 			if (CurrentSlot == i)
@@ -356,7 +356,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 		WeaponInventory[CurrentSlot] = WeaponInfo;
 
 		// Update HUD elements for new weapon, also pass extra ammo if this weapon's ammo type
-		ClientPickupWeaponHUD(WeaponInfo, CurrentSlot, CurrentSlot, bIsInventoryFull);
+		ClientPickupWeaponHUD(WeaponInfo, CurrentSlot);
 
 		// Spawn old weapon and pass it the OldWeaponInfo
 		if (OldWeaponInfo.WeaponPickupClass)
@@ -567,6 +567,12 @@ void ASPlayerController::ServerInteract_Implementation()
 
 void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo)
 {
+	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
+
+	AmmoInventory = NewAmmoInfo;
+
+	/////////////////////////////////////////////////////////////////
+
 	if (MyGameInfo)
 	{
 		MyGameInfo->InitAmmoInventory(NewAmmoInfo);
@@ -575,6 +581,12 @@ void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoIn
 
 void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 {
+	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
+
+	CurrentSlot = NewSlot;
+
+	/////////////////////////////////////////////////////////////////
+
 	if (!MyGameInfo) { return; }
 
 	// Call HUD method to change slot with ammo info
@@ -583,8 +595,14 @@ void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 
 void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo)
 {
+	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
+
+	WeaponInventory[CurrentSlot].CurrentAmmo = NewClipAmmo;
+
 	// Update ammo inventory manually for client for correct display on CurrentSelectedInteractable, thus we reset pointer below to re-initiate contact with it
 	AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
+
+	////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
 	CurrentSelectedInteractable = nullptr;
@@ -596,10 +614,18 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 }
 
 // This update for HUD is equivalent to equipping and un-equipping the weapon, show weapon image or remove it
-void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 TempCurrentSlot, int32 SlotToUpdate, bool bAreWeFull)
+void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 SlotToUpdate)
 {
-	// Update this boolean ourself as we get it passed from server
-	bIsInventoryFull = bAreWeFull;
+	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
+	CurrentInventorySize++;
+	if (CurrentInventorySize >= InventoryMaxSize)
+	{
+		bIsInventoryFull = true;
+		CurrentInventorySize = InventoryMaxSize;
+	}
+
+	WeaponInventory[SlotToUpdate] = WeaponInfo;
+	/////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
 	CurrentSelectedInteractable = nullptr;
@@ -612,7 +638,7 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 	MyGameInfo->HandlePickupWeapon(SlotToUpdate, WeaponInfo);
 
 	// Only play weapon pickup sound if we aren't already selecting on new weapon slot, this is because weapon swap sound will play
-	if (TempCurrentSlot != SlotToUpdate)
+	if (CurrentSlot != SlotToUpdate)
 	{
 		// Play pickup sound also
 		if (PickupWeaponSound)
@@ -624,8 +650,11 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 
 void ASPlayerController::ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoType, int32 NewExtraAmmo)
 {
-	// Keep track of ammo inventory type amounts here manually for client since we are already receiving the data from the server
+	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////////////////////////////
+
 	AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
+
+	//////////////////////////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
 	CurrentSelectedInteractable = nullptr;
@@ -648,6 +677,12 @@ void ASPlayerController::ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoTyp
 
 void ASPlayerController::ClientUpdateClipHUD_Implementation(int32 CurrentAmmo)
 {
+	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
+
+	WeaponInventory[CurrentSlot].CurrentAmmo = CurrentAmmo;
+
+	//////////////////////////////////////////////////////////////////
+
 	if (MyGameInfo)
 	{
 		MyGameInfo->UpdateCurrentClipAmmo(CurrentAmmo);
