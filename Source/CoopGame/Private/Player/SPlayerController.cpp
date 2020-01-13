@@ -192,9 +192,9 @@ void ASPlayerController::ClientPostLogin_Implementation()
 				MyGameInfo->SetOwningController(this);
 				MyGameInfo->AddToViewport();
 			}
-
 		}
 		
+		// Add inventory info to viewport, set hidden by default, toggle with keybind "C"
 		if (wInventoryInfo) 
 		{
 			MyInventoryInfo = CreateWidget<USUserWidgetInventoryInfo>(this, wInventoryInfo);

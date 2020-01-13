@@ -8,8 +8,6 @@
 #include "SPlayerController.generated.h"
 
 
-class ASWeapon;
-
 /**
  * 
  */
@@ -150,19 +148,21 @@ protected:
 	void ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
 	UFUNCTION(Reliable, Client)
-	void ClientInitAmmoInventoryHUD(const FAmmoInfo &NewAmmoInfo);
+	void ClientInitAmmoInventoryHUD(const FAmmoInfo& NewAmmoInfo);
 	void ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo);
 
 protected:
+	/* Server controlled variable which the client also updates when passed the value in server to client RPC */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TArray<FWeaponInfo> WeaponInventory;
 
+	/* Server controlled variable which the client also updates when passed the value in server to client RPC */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	FAmmoInfo AmmoInventory;
 
+	/* How far the line trace should travel for interacting with items */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	float ItemTraceDistance;
-
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	class USoundBase* PickupWeaponSound;
@@ -171,27 +171,30 @@ protected:
 	class USoundBase* PickupAmmoSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<class UUserWidget> wGameInfo;
+	TSubclassOf<class USUserWidgetGameInfo> wGameInfo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class USUserWidgetInventoryInfo> wInventoryInfo;
-
-	class ASInteractable* CurrentSelectedInteractable;
-
-	FCollisionObjectQueryParams TraceObjectQueryParams;
 
 	class USUserWidgetGameInfo* MyGameInfo;
 
 	class USUserWidgetInventoryInfo* MyInventoryInfo;
 
-	/* Keep track of which weapon slot is currently equipped */
+	/* Client controlled pointer used in Tick() line trace to keep track of selected item */
+	class ASInteractable* CurrentSelectedInteractable;
+
+	FCollisionObjectQueryParams TraceObjectQueryParams;
+
+	/* Keep track of which weapon slot is currently equipped, client also updates when passed the value in server to client RPC */
 	UPROPERTY()
 	uint8 CurrentSlot;
 
+	/* Manually set property in the constructor, set to 6 because we only have keybinds and HUD setup for 6 slots */
 	uint8 InventoryMaxSize;
 
+	/* Server controlled variable which the client also updates when passed the value in server to client RPC */
 	uint8 CurrentInventorySize;
 
+	/* Server controlled variable which the client also updates when passed the value in server to client RPC */
 	bool bIsInventoryFull;
-
 };
