@@ -605,7 +605,11 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 	////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
-	CurrentSelectedInteractable = nullptr;
+	if (CurrentSelectedInteractable)
+	{
+		CurrentSelectedInteractable->HideItemInfo();
+		CurrentSelectedInteractable = nullptr;
+	}
 
 	if (!MyGameInfo) { return; }
 
@@ -628,7 +632,12 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 	/////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
-	CurrentSelectedInteractable = nullptr;
+	if (CurrentSelectedInteractable)
+	{
+		CurrentSelectedInteractable->HideItemInfo();
+		CurrentSelectedInteractable = nullptr;
+	}
+	
 
 	// Handle HUD for picking up new weapon
 	if (!MyGameInfo) { return; }
@@ -657,7 +666,11 @@ void ASPlayerController::ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoTyp
 	//////////////////////////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
-	CurrentSelectedInteractable = nullptr;
+	if (CurrentSelectedInteractable)
+	{
+		CurrentSelectedInteractable->HideItemInfo();
+		CurrentSelectedInteractable = nullptr;
+	}
 
 	if (MyGameInfo)
 	{
