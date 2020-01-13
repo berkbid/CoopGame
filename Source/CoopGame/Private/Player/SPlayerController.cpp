@@ -279,7 +279,7 @@ void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 
 void ASPlayerController::Interact()
 {
-	// We can only interact with items if we possess a pawn
+	// We can only interact with items if we possess a pawn, client can exit this function w/o calling client to server RPC
 	if (!GetPawn()) { return; }
 	if (GetLocalRole() < ROLE_Authority)
 	{
@@ -288,7 +288,7 @@ void ASPlayerController::Interact()
 	}
 
 	TArray<FHitResult> HitArray;
-	// If any hit is found
+	// If any hit is found, interact and pass reference to self
 	if (FindTraceHitArray(HitArray))
 	{
 		AActor* HitActor = HitArray.Last().GetActor();
@@ -301,7 +301,7 @@ void ASPlayerController::Interact()
 }
 
 // Try to pick up weapon if inventory has space, return success or failure
-bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool bDidInteract)
+bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo, bool bDidInteract)
 {
 	if (GetLocalRole() < ROLE_Authority) { return false; }
 	if (!bDidInteract && bIsInventoryFull) { return false; }
@@ -345,7 +345,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool b
 		}
 	}
 
-	// If we don't have inventory space, BUT we interacted with weapon through E keybind, swap with current weapon slot
+	// If we still have not equipped a weapon because full inventory, BUT we "interacted" with weapon, then swap current weapon with new one and equip it
 	if (bDidInteract)
 	{
 		MyPawn->EquipWeaponClass(WeaponInfo.WeaponClass, WeaponInfo.WeaponStats, WeaponInfo.CurrentAmmo);
@@ -391,8 +391,8 @@ int32 ASPlayerController::PickedUpNewAmmo(EAmmoType AmmoType, int32 AmmoTotal)
 	// Try to add Ammo Total to ammo inventory, retrieve any excess amount that couldn't fit and new total of ammo type in inventory
 	AmmoInventory.AddAmmo(AmmoType, AmmoTotal, ExcessAmmo, AmmoTypeTotal);
 
-	// If we picked up ammo, excess ammo is less than ammo total, then we update HUD
-	if (AmmoTotal > ExcessAmmo)
+	// If we picked up ammo, then our excess ammo is less than the ammo total we tried to pick up, meaning we picked some of it up
+	if (ExcessAmmo < AmmoTotal)
 	{
 		ClientPickupAmmoHUD(AmmoType, AmmoTypeTotal);
 	}
