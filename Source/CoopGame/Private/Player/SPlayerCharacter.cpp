@@ -121,37 +121,40 @@ void ASPlayerCharacter::EndCrouch()
 void ASPlayerCharacter::HandleZoom(float DeltaTime)
 {
 	// If we are either currently zooming in or out this is true, otherwise do not enter this code during tick function
-	if (bIsZooming)
-	{
-		// This will get set in either the if or else statement below
-		float NewFOV;
-
-		// If we are zooming in
-		if (bIsZoomingIn)
+	if (!bIsZooming) { return; }
+	
+	// Calculate new FOV we want to set camera to
+	float NewFOV; 
+	
+	// If we are zooming in
+	if (bIsZoomingIn)
+	{	
+		NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, ZoomedFOV, DeltaTime, ZoomInterpSpeed);
+		// And our new FOV equals our desired zoomed FOV, we are no longer zooming in or zooming
+		if (NewFOV == ZoomedFOV)
 		{
-			NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, ZoomedFOV, DeltaTime, ZoomInterpSpeed);
-			if (NewFOV == ZoomedFOV)
-			{
-				bIsZoomingIn = false;
-				bIsZooming = false;
-			}
+			bIsZoomingIn = false;
+			bIsZooming = false;
 		}
-		// If we are zooming out
-		else
-		{
-			NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, DefaultFOV, DeltaTime, ZoomInterpSpeed);
-			if (NewFOV == DefaultFOV)
-			{
-				bIsZoomingOut = false;
-				bIsZooming = false;
-			}
-		}
-		CameraComp->SetFieldOfView(NewFOV);
 	}
+	// If we are zooming out
+	else
+	{
+		NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, DefaultFOV, DeltaTime, ZoomInterpSpeed);
+		// And our new FOV equals our default FOV we are no longer zooming out or zooming
+		if (NewFOV == DefaultFOV)
+		{
+			bIsZoomingOut = false;
+			bIsZooming = false;
+		}
+	}
+	CameraComp->SetFieldOfView(NewFOV);
+	
 }
 
 void ASPlayerCharacter::BeginZoom()
 {
+	// Setup the state of zooming and zooming in and not zooming out
 	bIsZooming = true;
 	bIsZoomingOut = false;
 	bIsZoomingIn = true;
@@ -159,6 +162,7 @@ void ASPlayerCharacter::BeginZoom()
 
 void ASPlayerCharacter::EndZoom()
 {
+	// Setup the zoom state where we are zooming out and not zooming in, but we are still zooming (out) until we reach default FOV
 	bIsZooming = true;
 	bIsZoomingIn = false;
 	bIsZoomingOut = true;

@@ -161,6 +161,10 @@ protected:
 	FAmmoInfo AmmoInventory;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	float ItemTraceDistance;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	class USoundBase* PickupWeaponSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
@@ -184,13 +188,10 @@ protected:
 	UPROPERTY()
 	uint8 CurrentSlot;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	uint8 InventoryMaxSize;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	uint8 CurrentInventorySize;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	bool bIsInventoryFull;
 
 };

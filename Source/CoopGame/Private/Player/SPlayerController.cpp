@@ -25,6 +25,7 @@ ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializ
 	CurrentInventorySize = 0;
 	InventoryMaxSize = 6;
 	bIsInventoryFull = false;
+	ItemTraceDistance = 450.f;
 
 	// Setup initial WeaponInventory with appropriate size and NULL values
 	WeaponInventory.Init(FWeaponInfo(), InventoryMaxSize);
@@ -129,7 +130,7 @@ bool ASPlayerController::FindTraceHitArray(TArray<FHitResult>& OutHits)
 	GetActorEyesViewPoint(EyeLocation, EyeRotation);
 	FVector TraceDirection = EyeRotation.Vector();
 	FVector TraceStart = EyeLocation;
-	FVector TraceEnd = TraceStart + (TraceDirection * 450.f);
+	FVector TraceEnd = TraceStart + (TraceDirection * ItemTraceDistance);
 	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
 
 	return GetWorld()->LineTraceMultiByObjectType(OutHits, TraceStart, TraceEnd, TraceObjectQueryParams);
@@ -332,9 +333,7 @@ bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo, bool b
 			// If we pick up a weapon into our current selected EMPTY slot, equip the weapon!
 			if (CurrentSlot == i)
 			{
-
 				MyPawn->EquipWeaponClass(WeaponInfo.WeaponClass, WeaponInfo.WeaponStats, WeaponInfo.CurrentAmmo);
-				
 			}
 			else
 			{
@@ -568,9 +567,10 @@ void ASPlayerController::ServerInteract_Implementation()
 void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoInfo& NewAmmoInfo)
 {
 	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
-
-	AmmoInventory = NewAmmoInfo;
-
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		AmmoInventory = NewAmmoInfo;
+	}
 	/////////////////////////////////////////////////////////////////
 
 	if (MyGameInfo)
@@ -582,9 +582,10 @@ void ASPlayerController::ClientInitAmmoInventoryHUD_Implementation(const FAmmoIn
 void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 {
 	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
-
-	CurrentSlot = NewSlot;
-
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		CurrentSlot = NewSlot;
+	}
 	/////////////////////////////////////////////////////////////////
 
 	if (!MyGameInfo) { return; }
@@ -596,12 +597,13 @@ void ASPlayerController::ClientChangeToSlotHUD_Implementation(int32 NewSlot)
 void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoType, int32 NewClipAmmo, int32 NewExtraAmmo)
 {
 	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		WeaponInventory[CurrentSlot].CurrentAmmo = NewClipAmmo;
 
-	WeaponInventory[CurrentSlot].CurrentAmmo = NewClipAmmo;
-
-	// Update ammo inventory manually for client for correct display on CurrentSelectedInteractable, thus we reset pointer below to re-initiate contact with it
-	AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
-
+		// Update ammo inventory manually for client for correct display on CurrentSelectedInteractable, thus we reset pointer below to re-initiate contact with it
+		AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
+	}
 	////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
@@ -621,14 +623,17 @@ void ASPlayerController::ClientHandleReloadHUD_Implementation(EAmmoType NewAmmoT
 void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo& WeaponInfo, int32 SlotToUpdate)
 {
 	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
-	CurrentInventorySize++;
-	if (CurrentInventorySize >= InventoryMaxSize)
-	{
-		bIsInventoryFull = true;
-		CurrentInventorySize = InventoryMaxSize;
-	}
+	if (GetLocalRole() < ROLE_Authority)
+	{	
+		CurrentInventorySize++;
+		if (CurrentInventorySize >= InventoryMaxSize)
+		{
+			bIsInventoryFull = true;
+			CurrentInventorySize = InventoryMaxSize;
+		}
 
-	WeaponInventory[SlotToUpdate] = WeaponInfo;
+		WeaponInventory[SlotToUpdate] = WeaponInfo;
+	}
 	/////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
@@ -660,9 +665,10 @@ void ASPlayerController::ClientPickupWeaponHUD_Implementation(const FWeaponInfo&
 void ASPlayerController::ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoType, int32 NewExtraAmmo)
 {
 	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////////////////////////////
-
-	AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
-
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		AmmoInventory.SetAmmoTypeAmount(NewAmmoType, NewExtraAmmo);
+	}
 	//////////////////////////////////////////////////////////////////////////////////////
 
 	// Set our current selected interactable to nullptr so that we call inititeminfo again in order to update with new inventory state
@@ -691,9 +697,10 @@ void ASPlayerController::ClientPickupAmmoHUD_Implementation(EAmmoType NewAmmoTyp
 void ASPlayerController::ClientUpdateClipHUD_Implementation(int32 CurrentAmmo)
 {
 	//////////////////// UPDATE DATA CLIENT SIDE ///////////////////
-
-	WeaponInventory[CurrentSlot].CurrentAmmo = CurrentAmmo;
-
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		WeaponInventory[CurrentSlot].CurrentAmmo = CurrentAmmo;
+	}
 	//////////////////////////////////////////////////////////////////
 
 	if (MyGameInfo)
