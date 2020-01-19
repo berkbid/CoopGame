@@ -10,6 +10,7 @@
 class UTextBlock;
 class UBorder;
 class ASWeapon;
+class UTexture2D;
 
 /**
  * 
@@ -36,7 +37,11 @@ protected:
 
 	/* Mapping from Weapon class type to textures */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-	TMap<TSubclassOf<ASWeapon>, class UTexture2D*> WeaponToTextureMap;
+	TMap<TSubclassOf<ASWeapon>, UTexture2D*> WeaponToTextureMap;
+
+	/* Mapping from Ammo Types to textures */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AmmoTextures")
+	TMap<EAmmoType, UTexture2D*> AmmoToTextureMap;
 
 public:
 

@@ -11,6 +11,8 @@
 class UWidgetInventorySlot;
 class UUserWidget;
 class UWidgetAmmoDisplay;
+class UTexture2D;
+
 /**
  * 
  */
@@ -34,22 +36,19 @@ public:
 
 	void UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
-	/* When we only need to update weapon info and not change to slot */
-	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
+	/* Update weapon info display, data passed from data stored in slot */
+	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, UTexture2D* NewAmmoTexture);
 
 	void SetMiniAmmoText(FString NewText);
 	void SetMediumAmmoText(FString NewText);
 	void SetHeavyAmmoText(FString NewText);
 	void SetShellAmmoText(FString NewText);
 	void SetRocketAmmoText(FString NewText);
-	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, class UTexture2D* WeaponTexture);
+	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, const TMap<TSubclassOf<class ASWeapon>, UTexture2D*>& WeaponTextureMapRef, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMapRef);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	TArray<UWidgetInventorySlot*> InventorySlots;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AmmoTextures")
-	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UUniformGridPanel* SlotGrid;

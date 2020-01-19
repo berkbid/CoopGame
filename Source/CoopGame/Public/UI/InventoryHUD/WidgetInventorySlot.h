@@ -7,6 +7,10 @@
 #include "Blueprint/UserWidget.h"
 #include "WidgetInventorySlot.generated.h"
 
+
+class UTexture2D;
+
+
 /**
  * 
  */
@@ -32,7 +36,7 @@ protected:
 	void UpdateAmmoText();
 
 public:
-	void InitSlot(class UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo, const TMap<EAmmoType, class UTexture2D*>& AmmoTextureMap);
+	void InitSlot(const FWeaponInfo& NewWeaponInfo, const TMap<TSubclassOf<class ASWeapon>, UTexture2D*>& WeaponTextureMapRef, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMapRef);
 
 	void ActivateSlot();
 
@@ -50,4 +54,8 @@ public:
 	// Slot specific data
 	int32 CurrentSlotAmmo;
 	int32 CurrentExtraAmmo;
+
+	// Store textures for ammo and weapon so they can accessed and used on other parts of HUD
+	UTexture2D* CurrentAmmoTexture;
+	UTexture2D* CurrentWeaponTexture;
 };

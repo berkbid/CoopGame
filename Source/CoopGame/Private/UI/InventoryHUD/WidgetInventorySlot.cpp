@@ -6,9 +6,10 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Engine/Texture2D.h"
+#include "SWeapon.h"
 
 
-void UWidgetInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMap)
+void UWidgetInventorySlot::InitSlot(const FWeaponInfo& NewWeaponInfo, const TMap<TSubclassOf<ASWeapon>, UTexture2D*>& WeaponTextureMapRef, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMapRef)
 {
 	// Hold weapon info for slot
 	CurrentWeaponInfo = NewWeaponInfo;
@@ -26,10 +27,17 @@ void UWidgetInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo
 	// Update slot properties
 	if (WeaponImage)
 	{
+		// Find texture associated with weapon class we picked up
+		UTexture2D* const* WeaponTextureTemp = WeaponTextureMapRef.Find(NewWeaponInfo.WeaponClass);
+		if (!WeaponTextureTemp) { return; }
+
+		// Store local pointer to current weapon texture
+		CurrentWeaponTexture = *WeaponTextureTemp;
+
 		// Set new weapon texture to the slot
-		if (WeaponTexture)
+		if (CurrentWeaponTexture)
 		{
-			WeaponImage->SetBrushFromTexture(WeaponTexture);
+			WeaponImage->SetBrushFromTexture(CurrentWeaponTexture);
 			WeaponImage->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
@@ -38,12 +46,15 @@ void UWidgetInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo
 	if (SlotAmmoImage)
 	{
 		// Find texture associated with weapon class we picked up and set ammo image
-		UTexture2D* const* TempAmmoTexture = AmmoTextureMap.Find(CurrentWeaponInfo.AmmoType);
+		UTexture2D* const* TempAmmoTexture = AmmoTextureMapRef.Find(CurrentWeaponInfo.AmmoType);
 		if (!TempAmmoTexture) { return; }
-		if (UTexture2D* AmmoTexture = *TempAmmoTexture)
+
+		// Store local pointer to current ammo texture
+		CurrentAmmoTexture = *TempAmmoTexture;
+		if (CurrentAmmoTexture)
 		{
 			SlotAmmoImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-			SlotAmmoImage->SetBrushFromTexture(AmmoTexture);
+			SlotAmmoImage->SetBrushFromTexture(CurrentAmmoTexture);
 		}
 	}
 }

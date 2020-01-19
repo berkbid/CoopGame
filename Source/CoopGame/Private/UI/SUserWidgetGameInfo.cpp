@@ -34,13 +34,10 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 // When player picks up a weapon, update inventory with weapon picture and Slot Ammo amount
 void USUserWidgetGameInfo::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo)
 {
-	// Find texture associated with weapon class we picked up
-	UTexture2D** TempWeaponTexture = WeaponToTextureMap.Find(NewWeaponInfo.WeaponClass);
-
-	if (InventoryHUD && TempWeaponTexture)
+	if (InventoryHUD)
 	{
 		// Want to see if we picked up weapon that was in our currently active slot
-		InventoryHUD->HandlePickupWeapon(WeaponSlot, NewWeaponInfo, *TempWeaponTexture);
+		InventoryHUD->HandlePickupWeapon(WeaponSlot, NewWeaponInfo, WeaponToTextureMap, AmmoToTextureMap);
 	}
 }
 

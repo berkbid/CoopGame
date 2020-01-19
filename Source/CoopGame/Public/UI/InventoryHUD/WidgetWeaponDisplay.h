@@ -17,7 +17,7 @@ class COOPGAME_API UWidgetWeaponDisplay : public UUserWidget
 	
 
 public:
-	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, const TMap<EAmmoType, class UTexture2D*>& AmmoTextureMap);
+	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, class UTexture2D* AmmoTexture);
 
 	void QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
@@ -25,7 +25,7 @@ public:
 
 	void SetWeaponText(FName NewWeaponName);
 
-	void SetAmmoImage(EAmmoType NewAmmoType, const TMap<EAmmoType, class UTexture2D*>& AmmoTextureMap);
+	void SetAmmoImage(EAmmoType NewAmmoType, class UTexture2D* AmmoTexture);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

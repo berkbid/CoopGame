@@ -7,6 +7,7 @@
 #include "WidgetAmmoDisplay.h"
 #include "Engine/Texture2D.h"
 #include "Components/UniformGridPanel.h"
+#include "SWeapon.h"
 
 
 bool UWidgetInventoryHUD::Initialize()
@@ -33,8 +34,8 @@ void UWidgetInventoryHUD::SynchronizeProperties()
 	}
 }
 
-// Need to tell slot the weapon info and extra ammo
-void UWidgetInventoryHUD::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, UTexture2D* WeaponTexture)
+// Gather necessary data for new slot and init slot and weapon info
+void UWidgetInventoryHUD::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo, const TMap<TSubclassOf<ASWeapon>, UTexture2D*>& WeaponTextureMapRef, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMapRef)
 {
 	// If we have a valid child at WeaponSlot, call InitSlot on that SOverlayInventorySlot class
 	if (InventorySlots.Num() > WeaponSlot)
@@ -43,7 +44,7 @@ void UWidgetInventoryHUD::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo
 		if (NewSlot)
 		{
 			// Init slot with weapon info and extra ammo data
-			NewSlot->InitSlot(WeaponTexture, NewWeaponInfo, AmmoToTextureMap);
+			NewSlot->InitSlot(NewWeaponInfo, WeaponTextureMapRef, AmmoTextureMapRef);
 			NewSlot->UpdateExtraAmmo(CurrentAmmoInfo.GetAmmoTypeAmount(NewWeaponInfo.AmmoType));
 		}
 		// If we pickup weapon in our current slot, return true
@@ -51,7 +52,8 @@ void UWidgetInventoryHUD::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo
 		{
 			// Query for extra ammo for current slot and update weapon info
 			int32 NewExtraAmmo = CurrentAmmoInfo.GetAmmoTypeAmount(NewWeaponInfo.AmmoType);
-			UpdateWeaponInfo(NewWeaponInfo, NewExtraAmmo);
+
+			UpdateWeaponInfo(NewWeaponInfo, NewExtraAmmo, NewSlot->CurrentAmmoTexture);
 		}
 	}
 }
@@ -64,7 +66,7 @@ void UWidgetInventoryHUD::HandleSlotChange(int32 WeaponSlot)
 		UWidgetInventorySlot* NewSlot = InventorySlots[WeaponSlot];
 		if (NewSlot)
 		{
-			UpdateWeaponInfo(NewSlot->CurrentWeaponInfo, NewSlot->CurrentExtraAmmo);
+			UpdateWeaponInfo(NewSlot->CurrentWeaponInfo, NewSlot->CurrentExtraAmmo, NewSlot->CurrentAmmoTexture);
 
 			// If we have a current slot selected, reset that slot
 			if (CurrentSlot)
@@ -120,8 +122,7 @@ void UWidgetInventoryHUD::UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewE
 
 	if (WeaponDisplay)
 	{
-		
-		// shouldn't need to query weapon display, instead query current slot weapon info object
+		// Update weapon display ammo count if it is correct ammo type
 		WeaponDisplay->QueryToSetExtraAmmo(NewAmmoType, NewExtraAmmo);
 	}
 
@@ -147,11 +148,11 @@ void UWidgetInventoryHUD::UpdateAmmoTypeAmount(EAmmoType NewAmmoType, int32 NewE
 	}
 }
 
-void UWidgetInventoryHUD::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
+void UWidgetInventoryHUD::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, UTexture2D* NewAmmoTexture)
 {
 	if (WeaponDisplay)
 	{
-		WeaponDisplay->InitWeaponInfo(NewWeaponInfo, NewExtraAmmo, AmmoToTextureMap);
+		WeaponDisplay->InitWeaponInfo(NewWeaponInfo, NewExtraAmmo, NewAmmoTexture);
 	}
 }
 
