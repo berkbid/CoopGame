@@ -208,7 +208,7 @@ void ASPlayerController::ClientPostLogin_Implementation()
 	}
 }
 
-void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(FString const &NewPlayerName, uint32 NewPlayerNumber)
+void ASPlayerController::ClientAddPlayerToHUDScoreboard_Implementation(const FString& NewPlayerName, uint32 NewPlayerNumber)
 {
 	if (MyGameInfo)
 	{
@@ -281,14 +281,15 @@ void ASPlayerController::EquipWeapon(uint8 NewWeaponSlot)
 
 void ASPlayerController::Interact()
 {
-	// We can only interact with items if we possess a pawn, client can exit this function w/o calling client to server RPC
-	if (!GetPawn()) { return; }
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerInteract();
 		return;
 	}
 
+	// We only allow interacting with item if we possess a pawn
+	if (!GetPawn()) { return; }
+	
 	TArray<FHitResult> HitArray;
 	// If any hit is found, interact and pass reference to self
 	if (FindTraceHitArray(HitArray))
@@ -298,12 +299,13 @@ void ASPlayerController::Interact()
 		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
 		if (!HitInteractable) { return; }
 
+		// Interact with item and pass reference to self
 		HitInteractable->Interact(this);
 	}
 }
 
 // Try to pick up weapon if inventory has space, return success or failure
-bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo &WeaponInfo, bool bDidInteract)
+bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool bDidInteract)
 {
 	if (GetLocalRole() < ROLE_Authority) { return false; }
 	if (!bDidInteract && bIsInventoryFull) { return false; }

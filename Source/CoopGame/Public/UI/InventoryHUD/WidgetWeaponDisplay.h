@@ -7,6 +7,10 @@
 #include "Blueprint/UserWidget.h"
 #include "WidgetWeaponDisplay.generated.h"
 
+
+class UTexture2D;
+class UTextBlock;
+
 /**
  * 
  */
@@ -17,7 +21,7 @@ class COOPGAME_API UWidgetWeaponDisplay : public UUserWidget
 	
 
 public:
-	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, class UTexture2D* AmmoTexture);
+	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, UTexture2D* AmmoTexture);
 
 	void QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
@@ -25,17 +29,17 @@ public:
 
 	void SetWeaponText(FName NewWeaponName);
 
-	void SetAmmoImage(EAmmoType NewAmmoType, class UTexture2D* AmmoTexture);
+	void SetAmmoImage(EAmmoType NewAmmoType, UTexture2D* AmmoTexture);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UBorder* CurrentAmmoBorder;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* CurrentWeaponAmmo;
+	UTextBlock* CurrentWeaponAmmo;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* CurrentWeaponText;
+	UTextBlock* CurrentWeaponText;
 
 	FWeaponInfo CurrentWeaponInfo;
 

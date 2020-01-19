@@ -73,8 +73,8 @@ public:
 
 	/** Replicated function sent by server to client - called from game mode */
 	UFUNCTION(Reliable, Client)
-	void ClientAddPlayerToHUDScoreboard(FString const& NewPlayerName, uint32 NewPlayerNumber);
-	void ClientAddPlayerToHUDScoreboard_Implementation(FString const& NewPlayerName, uint32 NewPlayerNumber);
+	void ClientAddPlayerToHUDScoreboard(const FString& NewPlayerName, uint32 NewPlayerNumber);
+	void ClientAddPlayerToHUDScoreboard_Implementation(const FString& NewPlayerName, uint32 NewPlayerNumber);
 
 	/** Replicated function sent by server to client - called from weapon classes after firing */
 	UFUNCTION(unreliable, client)

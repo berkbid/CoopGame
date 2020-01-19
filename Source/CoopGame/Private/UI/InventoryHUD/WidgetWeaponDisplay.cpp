@@ -45,19 +45,20 @@ void UWidgetWeaponDisplay::SetWeaponText(FName NewWeaponName)
 // Just needs ammo type data from CurrentWeaponInfo
 void UWidgetWeaponDisplay::SetAmmoImage(EAmmoType NewAmmoType, UTexture2D* AmmoTexture)
 {
-	if (!CurrentAmmoBorder) { return; }
-
-	// If there is no weapon equipped, set ammo image hidden
-	if (!CurrentWeaponInfo.WeaponClass)
+	if (CurrentAmmoBorder)
 	{
-		CurrentAmmoBorder->SetVisibility(ESlateVisibility::Hidden);
-		return;
-	}
-
-	if(AmmoTexture)
-	{
-		CurrentAmmoBorder->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-		CurrentAmmoBorder->SetBrushFromTexture(AmmoTexture);
+		// If there is no weapon equipped, set ammo image hidden
+		if (!CurrentWeaponInfo.WeaponClass)
+		{
+			CurrentAmmoBorder->SetVisibility(ESlateVisibility::Hidden);
+			return;
+		}
+		// Set ammo image and visibility
+		if (AmmoTexture)
+		{
+			CurrentAmmoBorder->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			CurrentAmmoBorder->SetBrushFromTexture(AmmoTexture);
+		}
 	}
 }
 

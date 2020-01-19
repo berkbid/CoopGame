@@ -9,7 +9,7 @@
 
 
 class UTexture2D;
-
+class UImage;
 
 /**
  * 
@@ -25,13 +25,13 @@ protected:
 	class UBorder* ImageBorder;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UImage* WeaponImage;
+	UImage* WeaponImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* SlotAmmoText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UImage* SlotAmmoImage;
+	UImage* SlotAmmoImage;
 
 	void UpdateAmmoText();
 
