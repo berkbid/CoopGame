@@ -8,7 +8,7 @@
 #include "Engine/Texture2D.h"
 
 
-void UWidgetInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo)
+void UWidgetInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMap)
 {
 	// Hold weapon info for slot
 	CurrentWeaponInfo = NewWeaponInfo;
@@ -31,6 +31,19 @@ void UWidgetInventorySlot::InitSlot(UTexture2D* WeaponTexture, const FWeaponInfo
 		{
 			WeaponImage->SetBrushFromTexture(WeaponTexture);
 			WeaponImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
+	// Update slot ammo image using texture mapping
+	if (SlotAmmoImage)
+	{
+		// Find texture associated with weapon class we picked up and set ammo image
+		UTexture2D* const* TempAmmoTexture = AmmoTextureMap.Find(CurrentWeaponInfo.AmmoType);
+		if (!TempAmmoTexture) { return; }
+		if (UTexture2D* AmmoTexture = *TempAmmoTexture)
+		{
+			SlotAmmoImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			SlotAmmoImage->SetBrushFromTexture(AmmoTexture);
 		}
 	}
 }

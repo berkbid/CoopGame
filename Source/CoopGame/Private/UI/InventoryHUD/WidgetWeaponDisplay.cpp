@@ -6,13 +6,13 @@
 #include "Components/TextBlock.h"
 #include "Engine/Texture2D.h"
 
-void UWidgetWeaponDisplay::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo)
+void UWidgetWeaponDisplay::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMap)
 {
 	CurrentWeaponInfo = NewWeaponInfo;
 	ExtraClipSize = NewExtraAmmo;
 	TempCurrentAmmo = CurrentWeaponInfo.CurrentAmmo;
 
-	SetAmmoImage(CurrentWeaponInfo.AmmoType);
+	SetAmmoImage(CurrentWeaponInfo.AmmoType, AmmoTextureMap);
 	SetAmmoText(TempCurrentAmmo);
 	SetWeaponText(CurrentWeaponInfo.WeaponName);
 }
@@ -43,7 +43,7 @@ void UWidgetWeaponDisplay::SetWeaponText(FName NewWeaponName)
 }
 
 // Just needs ammo type data from CurrentWeaponInfo
-void UWidgetWeaponDisplay::SetAmmoImage(EAmmoType NewAmmoType)
+void UWidgetWeaponDisplay::SetAmmoImage(EAmmoType NewAmmoType, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMap)
 {
 	if (!CurrentAmmoBorder) { return; }
 
@@ -55,7 +55,7 @@ void UWidgetWeaponDisplay::SetAmmoImage(EAmmoType NewAmmoType)
 	}
 
 	// Find texture associated with weapon class we picked up and set ammo image
-	UTexture2D** TempAmmoTexture = AmmoToTextureMap.Find(NewAmmoType);
+	UTexture2D* const* TempAmmoTexture = AmmoTextureMap.Find(NewAmmoType);
 	if (!TempAmmoTexture) { return; }
 	if(UTexture2D* AmmoTexture = *TempAmmoTexture)
 	{

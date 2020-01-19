@@ -66,5 +66,3 @@ void USWidgetCompHealthBar::UpdateWidgetName(FString PlayerName)
 		HealthBarInst->SetNameText(PlayerName);
 	}
 }
-
-

@@ -48,6 +48,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	TArray<UWidgetInventorySlot*> InventorySlots;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AmmoTextures")
+	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UUniformGridPanel* SlotGrid;
 

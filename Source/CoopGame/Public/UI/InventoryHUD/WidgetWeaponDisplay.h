@@ -17,7 +17,7 @@ class COOPGAME_API UWidgetWeaponDisplay : public UUserWidget
 	
 
 public:
-	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo);
+	void InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, const TMap<EAmmoType, class UTexture2D*>& AmmoTextureMap);
 
 	void QueryToSetExtraAmmo(EAmmoType NewAmmoType, int32 NewExtraAmmo);
 
@@ -25,7 +25,7 @@ public:
 
 	void SetWeaponText(FName NewWeaponName);
 
-	void SetAmmoImage(EAmmoType NewAmmoType);
+	void SetAmmoImage(EAmmoType NewAmmoType, const TMap<EAmmoType, class UTexture2D*>& AmmoTextureMap);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -37,15 +37,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* CurrentWeaponText;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AmmoTextures")
-	TMap<EAmmoType, class UTexture2D*> AmmoToTextureMap;
-
 	FWeaponInfo CurrentWeaponInfo;
 
 	int32 ExtraClipSize;
 
 	int32 TempCurrentAmmo;
-
-
 
 };

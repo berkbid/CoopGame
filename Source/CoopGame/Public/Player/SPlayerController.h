@@ -52,6 +52,8 @@ public:
 
 	bool GetIsAmmoTypeFull(EAmmoType AmmoTypeToCheck) const;
 
+	void HandlePawnDied();
+
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Client called functions from OnRep variables on all PlayerStates, to update HUD scoreboard
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -174,11 +176,11 @@ protected:
 	TSubclassOf<class USUserWidgetGameInfo> wGameInfo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<class USUserWidgetInventoryInfo> wInventoryInfo;
+	TSubclassOf<class UWidgetInventoryPage> wInventoryInfo;
 
 	class USUserWidgetGameInfo* MyGameInfo;
 
-	class USUserWidgetInventoryInfo* MyInventoryInfo;
+	class UWidgetInventoryPage* MyInventoryInfo;
 
 	/* Client controlled pointer used in Tick() line trace to keep track of selected item */
 	class ASInteractable* CurrentSelectedInteractable;

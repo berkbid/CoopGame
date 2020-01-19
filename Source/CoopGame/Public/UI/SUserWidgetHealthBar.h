@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* NameText;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidgetAnim))
+	class UWidgetAnimation* FadeOut;
+
 	float MaxHealth;
 
 public:

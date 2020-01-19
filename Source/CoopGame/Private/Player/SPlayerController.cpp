@@ -3,7 +3,7 @@
 
 #include "SPlayerController.h"
 #include "SUserWidgetGameInfo.h"
-#include "SUserWidgetInventoryInfo.h"
+#include "WidgetInventoryPage.h"
 #include "SPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "SGameState.h"
@@ -172,6 +172,7 @@ void ASPlayerController::ServerPostLogin()
 
 	// Handle HUD changing to slot
 	ClientChangeToSlotHUD(CurrentSlot);
+
 	// Initialize ammo info for HUD
 	ClientInitAmmoInventoryHUD(AmmoInventory);
 }
@@ -197,7 +198,7 @@ void ASPlayerController::ClientPostLogin_Implementation()
 		// Add inventory info to viewport, set hidden by default, toggle with keybind "C"
 		if (wInventoryInfo) 
 		{
-			MyInventoryInfo = CreateWidget<USUserWidgetInventoryInfo>(this, wInventoryInfo);
+			MyInventoryInfo = CreateWidget<UWidgetInventoryPage>(this, wInventoryInfo);
 			if (MyInventoryInfo)
 			{
 				MyInventoryInfo->AddToViewport();
@@ -445,6 +446,17 @@ bool ASPlayerController::GetIsAmmoTypeFull(EAmmoType AmmoTypeToCheck) const
 	return AmmoInventory.QueryExtraOfType(AmmoTypeToCheck) <= 0;
 }
 
+// Server code for when pawn is dead
+void ASPlayerController::HandlePawnDied()
+{
+	// Update our stats which will trigger OnRep for other clients to update their scoreboards
+	if (ASPlayerState* PS = Cast<ASPlayerState>(PlayerState))
+	{
+		PS->AddDeath();
+		PS->AddScore(-20.f);
+	}
+}
+
 void ASPlayerController::ToggleInventory()
 {
 	if (!MyGameInfo) { return; }
@@ -502,11 +514,9 @@ void ASPlayerController::UpdatePlayerDeathsHUD(uint32 PlayerNumber, uint32 NewDe
 		MyGameInfo->UpdatePlayerDeaths(PlayerNumber, NewDeaths);
 	}
 
-	// Client handle death situation on player controller
-	ASPlayerState* PS = GetPlayerState<ASPlayerState>();
-	if (PS)
+	if (PlayerState)
 	{
-		if (PS->PlayerNumber == PlayerNumber)
+		if (PlayerState->PlayerId == PlayerNumber)
 		{
 			CurrentSelectedInteractable = nullptr;
 		}

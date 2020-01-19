@@ -34,9 +34,6 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_CurrentWeapon();
 
-	UFUNCTION()
-	void OnRep_Death();
-
 	UFUNCTION(Server, Reliable)
 	void ServerSetWidgetName();
 
@@ -64,7 +61,7 @@ protected:
 	FName WeaponAttachSocketName;
 
 	// We replicate this boolean so when player dies on server, all clients get updated thus playing replicated death animation
-	UPROPERTY(ReplicatedUsing=OnRep_Death, BlueprintReadOnly, Category = "Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bDied;
 
 public:	

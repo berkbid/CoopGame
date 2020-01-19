@@ -9,6 +9,8 @@
 #include "GameFramework/Pawn.h"
 #include "SPlayerState.h"
 #include "SPlayerCharacter.h"
+#include "Animation/WidgetAnimation.h"
+
 //#include "Runtime/UMG/Public/UMG.h"
 //#include "Runtime/UMG/Public/UMGStyle.h"
 //#include "Runtime/UMG/Public/Slate/SObjectWidget.h"
@@ -92,6 +94,15 @@ void USUserWidgetHealthBar::HandleHealthChanged(USHealthComponent* HealthComp, f
 {
 	if (HealthBar)
 	{
+		// If this players health is 0, fade out this widget's visibility
+		if (Health <= 0)
+		{
+			if (FadeOut)
+			{
+				PlayAnimation(FadeOut, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f, false);
+			}
+		}
+
 		HealthBar->SetPercent(Health / MaxHealth);
 	}
 }

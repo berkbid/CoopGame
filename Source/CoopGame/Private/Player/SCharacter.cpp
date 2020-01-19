@@ -2,7 +2,6 @@
 
 
 #include "SCharacter.h"
-#include "GameFramework/PawnMovementComponent.h"
 #include "Engine/World.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -141,33 +140,29 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthCompNew, float Health
 			CurrentWeapon->Destroy();
 		}
 
-		// While PlayerState is valid before we detach and destroy this pawn, update Death count
-		if (ASPlayerState* PS = GetPlayerState<ASPlayerState>())
+		// Run server code on player controller that owns this pawn upon reaching 0 health
+		ASPlayerController* PC = Cast<ASPlayerController>(GetController());
+		if (PC)
 		{
-			PS->AddDeath();
-			PS->AddScore(-10.f);
+			PC->HandlePawnDied();
+			//if (DamageCauser)
+			//{
+			//	PC->SetViewTargetWithBlend(DamageCauser, 0.5f, VTBlend_Cubic);
+			//}
+			
 		}
 
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetCharacterMovement()->DisableMovement();
+		// Detaches player from the actor, then actor destroys in 5 seconds
+		DetachFromControllerPendingDestroy();
+		
+		SetLifeSpan(5.f);
+		// This replicates so clients can play death animation
 		bDied = true;
-		// This will manually call this method for the server, meanwhile clients call the method when bDied gets changed & ReplicatedUsing=OnRepDeath()
-		OnRep_Death();
 	}
-}
-
-// Replicated actions for death
-void ASCharacter::OnRep_Death()
-{
-	GetMovementComponent()->StopMovementImmediately();
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCharacterMovement()->DisableMovement();
-	if (HealthBar)
-	{
-		HealthBar->SetVisibility(false);
-	}
-	// Detaches player from the actor, then actor destroys in 10 seconds
-	DetachFromControllerPendingDestroy();
-	SetLifeSpan(10.f);
 }
 
 void ASCharacter::ServerStartFire_Implementation()

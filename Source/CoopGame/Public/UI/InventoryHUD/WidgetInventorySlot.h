@@ -26,10 +26,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* SlotAmmoText;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UImage* SlotAmmoImage;
+
 	void UpdateAmmoText();
 
 public:
-	void InitSlot(class UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo);
+	void InitSlot(class UTexture2D* WeaponTexture, const FWeaponInfo& NewWeaponInfo, const TMap<EAmmoType, class UTexture2D*>& AmmoTextureMap);
 
 	void ActivateSlot();
 
