@@ -21,9 +21,18 @@ void UWidgetWeaponDisplay::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int3
 void UWidgetWeaponDisplay::SetAmmoText(int32 NewCurrentAmmo)
 {
 	TempCurrentAmmo = NewCurrentAmmo;
+
 	if (CurrentWeaponAmmo)
 	{
-		CurrentWeaponAmmo->SetText(FText::FromString(FString::FromInt(NewCurrentAmmo) + " / " + FString::FromInt(ExtraClipSize)));
+		// If we have a weapon equipped, set ammo text, else set text to nothing
+		if (CurrentWeaponInfo.WeaponClass)
+		{
+			CurrentWeaponAmmo->SetText(FText::FromString(FString::FromInt(NewCurrentAmmo) + " / " + FString::FromInt(ExtraClipSize)));
+		}
+		else
+		{
+			CurrentWeaponAmmo->SetText(FText());
+		}
 	}
 }
 
