@@ -35,6 +35,8 @@ protected:
 
 	void UpdateAmmoText();
 
+	bool bIsActiveSlot;
+
 public:
 	void InitSlot(const FWeaponInfo& NewWeaponInfo, const TMap<TSubclassOf<class ASWeapon>, UTexture2D*>& WeaponTextureMapRef, const TMap<EAmmoType, UTexture2D*>& AmmoTextureMapRef);
 

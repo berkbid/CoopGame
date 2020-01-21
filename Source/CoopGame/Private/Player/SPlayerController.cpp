@@ -528,38 +528,42 @@ void ASPlayerController::UpdatePlayerDeathsHUD(uint32 PlayerNumber, uint32 NewDe
 
 void ASPlayerController::EquipSlotOne()
 {
+	if (CurrentSlot == 0) { return; }
 	ServerEquipWeaponSlot(0);
 }
 
 void ASPlayerController::EquipSlotTwo()
 {
+	if (CurrentSlot == 1) { return; }
 	ServerEquipWeaponSlot(1);
 }
 
 void ASPlayerController::EquipSlotThree()
 {
+	if (CurrentSlot == 2) { return; }
 	ServerEquipWeaponSlot(2);
 }
 
 void ASPlayerController::EquipSlotFour()
 {
+	if (CurrentSlot == 3) { return; }
 	ServerEquipWeaponSlot(3);
 }
 
 void ASPlayerController::EquipSlotFive()
 {
+	if (CurrentSlot == 4) { return; }
 	ServerEquipWeaponSlot(4);
 }
 
 void ASPlayerController::EquipSlotSix()
 {
+	if (CurrentSlot == 5) { return; }
 	ServerEquipWeaponSlot(5);
 }
 
 void ASPlayerController::ServerEquipWeaponSlot_Implementation(uint8 SlotToEquip)
 {
-	if (CurrentSlot == SlotToEquip) { return; }
-
 	EquipWeapon(SlotToEquip);
 }
 

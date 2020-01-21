@@ -57,13 +57,29 @@ void UWidgetInventorySlot::InitSlot(const FWeaponInfo& NewWeaponInfo, const TMap
 			SlotAmmoImage->SetBrushFromTexture(CurrentAmmoTexture);
 		}
 	}
+
+	// Set border visibility depending if slot is active upon initializing it
+	if (ImageBorder)
+	{
+		if (bIsActiveSlot)
+		{
+			ImageBorder->SetBrushColor(FLinearColor(1.f, 1.f, 1.f, 1.f));
+		}
+		else
+		{
+			ImageBorder->SetBrushColor(FLinearColor(1.f, 1.f, 1.f, 0.f));
+		}
+	}
 }
 
 void UWidgetInventorySlot::ActivateSlot()
 {
+	bIsActiveSlot = true;
+
 	if (ImageBorder)
 	{
-		ImageBorder->SetBrushColor(FLinearColor(1.f, 1.f, 0.f, 0.75f));
+		ImageBorder->SetBrushColor(FLinearColor(1.f, 1.f, 1.f, 1.f));
+		ImageBorder->SetRenderScale(FVector2D(1.f));
 	}
 
 	SetRenderTranslation(FVector2D(0.f, -20.f));
@@ -71,9 +87,20 @@ void UWidgetInventorySlot::ActivateSlot()
 
 void UWidgetInventorySlot::ResetSlot()
 {
+	bIsActiveSlot = false;
+
 	if (ImageBorder)
 	{
-		ImageBorder->SetBrushColor(FLinearColor(1.f, 1.f, 1.f, 0.75f));
+		if (CurrentWeaponInfo.WeaponClass)
+		{
+			ImageBorder->SetBrushColor(FLinearColor(1.f, 1.f, 1.f, 0.f));
+		}
+		else
+		{
+			ImageBorder->SetBrushColor(FLinearColor(1.f, 1.f, 1.f, 0.5f));
+			ImageBorder->SetRenderScale(FVector2D(0.9f));
+		}
+		
 	}
 
 	SetRenderTranslation(FVector2D(0.f, 0.f));
