@@ -5,6 +5,7 @@
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Engine/Texture2D.h"
+#include "Animation/WidgetAnimation.h"
 
 void UWidgetWeaponDisplay::InitWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, UTexture2D* AmmoTexture)
 {
@@ -34,6 +35,10 @@ void UWidgetWeaponDisplay::SetWeaponText(FName NewWeaponName)
 		if (CurrentWeaponInfo.WeaponClass)
 		{
 			CurrentWeaponText->SetText(FText::FromString(NewWeaponName.ToString()));
+			if (FadeInWeaponName)
+			{
+				PlayAnimation(FadeInWeaponName, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f, false);
+			}
 		}
 		else
 		{

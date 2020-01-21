@@ -41,6 +41,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* CurrentWeaponText;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidgetAnim))
+	class UWidgetAnimation* FadeInWeaponName;
+
 	FWeaponInfo CurrentWeaponInfo;
 
 	int32 ExtraClipSize;

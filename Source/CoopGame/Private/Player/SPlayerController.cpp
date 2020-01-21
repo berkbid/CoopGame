@@ -99,6 +99,7 @@ void ASPlayerController::TraceForInteractables()
 		{
 			if (HitInteractable != CurrentSelectedInteractable)
 			{
+				// Hide old item info, show new item info, and store new item in CurrentSelectedInteractable pointer
 				CurrentSelectedInteractable->HideItemInfo();
 				HitInteractable->InitItemInfo(this);
 				CurrentSelectedInteractable = HitInteractable;

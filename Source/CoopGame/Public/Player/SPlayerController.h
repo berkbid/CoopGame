@@ -194,9 +194,9 @@ protected:
 	/* Manually set property in the constructor, set to 6 because we only have keybinds and HUD setup for 6 slots */
 	uint8 InventoryMaxSize;
 
-	/* Server controlled variable which the client also updates when passed the value in server to client RPC */
+	/* Server controlled variable which the client also updates when passed the value from server to client RPC */
 	uint8 CurrentInventorySize;
 
-	/* Server controlled variable which the client also updates when passed the value in server to client RPC */
+	/* Server controlled variable which the client also updates when passed the value from server to client RPC */
 	bool bIsInventoryFull;
 };
