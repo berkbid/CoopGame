@@ -35,6 +35,8 @@ void UWidgetWeaponDisplay::SetWeaponText(FName NewWeaponName)
 		if (CurrentWeaponInfo.WeaponClass)
 		{
 			CurrentWeaponText->SetText(FText::FromString(NewWeaponName.ToString()));
+
+			// Play fade in animation for weapon text to show it
 			if (FadeInWeaponName)
 			{
 				PlayAnimation(FadeInWeaponName, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f, false);
