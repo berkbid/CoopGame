@@ -7,6 +7,7 @@
 #include "WidgetAmmoDisplay.h"
 #include "Engine/Texture2D.h"
 #include "Components/UniformGridPanel.h"
+#include "Components/UniformGridSlot.h"
 #include "SWeapon.h"
 
 
@@ -154,6 +155,33 @@ void UWidgetInventoryHUD::UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int
 	{
 		WeaponDisplay->InitWeaponInfo(NewWeaponInfo, NewExtraAmmo, NewAmmoTexture);
 	}
+}
+
+void UWidgetInventoryHUD::InitInventoryHUD()
+{
+	if (SlotGrid)
+	{
+		int32 InvLen = InventorySlots.Num();
+
+		for (int i = 0; i < InvLen; ++i)
+		{
+			UWidgetInventorySlot* SlotTemp = InventorySlots[i];
+			SlotTemp->RemoveFromParent();
+			SlotTemp->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		
+			if (UUniformGridSlot* GridSlotTemp = SlotGrid->AddChildToUniformGrid(SlotTemp))
+			{
+
+				GridSlotTemp->SetColumn(i);
+			}
+			
+		}
+	}
+}
+
+const TArray<UWidgetInventorySlot*>& UWidgetInventoryHUD::GetInventorySlotWidgets()
+{
+	return InventorySlots;
 }
 
 void UWidgetInventoryHUD::SetMiniAmmoText(FString NewText)

@@ -14,4 +14,18 @@ class COOPGAME_API UWidgetInventoryPage : public UUserWidget
 {
 	GENERATED_BODY()
 	
+
+protected:
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWidgetInventoryPageContainer* InventoryContainer;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWidgetInventoryItemDisplay* InventoryItemDisplay;
+
+public:
+
+	void InitInventoryPage();
+
+	void GetInventorySlotReferences(const TArray<class UWidgetInventorySlot*>& InventorySlotArrayRef);
 };

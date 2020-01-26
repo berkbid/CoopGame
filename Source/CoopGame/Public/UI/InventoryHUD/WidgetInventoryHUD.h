@@ -39,6 +39,11 @@ public:
 	/* Update weapon info display, data passed from data stored in slot */
 	void UpdateWeaponInfo(const FWeaponInfo& NewWeaponInfo, int32 NewExtraAmmo, UTexture2D* NewAmmoTexture);
 
+	void InitInventoryHUD();
+
+	/* Return reference to array of inventory slots */
+	const TArray<UWidgetInventorySlot*>& GetInventorySlotWidgets();
+
 	void SetMiniAmmoText(FString NewText);
 	void SetMediumAmmoText(FString NewText);
 	void SetHeavyAmmoText(FString NewText);

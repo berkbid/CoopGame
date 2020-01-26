@@ -175,12 +175,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class USUserWidgetGameInfo> wGameInfo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<class UWidgetInventoryPage> wInventoryInfo;
-
 	class USUserWidgetGameInfo* MyGameInfo;
-
-	class UWidgetInventoryPage* MyInventoryInfo;
 
 	/* Client controlled pointer used in Tick() line trace to keep track of selected item */
 	class ASInteractable* CurrentSelectedInteractable;

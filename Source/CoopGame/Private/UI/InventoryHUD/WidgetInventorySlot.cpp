@@ -20,7 +20,7 @@ void UWidgetInventorySlot::InitSlot(const FWeaponInfo& NewWeaponInfo, const TMap
 	// Set text visible and initial text value
 	if (SlotAmmoText)
 	{
-		SlotAmmoText->SetVisibility(ESlateVisibility::Visible);
+		SlotAmmoText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		SlotAmmoText->SetText(FText::FromString(FString::FromInt(CurrentSlotAmmo)));
 	}
 
@@ -38,7 +38,7 @@ void UWidgetInventorySlot::InitSlot(const FWeaponInfo& NewWeaponInfo, const TMap
 		if (CurrentWeaponTexture)
 		{
 			WeaponImage->SetBrushFromTexture(CurrentWeaponTexture);
-			WeaponImage->SetVisibility(ESlateVisibility::Visible);
+			WeaponImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 	}
 

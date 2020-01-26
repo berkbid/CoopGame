@@ -33,6 +33,9 @@ protected:
 	class UWidgetScoreboardHUD* ScoreboardHUD;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWidgetInventoryPage* InventoryInfoPage;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* StateText;
 
 	/* Mapping from Weapon class type to textures */
@@ -45,11 +48,15 @@ protected:
 
 public:
 
+	virtual void SynchronizeProperties() override;
+
 	virtual bool Initialize() override;
 
 	/* Set the owning actor so widgets have access to whatever is, broadcasting OnOwningActorChanged event */
 	UFUNCTION(BlueprintCallable, Category = "LODZERO|UI")
 	void SetOwningController(class APlayerController* NewController);
+
+	bool ToggleInventoryPage();
 
 	void HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo& NewWeaponInfo);
 

@@ -12,6 +12,18 @@
 #include "SWeapon.h"
 #include "WidgetInventoryHUD.h"
 #include "Scoreboard/WidgetScoreboardHUD.h"
+#include "WidgetInventoryPage.h"
+
+void USUserWidgetGameInfo::SynchronizeProperties()
+{
+	Super::SynchronizeProperties();
+
+	// Send inventory slot reference array to inventory info page to store duplicate
+	if (InventoryInfoPage && InventoryHUD)
+	{
+		InventoryInfoPage->GetInventorySlotReferences(InventoryHUD->GetInventorySlotWidgets());
+	}
+}
 
 bool USUserWidgetGameInfo::Initialize()
 {
@@ -29,6 +41,32 @@ void USUserWidgetGameInfo::SetOwningController(APlayerController* NewController)
 	// Skip repeated calls
 	if (OwningController == NewController) { return; }
 	OwningController = NewController;
+}
+
+bool USUserWidgetGameInfo::ToggleInventoryPage()
+{
+	if (InventoryInfoPage && InventoryHUD)
+	{
+		if (InventoryInfoPage->IsVisible())
+		{
+			InventoryHUD->InitInventoryHUD();
+
+			InventoryInfoPage->SetVisibility(ESlateVisibility::Hidden);
+			InventoryHUD->SetVisibility(ESlateVisibility::HitTestInvisible);
+			return false;
+		}
+		else
+		{
+			InventoryInfoPage->InitInventoryPage();
+
+			// Must set visibility of InfoPage to "Visible" so that it can be interacted with mouse since it contains a Canvas Panel
+			InventoryInfoPage->SetVisibility(ESlateVisibility::Visible);
+			InventoryHUD->SetVisibility(ESlateVisibility::Hidden);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 // When player picks up a weapon, update inventory with weapon picture and Slot Ammo amount

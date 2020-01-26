@@ -195,17 +195,6 @@ void ASPlayerController::ClientPostLogin_Implementation()
 				MyGameInfo->AddToViewport();
 			}
 		}
-		
-		// Add inventory info to viewport, set hidden by default, toggle with keybind "C"
-		if (wInventoryInfo) 
-		{
-			MyInventoryInfo = CreateWidget<UWidgetInventoryPage>(this, wInventoryInfo);
-			if (MyInventoryInfo)
-			{
-				MyInventoryInfo->AddToViewport();
-				MyInventoryInfo->SetVisibility(ESlateVisibility::Hidden);
-			}
-		}
 	}
 }
 
@@ -462,27 +451,20 @@ void ASPlayerController::HandlePawnDied()
 
 void ASPlayerController::ToggleInventory()
 {
-	if (!MyGameInfo) { return; }
-	if (!MyInventoryInfo) { return; }
-
-	// If inventory info is visible, then hide it and show game info
-	if (MyInventoryInfo->Visibility != ESlateVisibility::Hidden)
+	if (MyGameInfo)
 	{
-		//MyGameInfo->RestoreInventoryWidget();
-		MyGameInfo->SetVisibility(ESlateVisibility::HitTestInvisible); 
-			
-		MyInventoryInfo->SetVisibility(ESlateVisibility::Hidden);
-		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
-		bShowMouseCursor = false;
-	}
-	else
-	{
-		MyGameInfo->SetVisibility(ESlateVisibility::Hidden); 
-		//MyInventoryInfo->AddInventoryWidget(MyGameInfo->GiveInventoryWidget());
-
-		MyInventoryInfo->SetVisibility(ESlateVisibility::HitTestInvisible);
-		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyInventoryInfo);
-		bShowMouseCursor = true;
+		// If we are opening inventory page, setup this state
+		if (MyGameInfo->ToggleInventoryPage())
+		{
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyGameInfo);
+			bShowMouseCursor = true;
+		}
+		// If we are closing inventory page, go back to game only state
+		else
+		{
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+			bShowMouseCursor = false;
+		}
 	}
 }
 
