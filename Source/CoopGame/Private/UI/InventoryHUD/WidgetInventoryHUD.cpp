@@ -171,10 +171,8 @@ void UWidgetInventoryHUD::InitInventoryHUD()
 		
 			if (UUniformGridSlot* GridSlotTemp = SlotGrid->AddChildToUniformGrid(SlotTemp))
 			{
-
 				GridSlotTemp->SetColumn(i);
 			}
-			
 		}
 	}
 }

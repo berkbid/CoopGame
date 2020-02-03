@@ -2,22 +2,22 @@
 
 
 #include "SPlayerController.h"
-#include "SUserWidgetGameInfo.h"
-#include "WidgetInventoryPage.h"
 #include "SPlayerCharacter.h"
-#include "Net/UnrealNetwork.h"
-#include "SGameState.h"
 #include "SPlayerState.h"
-#include "Engine/World.h"
+#include "SGameState.h"
 #include "SGameMode.h"
+#include "SWeapon.h"
+#include "SWeaponPickup.h"
+#include "SInteractable.h"
+#include "SUserWidgetGameInfo.h"
+#include "CoopGame.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
-#include "SWeapon.h"
-#include "CoopGame.h"
 #include "DrawDebugHelpers.h"
-#include "SInteractable.h"
 #include "BluePrint/WidgetBlueprintLibrary.h"
-#include "SWeaponPickup.h"
+
 
 ASPlayerController::ASPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
