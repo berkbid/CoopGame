@@ -48,7 +48,7 @@ void UWidgetInventoryHUD::HandlePickupWeapon(int32 WeaponSlot, const FWeaponInfo
 			NewSlot->InitSlot(NewWeaponInfo, WeaponTextureMapRef, AmmoTextureMapRef);
 			NewSlot->UpdateExtraAmmo(CurrentAmmoInfo.GetAmmoTypeAmount(NewWeaponInfo.AmmoType));
 		}
-		// If we pickup weapon in our current slot, return true
+		// If we pickup weapon in our current slot
 		if (NewSlot == CurrentSlot)
 		{
 			// Query for extra ammo for current slot and update weapon info

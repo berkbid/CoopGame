@@ -21,7 +21,7 @@ class COOPGAME_API ASGameMode : public AGameMode
 
 protected:
 
-	// Hoook for BP to spawn a single bot
+	// Hook for BP to spawn a single bot
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 	void SpawnNewBot();
 
