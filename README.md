@@ -6,12 +6,9 @@ Multiplayer Game in Unreal Engine using C++, originally started from a course on
 ![CoopGame Image](https://berkbid.github.io/Images/CoopGameNew.png)
 
 ## Personal Additions
-- Weapon Inventory with HUD Display
-- Weapon pickups, working with inventory HUD
-- Weapon rarities working with HUD
-- Weapon swapping, inventory HUD visualization for this as well
-- Health bar widget components with event driven updating
-- Scoreboard on screen, dynamically adds new players
-- Scoreboard updates replicated PlayerState data from all players
-- Ammo functionality for weapons with HUD updates
-- Widget components for weapon and ammo pickups with advanced updating
+- Weapon pickups with different rarities, with chests
+- Inventory for weapons and ammo
+- Scoreboard showing kills/deaths/score of each player
+- Health bars showing players name above
+- UI for pickups, showing accurate information of weapon/ammo
+- UI for weapon, ammo, and inventory all done in UMG, mainly C++
