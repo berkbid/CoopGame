@@ -29,6 +29,7 @@ ASCharacter::ASCharacter()
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	HealthComp = CreateDefaultSubobject<USHealthComponent>("HealthComp");
+	HealthComp->SetIsReplicated(true);
 
 	HealthBar = CreateDefaultSubobject<USWidgetCompHealthBar>("HealthBar");
 	HealthBar->SetupAttachment(RootComponent);

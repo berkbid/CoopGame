@@ -47,8 +47,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	class USoundBase* WeaponSwapSound;
 
-
-	UPROPERTY(Replicated)
 	int32 CurrentClipSize;
 
 	void InitWeaponState(const FWeaponStats& NewWeaponStats, int32 CurrentAmmo);

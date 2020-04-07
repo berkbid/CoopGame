@@ -18,7 +18,7 @@ USHealthComponent::USHealthComponent()
 
 	TeamNum = 255;
 	//Here?
-	SetIsReplicated(true);
+	//SetIsReplicated(true);
 }
 
 
