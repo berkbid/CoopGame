@@ -34,10 +34,11 @@ ASInteractable::ASInteractable()
 
 	// Sphere component for line traces from players
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-	SphereComp->SetCollisionObjectType(COLLISION_INTERACTABLEOBJECT);
+	SphereComp->SetCollisionObjectType(ECC_WorldStatic);
 	SphereComp->SetGenerateOverlapEvents(false);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	SphereComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
 	SphereComp->SetupAttachment(RootComponent);
 
 	// Widget component to display info of interactable item to player upon line trace with sphere component

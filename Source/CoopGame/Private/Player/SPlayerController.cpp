@@ -89,32 +89,43 @@ void ASPlayerController::TraceForInteractables()
 	TArray<FHitResult> HitArray;
 	if (FindTraceHitArray(HitArray))
 	{
-		AActor* HitActor = HitArray.Last().GetActor();
-		if (!HitActor) { return; }
-		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-		if (!HitInteractable) { return; }
 
-		// If we were previously interacting with an object, and the new object is a different object
-		if (CurrentSelectedInteractable)
+		ASInteractable* HitInteractable = Cast<ASInteractable>(HitArray.Last().GetActor());
+		// If the actor we hit in the invisibility trace is an interactable
+		if (HitInteractable)
 		{
-			if (HitInteractable != CurrentSelectedInteractable)
+			// If we were previously interacting with an object, and the new object is a different object
+			if (CurrentSelectedInteractable)
 			{
-				// Hide old item info, show new item info, and store new item in CurrentSelectedInteractable pointer
-				CurrentSelectedInteractable->HideItemInfo();
+				if (HitInteractable != CurrentSelectedInteractable)
+				{
+					// Hide old item info, show new item info, and store new item in CurrentSelectedInteractable pointer
+					CurrentSelectedInteractable->HideItemInfo();
+					HitInteractable->InitItemInfo(this);
+					CurrentSelectedInteractable = HitInteractable;
+				}
+			}
+			// If we find a new interactable and were previously interacting with nothing
+			else
+			{
 				HitInteractable->InitItemInfo(this);
 				CurrentSelectedInteractable = HitInteractable;
 			}
 		}
-		// If we find a new interactable and were previously interacting with nothing
+		// If we hit an actor that is not an interactable
 		else
 		{
-			HitInteractable->InitItemInfo(this);
-			CurrentSelectedInteractable = HitInteractable;
+			// If we previously had an interactable selected, deselect it
+			if (CurrentSelectedInteractable)
+			{
+				CurrentSelectedInteractable->HideItemInfo();
+				CurrentSelectedInteractable = nullptr;
+			}
 		}
 	}
-	// If we didn't hit anything AND we have a current selected interactable, de-select it
 	else
 	{
+		// If we didn't hit anything AND we have a current selected interactable, de-select it
 		if (CurrentSelectedInteractable)
 		{
 			CurrentSelectedInteractable->HideItemInfo();
@@ -125,6 +136,9 @@ void ASPlayerController::TraceForInteractables()
 
 bool ASPlayerController::FindTraceHitArray(TArray<FHitResult>& OutHits)
 {
+	UWorld* CurrentWorld = GetWorld();
+	if(!CurrentWorld) { return false; }
+
 	FVector EyeLocation;
 	FRotator EyeRotation;
 	// We override the location return in SCharacter.cpp to return camera location instead
@@ -134,7 +148,19 @@ bool ASPlayerController::FindTraceHitArray(TArray<FHitResult>& OutHits)
 	FVector TraceEnd = TraceStart + (TraceDirection * ItemTraceDistance);
 	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
 
-	return GetWorld()->LineTraceMultiByObjectType(OutHits, TraceStart, TraceEnd, TraceObjectQueryParams);
+	// Do line trace by visibility channel instead
+	//return GetWorld()->LineTraceMultiByObjectType(OutHits, TraceStart, TraceEnd, TraceObjectQueryParams);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.bFindInitialOverlaps = true;
+	//QueryParams.AddIgnoredActor(MyOwner);
+	//QueryParams.AddIgnoredActor(this);
+	// Trace against each individual triangle of mesh we are hitting, more expensive trace query
+	QueryParams.bTraceComplex = false;
+
+	// If blocking hit, process damage
+	// This line trace starts from camera location and goes in direction of eyerotation, ends up being middle of screen, collision_weapon defined in CoopGame.h
+	return CurrentWorld->LineTraceMultiByChannel(OutHits, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
 }
 
 // This gets replicated when PlayerState is assigned to this controller and is valid for the first time
