@@ -70,7 +70,6 @@ void ASPlayerController::BeginPlay()
 			}
 		}
 	}
-
 }
 
 void ASPlayerController::Tick(float DeltaTime)
@@ -86,46 +85,30 @@ void ASPlayerController::Tick(float DeltaTime)
 
 void ASPlayerController::TraceForInteractables()
 {
-	TArray<FHitResult> HitArray;
-	if (FindTraceHitArray(HitArray))
+	ASInteractable* HitInteractable = FindTraceHitInteractable();
+	if (HitInteractable)
 	{
-
-		ASInteractable* HitInteractable = Cast<ASInteractable>(HitArray.Last().GetActor());
-		// If the actor we hit in the invisibility trace is an interactable
-		if (HitInteractable)
+		// If we were previously interacting with an object, and the new object is a different object
+		if (CurrentSelectedInteractable)
 		{
-			// If we were previously interacting with an object, and the new object is a different object
-			if (CurrentSelectedInteractable)
+			if (HitInteractable != CurrentSelectedInteractable)
 			{
-				if (HitInteractable != CurrentSelectedInteractable)
-				{
-					// Hide old item info, show new item info, and store new item in CurrentSelectedInteractable pointer
-					CurrentSelectedInteractable->HideItemInfo();
-					HitInteractable->InitItemInfo(this);
-					CurrentSelectedInteractable = HitInteractable;
-				}
-			}
-			// If we find a new interactable and were previously interacting with nothing
-			else
-			{
+				// Hide old item info, show new item info, and store new item in CurrentSelectedInteractable pointer
+				CurrentSelectedInteractable->HideItemInfo();
 				HitInteractable->InitItemInfo(this);
 				CurrentSelectedInteractable = HitInteractable;
 			}
 		}
-		// If we hit an actor that is not an interactable
+		// If we find a new interactable and were previously interacting with nothing
 		else
 		{
-			// If we previously had an interactable selected, deselect it
-			if (CurrentSelectedInteractable)
-			{
-				CurrentSelectedInteractable->HideItemInfo();
-				CurrentSelectedInteractable = nullptr;
-			}
+			HitInteractable->InitItemInfo(this);
+			CurrentSelectedInteractable = HitInteractable;
 		}
 	}
 	else
 	{
-		// If we didn't hit anything AND we have a current selected interactable, de-select it
+		// If we previously had an interactable selected, deselect it
 		if (CurrentSelectedInteractable)
 		{
 			CurrentSelectedInteractable->HideItemInfo();
@@ -134,7 +117,7 @@ void ASPlayerController::TraceForInteractables()
 	}
 }
 
-bool ASPlayerController::FindTraceHitArray(TArray<FHitResult>& OutHits)
+ASInteractable* ASPlayerController::FindTraceHitInteractable()
 {
 	UWorld* CurrentWorld = GetWorld();
 	if(!CurrentWorld) { return false; }
@@ -148,19 +131,36 @@ bool ASPlayerController::FindTraceHitArray(TArray<FHitResult>& OutHits)
 	FVector TraceEnd = TraceStart + (TraceDirection * ItemTraceDistance);
 	//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Blue, false, .1f, 0, 5.f);
 
-	// Do line trace by visibility channel instead
-	//return GetWorld()->LineTraceMultiByObjectType(OutHits, TraceStart, TraceEnd, TraceObjectQueryParams);
 
 	FCollisionQueryParams QueryParams;
-	QueryParams.bFindInitialOverlaps = true;
-	//QueryParams.AddIgnoredActor(MyOwner);
-	//QueryParams.AddIgnoredActor(this);
 	// Trace against each individual triangle of mesh we are hitting, more expensive trace query
 	QueryParams.bTraceComplex = false;
 
+	ASInteractable* ReturnInteractable = nullptr;
+	TArray<FHitResult> HitArray;
 	// If blocking hit, process damage
 	// This line trace starts from camera location and goes in direction of eyerotation, ends up being middle of screen, collision_weapon defined in CoopGame.h
-	return CurrentWorld->LineTraceMultiByChannel(OutHits, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
+	if (CurrentWorld->LineTraceMultiByChannel(HitArray, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		ASInteractable* HitInteractable = Cast<ASInteractable>(HitArray.Last().GetActor());
+		// If the actor we hit in the invisibility trace is an interactable
+		if (HitInteractable)
+		{
+			ReturnInteractable = HitInteractable;
+		}
+		// If we hit an actor that is not an interactable
+		else
+		{
+			// If we overlapped with more than 1 actor, lets return the first actor instead since the last one wasn't an interactable
+			if (HitArray.Num() > 1)
+			{
+				// Return this actor instead, no need to check if it is an interactable
+				ReturnInteractable = Cast<ASInteractable>(HitArray[0].GetActor());
+			}
+		}
+	}
+
+	return ReturnInteractable;
 }
 
 // This gets replicated when PlayerState is assigned to this controller and is valid for the first time
@@ -306,15 +306,10 @@ void ASPlayerController::Interact()
 	// We only allow interacting with item if we possess a pawn
 	if (!GetPawn()) { return; }
 	
-	TArray<FHitResult> HitArray;
-	// If any hit is found, interact and pass reference to self
-	if (FindTraceHitArray(HitArray))
+	// Do a trace and see if we hit an interactable, if so, call interact on it!
+	ASInteractable* HitInteractable = FindTraceHitInteractable();
+	if (HitInteractable)
 	{
-		AActor* HitActor = HitArray.Last().GetActor();
-		if (!HitActor) { return; }
-		ASInteractable* HitInteractable = Cast<ASInteractable>(HitActor);
-		if (!HitInteractable) { return; }
-
 		// Interact with item and pass reference to self
 		HitInteractable->Interact(this);
 	}

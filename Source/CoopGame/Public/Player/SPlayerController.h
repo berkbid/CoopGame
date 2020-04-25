@@ -88,7 +88,7 @@ protected:
 	void TraceForInteractables();
 
 	/* Helper method for both Tick() function and Interact() function to use for the same line trace parameters */
-	bool FindTraceHitArray(TArray<FHitResult>& OutHits);
+	class ASInteractable* FindTraceHitInteractable();
 
 	virtual void SetupInputComponent() override;
 
