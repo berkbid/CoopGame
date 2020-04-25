@@ -315,7 +315,7 @@ void ASPlayerController::Interact()
 	}
 }
 
-// Try to pick up weapon if inventory has space, return success or failure
+// Try to pick up weapon if inventory has space, return success or failure, called from weapon pickup, from SERVER
 bool ASPlayerController::PickedUpNewWeapon(const FWeaponInfo& WeaponInfo, bool bDidInteract)
 {
 	if (GetLocalRole() < ROLE_Authority) { return false; }

@@ -64,6 +64,7 @@ void ASInteractable::HideItemInfo()
 	SetInfoInvisible();
 }
 
+// Override this in child classes to define behavior, none by default
 void ASInteractable::Interact(APlayerController* InteractedPC)
 {
 }

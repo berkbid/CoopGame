@@ -12,8 +12,39 @@
 ASWeaponPickup::ASWeaponPickup()
 {
 	WeaponInfo = FWeaponInfo();
+	WeaponCurrentAmmo = 0;
 	SphereComp->SetSphereRadius(80.f, false);
 }
+
+void ASWeaponPickup::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// Only server needs to update this value
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// If this variable was altered on per-instance basis, then update currentammo in WeaponInfo
+		if (WeaponCurrentAmmo > 0)
+		{
+			// If WeaponCurrentAmmo was updated in the editor, update the value in the struct as well which gets passed to the player
+			WeaponInfo.CurrentAmmo = WeaponCurrentAmmo;
+		}
+	}
+}
+
+//void ASWeaponPickup::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+//{
+//	Super::PostEditChangeProperty(PropertyChangedEvent);
+//
+//	if (PropertyChangedEvent.Property != nullptr)
+//	{
+//		// If we want to replicate movement, set RemoteRole to match
+//		if (PropertyChangedEvent.Property->GetFName() == FName(TEXT("WeaponCurrentAmmo")))
+//		{
+//			WeaponInfo.CurrentAmmo = WeaponCurrentAmmo;
+//		}
+//	}
+//}
 
 void ASWeaponPickup::HandleBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
@@ -37,6 +68,7 @@ void ASWeaponPickup::SetWeaponInfo(const FWeaponInfo &NewWeaponInfo)
 	WeaponInfo = NewWeaponInfo;
 }
 
+// Server is in this function
 void ASWeaponPickup::HandlePickupWeapon(AController* NewPickupController, bool bDidInteract)
 {
 	ASPlayerController* PC = Cast<ASPlayerController>(NewPickupController);

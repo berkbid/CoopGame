@@ -20,6 +20,12 @@ class COOPGAME_API ASWeaponPickup : public ASItemPickup
 public:
 	ASWeaponPickup();
 
+	/** Allow actors to initialize themselves on the C++ side after all of their components have been initialized, only called during gameplay */
+	virtual void PostInitializeComponents() override;
+
+	//virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void InitItemInfo(const class ASPlayerController* ClientController) override;
@@ -37,7 +43,7 @@ public:
 	FWeaponInfo WeaponInfo;
 
 	// Replicate this value so clients can see current ammo in gun on widget display
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(Replicated, EditInstanceOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 WeaponCurrentAmmo;
 	
 protected:
