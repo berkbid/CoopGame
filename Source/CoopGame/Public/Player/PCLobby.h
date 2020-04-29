@@ -4,25 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "PCMainMenu.generated.h"
+#include "PCLobby.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class COOPGAME_API APCMainMenu : public APlayerController
+class COOPGAME_API APCLobby : public APlayerController
 {
 	GENERATED_BODY()
 	
 
 public:
-	APCMainMenu();
+	APCLobby();
 
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	TSubclassOf<class UUWMainMenu> wMainMenu;
 
-	class UUWMainMenu* MainMenuWidget;
+private:
+	TSubclassOf<class USLobby> wLobby;
+
+	class USLobby* LobbyMenuWidget;
+
+
 };

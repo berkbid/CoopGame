@@ -256,7 +256,7 @@ void ASGameMode::PostLogin(APlayerController* NewPlayer)
 		if (GS)
 		{
 			int32 PlayerArrayLen = GS->PlayerArray.Num();
-			UE_LOG(LogTemp, Warning, TEXT("HI"));
+			//UE_LOG(LogTemp, Warning, TEXT("HI"));
 
 			for (int i = 0; i < PlayerArrayLen; ++i)
 			{

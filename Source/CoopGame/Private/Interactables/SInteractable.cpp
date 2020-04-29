@@ -16,7 +16,7 @@ ASInteractable::ASInteractable()
 
 	// Box component for collision with surfaces
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
-	BoxComp->SetMassOverrideInKg(NAME_None, 425.f, true);
+	BoxComp->BodyInstance.SetMassOverride(425.f, true);
 	BoxComp->SetSimulatePhysics(true);
 	BoxComp->SetGenerateOverlapEvents(false);
 	BoxComp->SetCanEverAffectNavigation(false);

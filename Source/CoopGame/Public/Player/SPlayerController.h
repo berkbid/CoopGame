@@ -115,6 +115,7 @@ protected:
 	void EquipSlotFour();
 	void EquipSlotFive();
 	void EquipSlotSix();
+	void HandlePause();
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Replicated functions client to server - to handle player input authoritatively

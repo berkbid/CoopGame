@@ -166,6 +166,8 @@ void ASRifle::OnRep_HitScanTrace()
 
 	PlayImpactEffects(HitScanTrace.SurfaceType, HitScanTrace.TraceTo);
 
+	// This call probably only returns valid PC for owning player of this rifle
+	// This is because player controllers are not replicated, so only the real instigator player will return valid PC
 	ASPlayerController* PC = Cast<ASPlayerController>(GetInstigatorController());
 	if (PC)
 	{

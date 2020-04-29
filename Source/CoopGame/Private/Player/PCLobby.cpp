@@ -1,46 +1,46 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PCMainMenu.h"
-#include "UWMainMenu.h"
+#include "PCLobby.h"
+#include "SLobby.h"
 #include "UObject/ConstructorHelpers.h"
 
-APCMainMenu::APCMainMenu()
+APCLobby::APCLobby()
 {
 	// Get class reference of WBP_MainMenu
-	static ConstructorHelpers::FClassFinder<UUWMainMenu> MenuWidgetClass(TEXT("/Game/UI/Menus/MainMenu/WBP_MainMenu"));
-	if (MenuWidgetClass.Class != NULL)
+	static ConstructorHelpers::FClassFinder<USLobby> LobbyWidgetClass(TEXT("/Game/UI/Menus/Lobby/WBP_Lobby"));
+	if (LobbyWidgetClass.Class != NULL)
 	{
-		wMainMenu = MenuWidgetClass.Class;
+		wLobby = LobbyWidgetClass.Class;
 		//UE_LOG(LogTemp, Warning, TEXT("Found Main Menu WBP Class: %s"), *MenuClass->GetName());
 	}
 }
 
-void APCMainMenu::BeginPlay()
+void APCLobby::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Warning, TEXT("Begin Play PC Lobby"));
 	// This means server does not run this code unless its a listen server
 	if (IsLocalController())
 	{
-		if (wMainMenu)
+		if (wLobby)
 		{
-			MainMenuWidget = CreateWidget<UUWMainMenu>(this, wMainMenu);
+			LobbyMenuWidget = CreateWidget<USLobby>(this, wLobby);
 
-			if (MainMenuWidget)
+			if (LobbyMenuWidget)
 			{
 				// Pass reference of ourself to widget while calling setup logic on widget
-				MainMenuWidget->AddToViewport();
+				LobbyMenuWidget->AddToViewport();
 
+				//UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MainMenuWidget);
 				FInputModeUIOnly InputModeData;
-				InputModeData.SetWidgetToFocus(MainMenuWidget->TakeWidget());
+				InputModeData.SetWidgetToFocus(LobbyMenuWidget->TakeWidget());
 				InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 				SetInputMode(InputModeData);
 
 				bShowMouseCursor = true;
-
 			}
 		}
 	}
-
 }

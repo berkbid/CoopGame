@@ -247,6 +247,7 @@ void ASPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Weapon6", IE_Pressed, this, &ASPlayerController::EquipSlotSix);
 	InputComponent->BindAction("Interact", IE_Pressed, this, &ASPlayerController::Interact);
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &ASPlayerController::ToggleInventory);
+	InputComponent->BindAction("Pause", IE_Pressed, this, &ASPlayerController::HandlePause);
 }
 
 void ASPlayerController::OnPossess(APawn* aPawn)
@@ -563,6 +564,11 @@ void ASPlayerController::EquipSlotSix()
 {
 	if (CurrentSlot == 5) { return; }
 	ServerEquipWeaponSlot(5);
+}
+
+void ASPlayerController::HandlePause()
+{
+
 }
 
 void ASPlayerController::ServerEquipWeaponSlot_Implementation(uint8 SlotToEquip)
