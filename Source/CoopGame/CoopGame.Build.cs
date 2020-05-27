@@ -8,15 +8,14 @@ public class CoopGame : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "OnlineSubsystem", "OnlineSubsystemSteam" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "UMG", "OnlineSubsystem"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
-
-		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
 		//PrivateDependencyModuleNames.AddRange(new string[] { "OnlineSubsystem", "OnlineSubsystemUtils", "OnlineSubsystemSteam" });
 
-		//DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
+		DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
+		DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 	}
 }

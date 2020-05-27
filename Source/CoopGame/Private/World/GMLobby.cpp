@@ -29,21 +29,25 @@ AGMLobby::AGMLobby()
 
 void AGMLobby::PostLogin(APlayerController* NewPlayer)
 {
+	Super::PostLogin(NewPlayer);
+
 	if (NewPlayer)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GMLobby: New Player Joined Lobby!: %s"), *NewPlayer->GetName());
 	}
-	Super::PostLogin(NewPlayer);
+	
 	
 }
 
 void AGMLobby::Logout(AController* Exiting)
 {
+	Super::Logout(Exiting);
+
 	if (Exiting)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GMLobby: Player Leaving Lobby!: %s"), *Exiting->GetName());
 	}
-	Super::Logout(Exiting);
+	
 }
 
 void AGMLobby::TimeToGoToGame()

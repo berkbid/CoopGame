@@ -50,9 +50,6 @@ class COOPGAME_API USGameInstance : public UGameInstance
 	
 
 public:
-
-	USGameInstance(const FObjectInitializer& ObjectInitializer);
-
 	/** virtual function to allow custom GameInstances an opportunity to set up what it needs */
 	void Init() override;
 

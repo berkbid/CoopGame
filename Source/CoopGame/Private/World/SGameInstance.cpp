@@ -3,15 +3,9 @@
 
 #include "SGameInstance.h"
 #include "Engine/Engine.h"
-#include "OnlineSessionSettings.h"
+#include "Online.h"
 
 const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
-
-USGameInstance::USGameInstance(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
-
-}
 
 void USGameInstance::Init()
 {
@@ -29,7 +23,7 @@ void USGameInstance::Init()
 		// SessionInterface.IsValid() ??
 		if (SessionInterface.IsValid())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Session Interface"));
+			//UE_LOG(LogTemp, Warning, TEXT("Found Session Interface"));
 			SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &USGameInstance::HandleCreateSessionComplete);
 			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &USGameInstance::HandleDestroySessionComplete);
 			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &USGameInstance::HandleFindSessionsComplete);
@@ -58,27 +52,33 @@ void USGameInstance::CreateSession(const FString& LobbyName, int32 NumConnection
 	// Possible that session exists already with name GameSession
 	if (SessionInterface->GetNamedSession(NAME_GameSession))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Found Session with same session name GameSession"));
+		UE_LOG(LogTemp, Warning, TEXT("Found Session with same session name GameSession!"));
+		return;
 	}
 
 	// HAVE TO SET THESE VALUES ON SESSION SETTINGS
 	FOnlineSessionSettings SessionSettings;
-	if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL")
+	SessionSettings.bIsLANMatch = false;
+
+	// If we are using NULL subsystem, set lan match to true
+	static IOnlineSubsystem* OS = IOnlineSubsystem::Get();
+	if (OS)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting bIsLANMatch to true for SessionSettings"));
-		SessionSettings.bIsLANMatch = true;
+		if (OS->GetSubsystemName() == "NULL")
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Setting bIsLANMatch to true for SessionSettings"));
+			SessionSettings.bIsLANMatch = true;
+		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting bIsLANMatch to false for SessionSettings"));
-		SessionSettings.bIsLANMatch = false;
-	}
+
 
 	// Allow 4 connections only
-	SessionSettings.NumPublicConnections = NumConnections;
+	SessionSettings.NumPublicConnections = 5;
+	SessionSettings.NumPrivateConnections = 5;
 
+	
 	// Makes this visible for FindSessions call, IMPORTANT
-	SessionSettings.bShouldAdvertise = bAdvertise;
+	SessionSettings.bShouldAdvertise = true;
 
 	// NEED TO USE PRESENCE TO ENABLE LOBBIES ON SERVER, this creates lobby session, look at CreateSession() !!
 	SessionSettings.bUsesPresence = true;
@@ -151,14 +151,25 @@ void USGameInstance::FindSessions()
 	if (!SessionInterface.IsValid()) { return; }
 	if (!SessionSearch.IsValid()) { return; }
 
-	// Can specify settings for certain api like steam
 	SessionSearch->bIsLanQuery = false;
 
+	// If Online Subsystem is NULL, then we search for Lan Query
+	static IOnlineSubsystem* OS = IOnlineSubsystem::Get();
+	if (OS)
+	{
+		if (OS->GetSubsystemName() == "NULL")
+		{
+			// We set bIsLanMatch to true, so I assume this is a LanQuery
+			SessionSearch->bIsLanQuery = true;
+		}
+	}
+	
+	// Can specify settings for certain api like steam
 	// This will make sure we search for "presence" which is lobby games!
 	SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 	// We use the APPID that shares with the default game in .DefaultEngine.ini  , that's why we need many search results
-	SessionSearch->MaxSearchResults = 100;
+	SessionSearch->MaxSearchResults = 5000;
 
 	UE_LOG(LogTemp, Warning, TEXT("Find Sessions Started"));
 	// Convert shared pointer to shared ref, shared pointer MUST be valid
@@ -180,13 +191,10 @@ void USGameInstance::HandleFindSessionsComplete(bool bWasSuccessful)
 		}
 
 		TArray<FServerData> DataArray;
-		//NameArray.Add("TEST SERVER 1");
-		//NameArray.Add("TEST SERVER 2");
-		//NameArray.Add("TEST SERVER 3");
 
 		for (const FOnlineSessionSearchResult& Result : SearchResults)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Session: %s"), *Result.GetSessionIdStr());
+			UE_LOG(LogTemp, Warning, TEXT("Found Session: %s, NumPrivateConnections Open: %d"), *Result.GetSessionIdStr(), Result.Session.NumOpenPrivateConnections);
 			int32 MaximumPlayers = Result.Session.SessionSettings.NumPublicConnections;
 			FServerData Data;
 
@@ -211,10 +219,7 @@ void USGameInstance::HandleFindSessionsComplete(bool bWasSuccessful)
 
 			DataArray.Add(Data);
 		}
-
 		OnServersRefreshed.Broadcast(DataArray);
-
-
 	}
 	else
 	{
