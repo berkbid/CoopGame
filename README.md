@@ -1,5 +1,6 @@
 # CoopGame
 Multiplayer Game in Unreal Engine using C++, originally started from a course on Udemy.com 
+Updated and downloadeable version at [https://buleh.itch.io/snipers](https://buleh.itch.io/snipers)
 
 [Link to Udemy course GitHub repository](https://github.com/tomlooman/CoopHordeShooter)
 
